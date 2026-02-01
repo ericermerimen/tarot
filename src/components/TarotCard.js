@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import CardBack from './CardBack';
 import CardFront from './CardFront';
@@ -12,24 +12,52 @@ export default function TarotCard({
   isFlipped = false,
   onClick,
   size = 'medium',
-  showMeaning = false,
   disabled = false,
+  responsive = true,
 }) {
-  const sizes = {
-    small: { width: 120, height: 200 },
-    medium: { width: 180, height: 300 },
-    large: { width: 240, height: 400 },
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+
+  // Responsive sizes - optimized for mobile touch targets
+  const getSizes = () => {
+    if (responsive) {
+      if (isMobile) {
+        switch (size) {
+          case 'small': return { width: 90, height: 150 };
+          case 'medium': return { width: 150, height: 250 };
+          case 'large': return { width: 200, height: 333 };
+          default: return { width: 150, height: 250 };
+        }
+      }
+      if (isTablet) {
+        switch (size) {
+          case 'small': return { width: 100, height: 167 };
+          case 'medium': return { width: 160, height: 267 };
+          case 'large': return { width: 220, height: 367 };
+          default: return { width: 160, height: 267 };
+        }
+      }
+    }
+    // Desktop sizes
+    switch (size) {
+      case 'small': return { width: 120, height: 200 };
+      case 'medium': return { width: 180, height: 300 };
+      case 'large': return { width: 240, height: 400 };
+      default: return { width: 180, height: 300 };
+    }
   };
 
-  const { width, height } = sizes[size];
+  const { width, height } = getSizes();
 
   return (
     <motion.div
-      whileHover={!disabled ? { scale: 1.05, y: -10 } : {}}
-      whileTap={!disabled ? { scale: 0.98 } : {}}
+      whileHover={!disabled ? { scale: 1.03, y: -5 } : {}}
+      whileTap={!disabled ? { scale: 0.97 } : {}}
       style={{
         cursor: disabled ? 'default' : 'pointer',
         perspective: '1000px',
+        touchAction: 'manipulation',
       }}
       onClick={onClick}
     >
@@ -50,9 +78,9 @@ export default function TarotCard({
             width: '100%',
             height: '100%',
             backfaceVisibility: 'hidden',
-            borderRadius: 3,
+            borderRadius: { xs: 2, sm: 3 },
             overflow: 'hidden',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(156, 124, 244, 0.3)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 16px rgba(156, 124, 244, 0.25)',
           }}
         >
           <CardBack width={width} height={height} />
@@ -66,9 +94,9 @@ export default function TarotCard({
             height: '100%',
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
-            borderRadius: 3,
+            borderRadius: { xs: 2, sm: 3 },
             overflow: 'hidden',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.5), 0 0 30px rgba(244, 207, 124, 0.4)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 24px rgba(244, 207, 124, 0.3)',
           }}
         >
           <CardFront
@@ -80,7 +108,7 @@ export default function TarotCard({
         </Box>
       </Box>
 
-      {/* Card Name Below */}
+      {/* Card Name Below - Responsive text */}
       {isFlipped && card && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -91,20 +119,25 @@ export default function TarotCard({
             variant="body2"
             align="center"
             sx={{
-              mt: 2,
+              mt: { xs: 1, sm: 1.5 },
               fontFamily: 'Cinzel',
               fontWeight: 600,
               color: 'secondary.main',
               textShadow: '0 0 10px rgba(244, 207, 124, 0.5)',
+              fontSize: { xs: '0.8rem', sm: '0.9rem' },
             }}
           >
-            {card.name} {isReversed && '(Reversed)'}
+            {card.name} {isReversed && '↺'}
           </Typography>
           <Typography
             variant="caption"
             align="center"
             display="block"
-            sx={{ color: 'text.secondary' }}
+            sx={{
+              color: 'text.secondary',
+              fontSize: { xs: '0.65rem', sm: '0.75rem' },
+              fontFamily: 'Noto Sans TC',
+            }}
           >
             {card.nameZh} {isReversed && '(逆位)'}
           </Typography>

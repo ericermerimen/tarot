@@ -1,5 +1,6 @@
 // 22 Major Arcana Tarot Cards - Dog Edition
 // Each card features a cute dog with mystical elements
+// Enhanced with comprehensive interpretations, reflections, and symbolism
 
 export const tarotCards = [
   {
@@ -9,6 +10,11 @@ export const tarotCards = [
     dogBreed: 'Golden Retriever Puppy',
     dogBreedZh: '金毛尋回犬幼犬',
     description: 'A carefree puppy about to leap into adventure with a small bindle, butterflies dancing around.',
+    numerology: 0,
+    numerologyMeaning: 'Zero represents infinite potential, the void before creation, and unlimited possibilities.',
+    numerologyMeaningZh: '零代表無限潛能、創造前的虛空，以及無限的可能性。',
+    symbols: ['Cliff edge', 'White rose', 'Small dog companion', 'Bundle on stick', 'Mountains', 'Sun'],
+    symbolsZh: ['懸崖邊緣', '白玫瑰', '小狗同伴', '行囊', '山脈', '太陽'],
     keywords: ['beginnings', 'innocence', 'spontaneity', 'free spirit'],
     keywordsZh: ['新開始', '純真', '自發性', '自由靈魂'],
     upright: {
@@ -18,6 +24,10 @@ export const tarotCards = [
       loveZh: '敞開心扉迎接新的戀愛可能。保持玩心和真實。',
       career: 'Take a leap of faith with a new opportunity. Fresh starts are favored.',
       careerZh: '對新機會放手一搏。新的開始將受到眷顧。',
+      health: 'A fresh start for your wellbeing. Try new approaches to self-care.',
+      healthZh: '健康的新開始。嘗試新的自我照顧方式。',
+      advice: 'Trust the journey. Not knowing where you\'re going can be the most exciting part.',
+      adviceZh: '相信這段旅程。不知道要去哪裡可能是最令人興奮的部分。',
     },
     reversed: {
       meaning: 'Recklessness, taken advantage of, inconsideration. Look before you leap.',
@@ -26,7 +36,23 @@ export const tarotCards = [
       loveZh: '害怕承諾或在愛情中承擔不必要的風險。',
       career: 'Poor planning leading to setbacks. Reconsider hasty decisions.',
       careerZh: '計劃不周導致挫折。重新考慮倉促的決定。',
+      health: 'Being careless with your health. Pay attention to warning signs.',
+      healthZh: '對健康掉以輕心。注意警告信號。',
+      advice: 'Pause and consider the consequences. Spontaneity is good, but so is wisdom.',
+      adviceZh: '暫停並考慮後果。自發性是好的，但智慧同樣重要。',
     },
+    reflectionQuestions: [
+      'What new adventure is calling to you right now?',
+      'Where in your life are you being asked to take a leap of faith?',
+      'What would you do if you weren\'t afraid of failing?',
+    ],
+    reflectionQuestionsZh: [
+      '現在有什麼新的冒險在召喚你？',
+      '在你生活的哪個方面，你被要求放手一搏？',
+      '如果你不怕失敗，你會做什麼？',
+    ],
+    affirmation: 'I embrace new beginnings with an open heart and curious spirit.',
+    affirmationZh: '我以開放的心和好奇的精神迎接新的開始。',
     element: 'Air',
     zodiac: 'Uranus',
     colors: ['#FFE4B5', '#87CEEB', '#98FB98'],

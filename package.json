@@ -1,0 +1,27 @@
+{
+  "name": "mystical-dog-tarot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A mystical tarot divination website featuring cute dog-styled cards | 神秘狗狗塔羅牌占卜網站",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@mui/material": "^5.15.0",
+    "@mui/icons-material": "^5.15.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@emotion/cache": "^11.11.0",
+    "framer-motion": "^10.16.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "eslint-config-next": "^14.0.4"
+  }
+}

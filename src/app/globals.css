@@ -1,0 +1,155 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: linear-gradient(135deg, #0a0612 0%, #1a0a2e 50%, #0a0612 100%);
+}
+
+body {
+  color: #f0e6ff;
+  font-family: 'Noto Sans TC', 'Roboto', sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(20, 10, 40, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #9c7cf4 0%, #6b4bc1 100%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #b090ff 0%, #7c5ce0 100%);
+}
+
+.main-content {
+  min-height: calc(100vh - 80px);
+  padding-top: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Glow effects */
+.mystical-glow {
+  filter: drop-shadow(0 0 20px rgba(156, 124, 244, 0.6));
+}
+
+.gold-glow {
+  filter: drop-shadow(0 0 15px rgba(244, 207, 124, 0.5));
+}
+
+/* Text gradient */
+.gradient-text {
+  background: linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 50%, #f47cc4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animation keyframes */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px rgba(156, 124, 244, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 40px rgba(156, 124, 244, 0.8));
+  }
+}
+
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.float-animation {
+  animation: float 4s ease-in-out infinite;
+}
+
+.pulse-animation {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.rotate-animation {
+  animation: rotate-slow 60s linear infinite;
+}
+
+/* Card flip animation styles */
+.card-container {
+  perspective: 1000px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* Stars background effect */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(156, 124, 244, 0.4);
+  color: #fff;
+}

@@ -1,0 +1,34 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#1a0a2e"/>
+      <stop offset="100%" stopColor="#0a0612"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#f4cf7c"/>
+      <stop offset="100%" stopColor="#c19b4c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="url(#bgGrad)"/>
+
+  <!-- Gold border -->
+  <rect x="2" y="2" width="28" height="28" rx="4" fill="none" stroke="url(#goldGrad)" strokeWidth="1"/>
+
+  <!-- Dog paw -->
+  <g transform="translate(16, 17)">
+    <!-- Main pad -->
+    <ellipse cx="0" cy="3" rx="5" ry="4" fill="url(#goldGrad)"/>
+    <!-- Toe beans -->
+    <ellipse cx="-4" cy="-2" rx="2.5" ry="3" fill="url(#goldGrad)"/>
+    <ellipse cx="4" cy="-2" rx="2.5" ry="3" fill="url(#goldGrad)"/>
+    <ellipse cx="-1.5" cy="-6" rx="2" ry="2.5" fill="url(#goldGrad)"/>
+    <ellipse cx="1.5" cy="-6" rx="2" ry="2.5" fill="url(#goldGrad)"/>
+  </g>
+
+  <!-- Stars -->
+  <circle cx="6" cy="6" r="1" fill="#f4cf7c"/>
+  <circle cx="26" cy="8" r="0.8" fill="#f4cf7c"/>
+  <circle cx="8" cy="26" r="0.8" fill="#f4cf7c"/>
+</svg>

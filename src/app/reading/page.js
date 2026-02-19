@@ -26,12 +26,11 @@ function ReadingContent() {
   const initialSpread = searchParams.get('spread') || 'single';
 
   const [selectedSpread, setSelectedSpread] = useState(initialSpread);
-  const [cards, setCards] = useState([]);
+  const currentSpread = spreadTypes[selectedSpread] || spreadTypes.single;
+  const [cards, setCards] = useState(() => getRandomCards(currentSpread.count));
   const [flippedCards, setFlippedCards] = useState([]);
   const [showMeaning, setShowMeaning] = useState(null);
   const [readingComplete, setReadingComplete] = useState(false);
-
-  const currentSpread = spreadTypes[selectedSpread] || spreadTypes.single;
 
   useEffect(() => {
     startNewReading();

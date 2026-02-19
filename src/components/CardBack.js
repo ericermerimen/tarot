@@ -1,161 +1,144 @@
 'use client';
 
 import React from 'react';
+import CardShaderCanvas from './shaders/CardShaderCanvas';
 
-export default function CardBack({ width, height }) {
+// SVG overlay: gold border + paw print + moon phases + text + stars
+// Rendered on top of the WebGL shader background
+function CardBackOverlay({ width, height }) {
+  const vw = 180;
+  const vh = 300;
   return (
     <svg
       width={width}
       height={height}
-      viewBox="0 0 180 300"
+      viewBox={`0 0 ${vw} ${vh}`}
       xmlns="http://www.w3.org/2000/svg"
+      style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
     >
       <defs>
-        {/* Gradient backgrounds */}
-        <linearGradient id="cardBackGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1a0a2e" />
-          <stop offset="50%" stopColor="#2d1b4e" />
-          <stop offset="100%" stopColor="#1a0a2e" />
-        </linearGradient>
-
-        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f4cf7c" />
-          <stop offset="50%" stopColor="#ffe4a8" />
+        <linearGradient id="cbGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#f4cf7c" />
+          <stop offset="50%"  stopColor="#ffe4a8" />
           <stop offset="100%" stopColor="#c19b4c" />
         </linearGradient>
-
-        <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#9c7cf4" />
+        <linearGradient id="cbPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#9c7cf4" />
           <stop offset="100%" stopColor="#6b4bc1" />
         </linearGradient>
-
-        {/* Glow filter */}
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+        <filter id="cbGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
           <feMerge>
-            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-
-        {/* Star pattern */}
-        <pattern id="stars" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-          <circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.3)" />
-          <circle cx="5" cy="5" r="0.5" fill="rgba(255,255,255,0.2)" />
-          <circle cx="35" cy="10" r="0.5" fill="rgba(255,255,255,0.25)" />
-        </pattern>
       </defs>
 
-      {/* Main background */}
-      <rect width="180" height="300" rx="12" fill="url(#cardBackGradient)" />
-
-      {/* Star overlay */}
-      <rect width="180" height="300" rx="12" fill="url(#stars)" opacity="0.5" />
-
-      {/* Ornate border */}
+      {/* Outer border */}
       <rect
-        x="8"
-        y="8"
-        width="164"
-        height="284"
-        rx="8"
+        x="7" y="7" width="166" height="286" rx="9"
         fill="none"
-        stroke="url(#goldGradient)"
-        strokeWidth="2"
+        stroke="url(#cbGold)"
+        strokeWidth="2.2"
+        filter="url(#cbGlow)"
       />
+      {/* Inner border */}
       <rect
-        x="14"
-        y="14"
-        width="152"
-        height="272"
-        rx="6"
+        x="13" y="13" width="154" height="274" rx="6"
         fill="none"
-        stroke="url(#goldGradient)"
-        strokeWidth="1"
-        opacity="0.5"
+        stroke="url(#cbGold)"
+        strokeWidth="0.9"
+        opacity="0.55"
       />
 
       {/* Corner ornaments */}
-      {/* Top Left */}
-      <g transform="translate(20, 20)">
-        <path d="M0,15 Q0,0 15,0" fill="none" stroke="url(#goldGradient)" strokeWidth="2" />
-        <circle cx="0" cy="0" r="3" fill="url(#goldGradient)" />
-      </g>
-      {/* Top Right */}
-      <g transform="translate(160, 20)">
-        <path d="M0,15 Q0,0 -15,0" fill="none" stroke="url(#goldGradient)" strokeWidth="2" />
-        <circle cx="0" cy="0" r="3" fill="url(#goldGradient)" />
-      </g>
-      {/* Bottom Left */}
-      <g transform="translate(20, 280)">
-        <path d="M0,-15 Q0,0 15,0" fill="none" stroke="url(#goldGradient)" strokeWidth="2" />
-        <circle cx="0" cy="0" r="3" fill="url(#goldGradient)" />
-      </g>
-      {/* Bottom Right */}
-      <g transform="translate(160, 280)">
-        <path d="M0,-15 Q0,0 -15,0" fill="none" stroke="url(#goldGradient)" strokeWidth="2" />
-        <circle cx="0" cy="0" r="3" fill="url(#goldGradient)" />
+      {[
+        [20, 20, 'M0,16 Q0,0 16,0'],
+        [160, 20, 'M0,16 Q0,0 -16,0'],
+        [20, 280, 'M0,-16 Q0,0 16,0'],
+        [160, 280, 'M0,-16 Q0,0 -16,0'],
+      ].map(([cx, cy, d], i) => (
+        <g key={i} transform={`translate(${cx},${cy})`} filter="url(#cbGlow)">
+          <path d={d} fill="none" stroke="url(#cbGold)" strokeWidth="2" />
+          <circle cx="0" cy="0" r="2.5" fill="url(#cbGold)" />
+        </g>
+      ))}
+
+      {/* Moon phase trio */}
+      <g transform="translate(90,44)" filter="url(#cbGlow)">
+        <circle cx="-28" cy="0" r="7"  fill="none" stroke="url(#cbGold)" strokeWidth="1" opacity="0.55" />
+        <circle cx="0"   cy="0" r="9"  fill="url(#cbGold)" opacity="0.92" />
+        <circle cx="28"  cy="0" r="7"  fill="none" stroke="url(#cbGold)" strokeWidth="1" opacity="0.55" />
       </g>
 
-      {/* Central mystical dog paw design */}
-      <g transform="translate(90, 150)" filter="url(#glow)">
-        {/* Outer circle */}
-        <circle cx="0" cy="0" r="50" fill="none" stroke="url(#purpleGradient)" strokeWidth="2" />
-        <circle cx="0" cy="0" r="42" fill="none" stroke="url(#goldGradient)" strokeWidth="1" opacity="0.6" />
+      {/* Central paw-in-ring design */}
+      <g transform="translate(90,152)" filter="url(#cbGlow)">
+        {/* Outer ring */}
+        <circle cx="0" cy="0" r="48" fill="none" stroke="url(#cbPurple)" strokeWidth="2" />
+        <circle cx="0" cy="0" r="40" fill="none" stroke="url(#cbGold)"   strokeWidth="0.8" opacity="0.55" />
 
         {/* Dog paw print */}
-        <g transform="translate(0, 5)">
-          {/* Main pad */}
-          <ellipse cx="0" cy="10" rx="15" ry="12" fill="url(#goldGradient)" />
-          {/* Toe beans */}
-          <ellipse cx="-12" cy="-8" rx="7" ry="8" fill="url(#goldGradient)" />
-          <ellipse cx="12" cy="-8" rx="7" ry="8" fill="url(#goldGradient)" />
-          <ellipse cx="-5" cy="-18" rx="6" ry="7" fill="url(#goldGradient)" />
-          <ellipse cx="5" cy="-18" rx="6" ry="7" fill="url(#goldGradient)" />
+        <g transform="translate(0,6)">
+          <ellipse cx="0"   cy="10"  rx="14" ry="11" fill="url(#cbGold)" />
+          <ellipse cx="-11" cy="-8"  rx="6.5" ry="7.5" fill="url(#cbGold)" />
+          <ellipse cx="11"  cy="-8"  rx="6.5" ry="7.5" fill="url(#cbGold)" />
+          <ellipse cx="-4"  cy="-17" rx="5.5" ry="6.5" fill="url(#cbGold)" />
+          <ellipse cx="4"   cy="-17" rx="5.5" ry="6.5" fill="url(#cbGold)" />
         </g>
 
-        {/* Mystical symbols around the paw */}
-        {[0, 60, 120, 180, 240, 300].map((angle, i) => (
-          <g key={i} transform={`rotate(${angle})`}>
-            <circle cx="0" cy="-60" r="4" fill="url(#purpleGradient)" opacity="0.8" />
-            <line x1="0" y1="-52" x2="0" y2="-55" stroke="url(#goldGradient)" strokeWidth="1" />
+        {/* Mystical dots at 60° intervals */}
+        {[0, 60, 120, 180, 240, 300].map((deg, i) => (
+          <g key={i} transform={`rotate(${deg})`}>
+            <circle cx="0" cy="-57" r="3.5" fill="url(#cbPurple)" opacity="0.85" />
           </g>
         ))}
-      </g>
-
-      {/* Moon phases at top */}
-      <g transform="translate(90, 45)">
-        <circle cx="-30" cy="0" r="8" fill="none" stroke="url(#goldGradient)" strokeWidth="1" opacity="0.5" />
-        <circle cx="0" cy="0" r="10" fill="url(#goldGradient)" opacity="0.9" />
-        <circle cx="30" cy="0" r="8" fill="none" stroke="url(#goldGradient)" strokeWidth="1" opacity="0.5" />
       </g>
 
       {/* Stars at bottom */}
-      <g transform="translate(90, 255)">
-        {[-30, 0, 30].map((x, i) => (
-          <g key={i} transform={`translate(${x}, 0)`}>
-            <polygon
-              points="0,-8 2,-2 8,-2 3,2 5,8 0,4 -5,8 -3,2 -8,-2 -2,-2"
-              fill="url(#goldGradient)"
-              opacity={i === 1 ? 1 : 0.6}
-              transform={`scale(${i === 1 ? 1 : 0.7})`}
-            />
-          </g>
+      <g transform="translate(90,257)">
+        {[-28, 0, 28].map((x, i) => (
+          <polygon
+            key={i}
+            points="0,-8 2,-2 8,-2 3,2 5,8 0,4 -5,8 -3,2 -8,-2 -2,-2"
+            fill="url(#cbGold)"
+            opacity={i === 1 ? 1 : 0.6}
+            transform={`translate(${x},0) scale(${i === 1 ? 1 : 0.7})`}
+            filter={i === 1 ? 'url(#cbGlow)' : undefined}
+          />
         ))}
       </g>
 
-      {/* Text */}
+      {/* Brand text */}
       <text
-        x="90"
-        y="295"
+        x="90" y="290"
         textAnchor="middle"
         fontFamily="Cinzel, serif"
-        fontSize="8"
-        fill="url(#goldGradient)"
-        opacity="0.7"
+        fontSize="7.5"
+        fill="url(#cbGold)"
+        opacity="0.75"
+        letterSpacing="2"
       >
         DOG TAROT
       </text>
     </svg>
+  );
+}
+
+export default function CardBack({ width, height }) {
+  return (
+    <div style={{ position: 'relative', width, height, borderRadius: 12, overflow: 'hidden' }}>
+      {/* WebGL shader background – card back cosmic pattern */}
+      <CardShaderCanvas
+        width={width}
+        height={height}
+        cardType={-1}
+        colors={['#9c7cf4', '#f4cf7c', '#6b4bc1']}
+        reversed={false}
+        animate={true}
+      />
+      {/* SVG decorative overlay */}
+      <CardBackOverlay width={width} height={height} />
+    </div>
   );
 }

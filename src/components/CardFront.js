@@ -775,6 +775,8 @@ function toRomanNumeral(num) {
 // ─── CardFront ────────────────────────────────────────────────────────────────
 
 export default function CardFront({ card, isReversed, width, height }) {
+  if (!card) return null;
+
   const DogComponent   = DogIllustrations[card.id] || GenericDog;
   const primaryColor   = card.colors?.[0] || '#FFD700';
   const secondaryColor = card.colors?.[1] || '#9c7cf4';

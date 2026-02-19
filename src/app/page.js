@@ -32,7 +32,7 @@ const spreadOptions = [
     color: '#9c7cf4',
   },
   {
-    id: 'three-card',
+    id: 'threeCard',
     title: 'Three Card',
     titleZh: '三牌陣',
     description: 'Past · Present · Future',
@@ -50,7 +50,7 @@ const spreadOptions = [
     color: '#f47cc4',
   },
   {
-    id: 'celtic-cross',
+    id: 'celticCross',
     title: 'Celtic Cross',
     titleZh: '凱爾特十字',
     description: 'Deep 10-card reading',

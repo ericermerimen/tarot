@@ -16,8 +16,8 @@ export default function TarotCard({
   responsive = true,
 }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'), { noSsr: true });
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'), { noSsr: true });
 
   // Responsive sizes - optimized for mobile touch targets
   const getSizes = () => {

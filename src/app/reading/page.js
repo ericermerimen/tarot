@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Box,
@@ -31,8 +31,14 @@ function ReadingContent() {
   const [flippedCards, setFlippedCards] = useState([]);
   const [showMeaning, setShowMeaning] = useState(null);
   const [readingComplete, setReadingComplete] = useState(false);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    // Skip initial mount — lazy initializer already populated cards
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     startNewReading();
   }, [selectedSpread]);
 

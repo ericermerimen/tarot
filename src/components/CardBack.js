@@ -125,6 +125,8 @@ function CardBackOverlay({ width, height }) {
   );
 }
 
+const CARD_BACK_COLORS = ['#9c7cf4', '#f4cf7c', '#6b4bc1'];
+
 export default function CardBack({ width, height }) {
   return (
     <div style={{ position: 'relative', width, height, borderRadius: 12, overflow: 'hidden' }}>
@@ -133,7 +135,7 @@ export default function CardBack({ width, height }) {
         width={width}
         height={height}
         cardType={-1}
-        colors={['#9c7cf4', '#f4cf7c', '#6b4bc1']}
+        colors={CARD_BACK_COLORS}
         reversed={false}
         animate={true}
       />

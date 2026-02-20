@@ -900,3 +900,44 @@ void main() {
   gl_Position = vec4(a_position, 0.0, 1.0);
 }
 `;
+
+// Simplified shader for mobile GPUs that can't compile the full shader.
+// Uses the same uniforms but renders a simple animated gradient.
+export const FRAGMENT_SHADER_SIMPLE = `
+precision mediump float;
+uniform vec2  u_resolution;
+uniform float u_time;
+uniform vec3  u_color1;
+uniform vec3  u_color2;
+uniform vec3  u_color3;
+uniform int   u_cardType;
+uniform int   u_reversed;
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_resolution;
+  if (u_reversed == 1) uv.y = 1.0 - uv.y;
+
+  // Animated flowing gradient
+  float t = u_time * 0.3;
+  float wave1 = sin(uv.x * 3.14159 + t) * 0.5 + 0.5;
+  float wave2 = cos(uv.y * 3.14159 - t * 0.7) * 0.5 + 0.5;
+  float blend = (uv.y + wave1 * 0.2 + wave2 * 0.15);
+
+  vec3 col;
+  if (blend < 0.5) {
+    col = mix(u_color1, u_color2, blend * 2.0);
+  } else {
+    col = mix(u_color2, u_color3, (blend - 0.5) * 2.0);
+  }
+
+  // Subtle shimmer
+  float shimmer = sin(uv.x * 10.0 + uv.y * 8.0 + t * 2.0) * 0.03;
+  col += shimmer;
+
+  // Vignette
+  vec2 vd = uv - 0.5;
+  col *= 1.0 - dot(vd, vd) * 0.8;
+
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}
+`;

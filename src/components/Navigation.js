@@ -16,8 +16,6 @@ import {
   ListItemIcon,
   ListItemText,
   Box,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
@@ -37,8 +35,6 @@ const navItems = [
 export default function Navigation() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -140,37 +136,40 @@ export default function Navigation() {
             </Typography>
           </Link>
 
-          {isMobile ? (
-            <IconButton
-              color="primary"
-              aria-label="menu"
-              onClick={toggleDrawer(true)}
-              sx={{ color: 'primary.light' }}
-            >
-              <MenuIcon />
-            </IconButton>
-          ) : (
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {navItems.map((item) => (
-                <Button
-                  key={item.path}
-                  component={Link}
-                  href={item.path}
-                  startIcon={item.icon}
-                  sx={{
-                    color: pathname === item.path ? 'primary.main' : 'text.secondary',
-                    fontWeight: pathname === item.path ? 600 : 400,
-                    '&:hover': {
-                      color: 'primary.light',
-                      background: 'rgba(156, 124, 244, 0.1)',
-                    },
-                  }}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </Box>
-          )}
+          {/* Mobile: hamburger menu — use CSS display to avoid hydration mismatch */}
+          <IconButton
+            color="primary"
+            aria-label="menu"
+            onClick={toggleDrawer(true)}
+            sx={{
+              color: 'primary.light',
+              display: { xs: 'inline-flex', md: 'none' },
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+
+          {/* Desktop: nav buttons */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
+            {navItems.map((item) => (
+              <Button
+                key={item.path}
+                component={Link}
+                href={item.path}
+                startIcon={item.icon}
+                sx={{
+                  color: pathname === item.path ? 'primary.main' : 'text.secondary',
+                  fontWeight: pathname === item.path ? 600 : 400,
+                  '&:hover': {
+                    color: 'primary.light',
+                    background: 'rgba(156, 124, 244, 0.1)',
+                  },
+                }}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </Box>
         </Toolbar>
       </AppBar>
 

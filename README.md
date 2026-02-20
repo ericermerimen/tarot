@@ -55,7 +55,7 @@ Each Major Arcana is represented by a different dog breed:
 
 ## 🛠️ Tech Stack 技術棧
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **UI Library**: Material-UI (MUI) v5
 - **Animations**: Framer Motion
 - **Styling**: Emotion CSS-in-JS

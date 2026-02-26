@@ -10,8 +10,8 @@ vi.mock('next/navigation', () => ({
   }),
 }))
 
-// Mock framer-motion to avoid animation issues in jsdom
-vi.mock('framer-motion', () => ({
+// Mock motion/react to avoid animation issues in jsdom
+vi.mock('motion/react', () => ({
   motion: {
     div: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
       <div {...filterDomProps(props)}>{children}</div>

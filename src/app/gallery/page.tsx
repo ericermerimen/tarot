@@ -12,7 +12,7 @@ import {
   Divider,
   Chip,
 } from '@mui/material';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import CloseIcon from '@mui/icons-material/Close';
 import TarotCard from '@/components/TarotCard';
 import { tarotCards } from '@/data/tarotCards';

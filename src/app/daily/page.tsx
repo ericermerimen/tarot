@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -17,7 +17,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -31,40 +31,40 @@ import { getRandomCard, tarotCards } from '@/data/tarotCards';
 import type { DrawnCard } from '@/types/tarot';
 import type { DailyCardStorage } from '@/types/reading';
 
+function loadOrGenerateDaily(): DrawnCard {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('dailyCard');
+    if (stored) {
+      const { date, cardId, isReversed }: DailyCardStorage = JSON.parse(stored);
+      if (date === new Date().toDateString()) {
+        const card = tarotCards.find(c => c.id === cardId);
+        if (card) return { card, isReversed };
+      }
+    }
+  }
+  const drawn = getRandomCard();
+  const storage: DailyCardStorage = {
+    date: new Date().toDateString(),
+    cardId: drawn.card.id,
+    isReversed: drawn.isReversed,
+  };
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('dailyCard', JSON.stringify(storage));
+  }
+  return drawn;
+}
+
 export default function DailyCard() {
-  const [dailyReading, setDailyReading] = useState<DrawnCard | null>(null);
+  const [dailyReading, setDailyReading] = useState<DrawnCard | null>(() => loadOrGenerateDaily());
   const [isFlipped, setIsFlipped] = useState(false);
   const [showMeaning, setShowMeaning] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | false>('meaning');
 
-  useEffect(() => {
-    const stored = localStorage.getItem('dailyCard');
-    if (stored) {
-      const { date, cardId, isReversed }: DailyCardStorage = JSON.parse(stored);
-      const today = new Date().toDateString();
-      if (date === today) {
-        const card = tarotCards.find(c => c.id === cardId);
-        if (card) {
-          setDailyReading({ card, isReversed });
-          return;
-        }
-      }
-    }
-    generateDailyCard();
-  }, []);
-
   const generateDailyCard = () => {
-    const { card, isReversed } = getRandomCard();
-    setDailyReading({ card, isReversed });
+    const drawn = loadOrGenerateDaily();
+    setDailyReading(drawn);
     setIsFlipped(false);
     setShowMeaning(false);
-
-    const storage: DailyCardStorage = {
-      date: new Date().toDateString(),
-      cardId: card.id,
-      isReversed,
-    };
-    localStorage.setItem('dailyCard', JSON.stringify(storage));
   };
 
   const handleCardClick = () => {

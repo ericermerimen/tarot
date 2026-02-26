@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Box,
@@ -15,7 +15,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SaveIcon from '@mui/icons-material/Save';
 import TarotCard from '@/components/TarotCard';
@@ -33,19 +33,9 @@ function ReadingContent() {
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [showMeaning, setShowMeaning] = useState<number | null>(null);
   const [readingComplete, setReadingComplete] = useState(false);
-  const isFirstRender = useRef(true);
-
-  useEffect(() => {
-    // Skip initial mount — lazy initializer already populated cards
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    startNewReading();
-  }, [selectedSpread]);
-
-  const startNewReading = () => {
-    const newCards = getRandomCards(currentSpread.count);
+  const startNewReading = (spread?: SpreadKey) => {
+    const target = spread ? (spreadTypes[spread] || spreadTypes.single) : currentSpread;
+    const newCards = getRandomCards(target.count);
     setCards(newCards);
     setFlippedCards([]);
     setShowMeaning(null);
@@ -68,6 +58,7 @@ function ReadingContent() {
 
   const handleSpreadChange = (_event: React.SyntheticEvent, newValue: SpreadKey) => {
     setSelectedSpread(newValue);
+    startNewReading(newValue);
   };
 
   const saveReading = () => {
@@ -292,7 +283,7 @@ function ReadingContent() {
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
-            onClick={startNewReading}
+            onClick={() => startNewReading()}
           >
             New Reading 重新占卜
           </Button>

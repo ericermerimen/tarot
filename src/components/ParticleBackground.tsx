@@ -20,6 +20,33 @@ interface Particle {
   speedY: number;
   opacity: number;
   hue: number;
+  sprite: HTMLCanvasElement;
+  coreColor: string;
+}
+
+/**
+ * Pre-renders a radial gradient glow sprite for a single particle onto
+ * an offscreen canvas. This avoids calling createRadialGradient on
+ * every frame (30 particles * 60fps = 1,800 allocations/s eliminated).
+ */
+function createParticleSprite(
+  hue: number,
+  opacity: number,
+  radius: number,
+): HTMLCanvasElement {
+  const size = Math.ceil(radius * 2);
+  const sprite = document.createElement('canvas');
+  sprite.width = size;
+  sprite.height = size;
+  const sCtx = sprite.getContext('2d');
+  if (sCtx) {
+    const gradient = sCtx.createRadialGradient(radius, radius, 0, radius, radius, radius);
+    gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, ${opacity})`);
+    gradient.addColorStop(1, `hsla(${hue}, 70%, 60%, 0)`);
+    sCtx.fillStyle = gradient;
+    sCtx.fillRect(0, 0, size, size);
+  }
+  return sprite;
 }
 
 export default function ParticleBackground() {
@@ -62,14 +89,21 @@ export default function ParticleBackground() {
       particles = [];
       const particleCount = 30;
       for (let i = 0; i < particleCount; i++) {
+        const size = Math.random() * 4 + 2;
+        const hue = Math.random() * 60 + 250;
+        const opacity = Math.random() * 0.5 + 0.1;
+        const spriteRadius = size * 3;
+
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 4 + 2,
+          size,
           speedX: (Math.random() - 0.5) * 0.3,
           speedY: (Math.random() - 0.5) * 0.3,
-          opacity: Math.random() * 0.5 + 0.1,
-          hue: Math.random() * 60 + 250,
+          opacity,
+          hue,
+          sprite: createParticleSprite(hue, opacity, spriteRadius),
+          coreColor: `hsla(${hue}, 80%, 80%, ${Math.min(opacity * 2, 1)})`,
         });
       }
     };
@@ -100,25 +134,18 @@ export default function ParticleBackground() {
         if (particle.y < 0) particle.y = canvas.height;
         if (particle.y > canvas.height) particle.y = 0;
 
-        const gradient = ctx.createRadialGradient(
-          particle.x,
-          particle.y,
-          0,
-          particle.x,
-          particle.y,
-          particle.size * 3
+        // Draw pre-rendered glow sprite (no per-frame gradient allocation)
+        const spriteRadius = particle.size * 3;
+        ctx.drawImage(
+          particle.sprite,
+          particle.x - spriteRadius,
+          particle.y - spriteRadius,
         );
-        gradient.addColorStop(0, `hsla(${particle.hue}, 70%, 60%, ${particle.opacity})`);
-        gradient.addColorStop(1, `hsla(${particle.hue}, 70%, 60%, 0)`);
 
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 3, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-
+        // Bright center dot
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size * 0.5, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${particle.hue}, 80%, 80%, ${particle.opacity * 2})`;
+        ctx.fillStyle = particle.coreColor;
         ctx.fill();
       });
 

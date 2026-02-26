@@ -28,22 +28,26 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ShareIcon from '@mui/icons-material/Share';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCard, tarotCards } from '@/data/tarotCards';
+import type { DrawnCard } from '@/types/tarot';
+import type { DailyCardStorage } from '@/types/reading';
 
 export default function DailyCard() {
-  const [dailyReading, setDailyReading] = useState(null);
+  const [dailyReading, setDailyReading] = useState<DrawnCard | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showMeaning, setShowMeaning] = useState(false);
-  const [expandedSection, setExpandedSection] = useState('meaning');
+  const [expandedSection, setExpandedSection] = useState<string | false>('meaning');
 
   useEffect(() => {
     const stored = localStorage.getItem('dailyCard');
     if (stored) {
-      const { date, cardId, isReversed } = JSON.parse(stored);
+      const { date, cardId, isReversed }: DailyCardStorage = JSON.parse(stored);
       const today = new Date().toDateString();
       if (date === today) {
         const card = tarotCards.find(c => c.id === cardId);
-        setDailyReading({ card, isReversed });
-        return;
+        if (card) {
+          setDailyReading({ card, isReversed });
+          return;
+        }
       }
     }
     generateDailyCard();
@@ -55,11 +59,12 @@ export default function DailyCard() {
     setIsFlipped(false);
     setShowMeaning(false);
 
-    localStorage.setItem('dailyCard', JSON.stringify({
+    const storage: DailyCardStorage = {
       date: new Date().toDateString(),
       cardId: card.id,
       isReversed,
-    }));
+    };
+    localStorage.setItem('dailyCard', JSON.stringify(storage));
   };
 
   const handleCardClick = () => {
@@ -73,7 +78,7 @@ export default function DailyCard() {
     generateDailyCard();
   };
 
-  const handleAccordionChange = (panel) => (event, isExpanded) => {
+  const handleAccordionChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpandedSection(isExpanded ? panel : false);
   };
 
@@ -103,7 +108,6 @@ export default function DailyCard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Header - Mobile Optimized */}
         <Box sx={{ textAlign: 'center', mb: 3 }}>
           <Typography
             variant="h4"
@@ -128,7 +132,6 @@ export default function DailyCard() {
           </Typography>
         </Box>
 
-        {/* Card Display - Centered and Mobile Friendly */}
         <Box
           sx={{
             display: 'flex',
@@ -168,7 +171,6 @@ export default function DailyCard() {
           />
         </Box>
 
-        {/* Card Meaning - Mobile First Accordion Layout */}
         <AnimatePresence>
           {showMeaning && (
             <motion.div
@@ -177,7 +179,6 @@ export default function DailyCard() {
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.5 }}
             >
-              {/* Card Title & Basic Info */}
               <Paper
                 sx={{
                   p: { xs: 2, sm: 3 },
@@ -210,7 +211,6 @@ export default function DailyCard() {
                   </Typography>
                 </Box>
 
-                {/* Element & Zodiac Chips */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                   <Chip
                     size="small"
@@ -232,7 +232,6 @@ export default function DailyCard() {
                   )}
                 </Box>
 
-                {/* Keywords */}
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center' }}>
                   {card.keywords.map((keyword, i) => (
                     <Chip
@@ -249,9 +248,7 @@ export default function DailyCard() {
                 </Box>
               </Paper>
 
-              {/* Detailed Meanings - Accordion Style for Mobile */}
               <Box sx={{ mb: 2 }}>
-                {/* Core Meaning */}
                 <Accordion
                   expanded={expandedSection === 'meaning'}
                   onChange={handleAccordionChange('meaning')}
@@ -266,7 +263,7 @@ export default function DailyCard() {
                   <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <TipsAndUpdatesIcon sx={{ color: 'secondary.main' }} />
-                      <Typography sx={{ fontWeight: 600 }}>Today's Message 今日訊息</Typography>
+                      <Typography sx={{ fontWeight: 600 }}>Today&apos;s Message 今日訊息</Typography>
                     </Box>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -279,7 +276,7 @@ export default function DailyCard() {
                     {meaning.advice && (
                       <Box sx={{ mt: 2, p: 2, background: 'rgba(244, 207, 124, 0.1)', borderRadius: 2 }}>
                         <Typography variant="subtitle2" sx={{ color: 'secondary.main', mb: 1 }}>
-                          💡 Advice 建議
+                          Advice 建議
                         </Typography>
                         <Typography variant="body2">{meaning.advice}</Typography>
                         {meaning.adviceZh && (
@@ -292,7 +289,6 @@ export default function DailyCard() {
                   </AccordionDetails>
                 </Accordion>
 
-                {/* Love */}
                 <Accordion
                   expanded={expandedSection === 'love'}
                   onChange={handleAccordionChange('love')}
@@ -320,7 +316,6 @@ export default function DailyCard() {
                   </AccordionDetails>
                 </Accordion>
 
-                {/* Career */}
                 <Accordion
                   expanded={expandedSection === 'career'}
                   onChange={handleAccordionChange('career')}
@@ -348,7 +343,6 @@ export default function DailyCard() {
                   </AccordionDetails>
                 </Accordion>
 
-                {/* Health (if available) */}
                 {meaning.health && (
                   <Accordion
                     expanded={expandedSection === 'health'}
@@ -381,7 +375,6 @@ export default function DailyCard() {
                 )}
               </Box>
 
-              {/* Reflection Questions */}
               {card.reflectionQuestions && (
                 <Paper
                   sx={{
@@ -393,7 +386,7 @@ export default function DailyCard() {
                   }}
                 >
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: 'secondary.main' }}>
-                    🔮 Reflection Questions 反思問題
+                    Reflection Questions 反思問題
                   </Typography>
                   {card.reflectionQuestions.map((q, i) => (
                     <Box key={i} sx={{ mb: 2 }}>
@@ -410,7 +403,6 @@ export default function DailyCard() {
                 </Paper>
               )}
 
-              {/* Affirmation */}
               {card.affirmation && (
                 <Paper
                   sx={{
@@ -423,10 +415,10 @@ export default function DailyCard() {
                   }}
                 >
                   <Typography variant="subtitle2" sx={{ color: 'secondary.main', mb: 1 }}>
-                    ✨ Daily Affirmation 每日肯定語
+                    Daily Affirmation 每日肯定語
                   </Typography>
                   <Typography variant="body1" sx={{ fontStyle: 'italic', mb: 1 }}>
-                    "{card.affirmation}"
+                    &ldquo;{card.affirmation}&rdquo;
                   </Typography>
                   {card.affirmationZh && (
                     <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary' }}>
@@ -436,7 +428,6 @@ export default function DailyCard() {
                 </Paper>
               )}
 
-              {/* Action Buttons - Mobile Friendly */}
               <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
                 <Button
                   variant="outlined"

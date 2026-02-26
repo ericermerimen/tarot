@@ -20,16 +20,18 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import SaveIcon from '@mui/icons-material/Save';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCards, spreadTypes, tarotCards } from '@/data/tarotCards';
+import type { TarotCardData, DrawnCard, CardMeaning, SpreadKey } from '@/types/tarot';
+import type { ReadingRecord } from '@/types/reading';
 
 function ReadingContent() {
   const searchParams = useSearchParams();
-  const initialSpread = searchParams.get('spread') || 'single';
+  const initialSpread = (searchParams.get('spread') || 'single') as SpreadKey;
 
-  const [selectedSpread, setSelectedSpread] = useState(initialSpread);
+  const [selectedSpread, setSelectedSpread] = useState<SpreadKey>(initialSpread);
   const currentSpread = spreadTypes[selectedSpread] || spreadTypes.single;
-  const [cards, setCards] = useState(() => getRandomCards(currentSpread.count));
-  const [flippedCards, setFlippedCards] = useState([]);
-  const [showMeaning, setShowMeaning] = useState(null);
+  const [cards, setCards] = useState<DrawnCard[]>(() => getRandomCards(currentSpread.count));
+  const [flippedCards, setFlippedCards] = useState<number[]>([]);
+  const [showMeaning, setShowMeaning] = useState<number | null>(null);
   const [readingComplete, setReadingComplete] = useState(false);
   const isFirstRender = useRef(true);
 
@@ -64,12 +66,12 @@ function ReadingContent() {
     }
   };
 
-  const handleSpreadChange = (event, newValue) => {
+  const handleSpreadChange = (_event: React.SyntheticEvent, newValue: SpreadKey) => {
     setSelectedSpread(newValue);
   };
 
   const saveReading = () => {
-    const reading = {
+    const reading: ReadingRecord = {
       date: new Date().toISOString(),
       spread: selectedSpread,
       cards: cards.map((c, i) => ({
@@ -80,14 +82,14 @@ function ReadingContent() {
       })),
     };
 
-    const history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    const history: ReadingRecord[] = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
     history.unshift(reading);
     localStorage.setItem('tarotHistory', JSON.stringify(history.slice(0, 50)));
 
     alert('Reading saved to your journal! 占卜已保存到日記！');
   };
 
-  const getCardLayout = () => {
+  const getCardLayout = (): Record<string, string | number> => {
     switch (selectedSpread) {
       case 'threeCard':
         return {
@@ -309,8 +311,15 @@ function ReadingContent() {
   );
 }
 
-// Celtic Cross specific layout
-function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positionsZh }) {
+interface CelticCrossLayoutProps {
+  cards: DrawnCard[];
+  flippedCards: number[];
+  onCardClick: (index: number) => void;
+  positions: string[];
+  positionsZh: string[];
+}
+
+function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positionsZh }: CelticCrossLayoutProps) {
   const cardSize = 'small';
 
   const renderCard = (index) => (
@@ -460,8 +469,14 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
   );
 }
 
-// Card meaning panel component - used only for single card readings
-function CardMeaningPanel({ card, isReversed, position, positionZh }) {
+interface CardMeaningPanelProps {
+  card: TarotCardData;
+  isReversed: boolean;
+  position: string;
+  positionZh: string;
+}
+
+function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeaningPanelProps) {
   const meaning = isReversed ? card.reversed : card.upright;
 
   return (
@@ -526,19 +541,24 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }) {
   );
 }
 
-// Generate holistic reading summary based on spread type
-function generateReadingSummary(cards, spreadType, positions, positionsZh) {
-  const getMeaning = (cardData) => {
-    const m = cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
-    return m;
+interface ReadingSummary {
+  title: string;
+  titleZh: string;
+  summary: string;
+  summaryZh: string;
+}
+
+function generateReadingSummary(cards: DrawnCard[], spreadType: string, positions: string[], positionsZh: string[]): ReadingSummary | null {
+  const getMeaning = (cardData: DrawnCard): CardMeaning => {
+    return cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
   };
 
-  const getCardLabel = (cardData) => {
+  const getCardLabel = (cardData: DrawnCard): string => {
     const rev = cardData.isReversed ? ' (Reversed)' : '';
     return `${cardData.card.name}${rev}`;
   };
 
-  const getCardLabelZh = (cardData) => {
+  const getCardLabelZh = (cardData: DrawnCard): string => {
     const rev = cardData.isReversed ? ' (逆位)' : '';
     return `${cardData.card.nameZh}${rev}`;
   };
@@ -605,8 +625,14 @@ Your hopes and fears are embodied by ${getCardLabel(hopes)}: ${hopesM.meaning.to
   return null;
 }
 
-// Reading summary panel for multi-card spreads
-function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }) {
+interface ReadingSummaryPanelProps {
+  cards: DrawnCard[];
+  spreadType: string;
+  positions: string[];
+  positionsZh: string[];
+}
+
+function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: ReadingSummaryPanelProps) {
   const summary = generateReadingSummary(cards, spreadType, positions, positionsZh);
   if (!summary) return null;
 

@@ -1,20 +1,62 @@
-# 🐕 Mystical Dog Tarot | 神秘狗狗塔羅
+# Mystical Dog Tarot | 神秘狗狗塔羅
 
-A mystical tarot divination website featuring adorable dog-styled cards. Each of the 22 Major Arcana cards features a unique dog breed with a mystical twist.
+A mystical tarot divination web app where each of the 22 Major Arcana cards is represented by a unique dog breed. Built with Next.js, TypeScript, MUI, and Framer Motion.
 
 一個神秘的塔羅牌占卜網站，以可愛的狗狗風格設計。22張大阿爾卡納牌各有獨特的狗狗品種與神秘元素。
 
-## ✨ Features 功能
+## Why This Project
 
-- **22 Major Arcana Cards** - Each card features a cute dog with mystical atmosphere
-- **Multiple Reading Spreads** - Single card, Three card, Love reading, Celtic Cross
-- **Daily Card** - Get your daily guidance with persistence
-- **Bilingual Support** - Full English and Chinese translations
-- **Card Gallery** - Browse all cards and their meanings
-- **Reading Journal** - Save and review your past readings
-- **Mystical Effects** - Particle background, card flip animations, glowing effects
+Tarot apps often feel either too generic or too cluttered. This project explores how to build a polished, feature-rich divination experience with:
 
-## 🎴 Card Designs 卡牌設計
+- **Pure CSS/SVG illustrations** — no external image assets; every dog breed is drawn programmatically
+- **WebGL shader effects** — animated card backgrounds via custom GLSL fragment shaders
+- **Full bilingual support** — English and Traditional Chinese coexist in a single data model, not separate i18n files
+- **Client-side persistence** — localStorage for daily cards and reading history, zero backend needed
+
+## Features
+
+- **22 Major Arcana Cards** — each card features a unique CSS/SVG dog breed illustration
+- **Multiple Reading Spreads** — Single card, Three card, Love reading, Celtic Cross (10 cards)
+- **Daily Card** — persisted daily guidance with one card per day
+- **Card Gallery** — browse all cards with detailed upright/reversed meanings
+- **Reading Journal** — save and review past readings from localStorage
+- **Mystical Effects** — WebGL shaders, particle canvas background, Framer Motion card flips
+
+## Tech Stack
+
+| Layer | Technology | Why |
+|-------|-----------|-----|
+| Framework | Next.js 14 (App Router) | File-based routing, SSR support, Emotion compiler integration |
+| Language | TypeScript (strict mode) | Full type safety across domain models, components, and pages |
+| UI | MUI v5 + Emotion | Rich component library with `sx` prop styling, custom dark theme |
+| Animation | Framer Motion | Declarative animations for card flips, page transitions, accordions |
+| Rendering | WebGL (GLSL shaders) | Custom animated gradients on card backgrounds |
+| Background | Canvas 2D API | Star and particle system behind all page content |
+| Testing | Vitest + React Testing Library | Fast unit and component tests with jsdom |
+| Deployment | Vercel | Zero-config Next.js hosting |
+
+## Architecture Decisions
+
+**App Router only** — no Pages Router. All routes live under `src/app/`. Every page is a client component (`'use client'`) since all features rely on browser APIs (localStorage, Canvas, WebGL).
+
+**Single data source** — `src/data/tarotCards.ts` defines all 22 cards with full bilingual content (name, dog breed, upright/reversed meanings for love/career/health, keywords, reflection questions, affirmations). Spreads are also defined here. This avoids scattering card data across components.
+
+**Type-driven domain model** — `src/types/tarot.ts` and `src/types/reading.ts` define shared interfaces (`TarotCardData`, `CardMeaning`, `DrawnCard`, `SpreadType`, `ReadingRecord`). Components and pages import these types, ensuring consistency across the entire app.
+
+**CSS/SVG card art** — `CardFront.tsx` is ~940 lines of programmatic SVG. Each of the 22 dog breeds is a React component that draws the illustration purely with SVG primitives. This means zero external image dependencies and cards that scale to any resolution.
+
+**MUI theme extension** — the dark mystical palette uses MUI's module augmentation pattern to add a custom `mystical` palette section (purple, gold, pink, blue, dark, glow), keeping all color tokens centralized.
+
+**No global state** — component-level `useState`/`useEffect` with `localStorage` for persistence. The app is simple enough that React Context or a state library would add complexity without benefit.
+
+## Tradeoffs
+
+- **No i18n library** — bilingual strings are co-located in data structures (e.g., `name`/`nameZh`). This is simple for two languages but wouldn't scale to 5+. For this project, co-location keeps translations in sync.
+- **No image assets** — pure SVG illustrations are resolution-independent but limited in artistic detail compared to raster art. The stylized look fits the mystical theme.
+- **Client-only persistence** — localStorage means data doesn't sync across devices. A backend would add deployment complexity without clear benefit for a personal divination tool.
+- **WebGL in jsdom** — the shader component gracefully degrades since jsdom doesn't support `getContext('webgl')`. Tests focus on data and DOM rendering instead.
+
+## Card Designs
 
 Each Major Arcana is represented by a different dog breed:
 
@@ -43,7 +85,7 @@ Each Major Arcana is represented by a different dog breed:
 | Judgement | Angel Collie | 天使牧羊犬 |
 | The World | Dancing Shiba | 跳舞柴犬 |
 
-## 🚀 Quick Deploy 快速部署
+## Quick Deploy
 
 ### Deploy to Vercel (Recommended)
 
@@ -53,16 +95,7 @@ Each Major Arcana is represented by a different dog breed:
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ericermerimen/tarot)
 
-## 🛠️ Tech Stack 技術棧
-
-- **Framework**: Next.js 16 (App Router)
-- **UI Library**: Material-UI (MUI) v5
-- **Animations**: Framer Motion
-- **Styling**: Emotion CSS-in-JS
-- **Icons**: Material Icons
-- **Fonts**: Cinzel (titles), Noto Sans TC (Chinese)
-
-## 📦 Local Development 本地開發
+## Local Development
 
 ```bash
 # Install dependencies
@@ -74,38 +107,50 @@ npm run dev
 # Build for production
 npm run build
 
-# Start production server
-npm start
+# Run tests
+npm test
+
+# Type check
+npx tsc --noEmit
+
+# Lint
+npm run lint
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to see the app.
 
-## 📁 Project Structure 專案結構
+## Project Structure
 
 ```
 src/
-├── app/                 # Next.js App Router pages
-│   ├── page.js         # Home page
-│   ├── daily/          # Daily card page
-│   ├── reading/        # Reading spreads page
-│   ├── gallery/        # Card gallery page
-│   └── journal/        # Reading history page
-├── components/         # React components
-│   ├── TarotCard.js   # Main card component
-│   ├── CardFront.js   # Card front with dog illustrations
-│   ├── CardBack.js    # Card back design
-│   ├── Navigation.js  # App navigation
-│   └── ParticleBackground.js
+├── app/                     # Next.js App Router
+│   ├── layout.tsx           # Root layout (fonts, ThemeRegistry, Navigation, ParticleBackground)
+│   ├── page.tsx             # Home page
+│   ├── daily/page.tsx       # Daily card feature
+│   ├── reading/page.tsx     # Reading spreads (Single, Three-card, Love, Celtic Cross)
+│   ├── gallery/page.tsx     # Card gallery with detail dialogs
+│   ├── journal/page.tsx     # Reading history / journal
+│   ├── error.tsx            # Route-level error boundary
+│   └── global-error.tsx     # Global error boundary
+├── components/              # Shared React components
+│   ├── TarotCard.tsx        # Main card component (flip animation)
+│   ├── CardFront.tsx        # Card front — 22 SVG dog breed illustrations
+│   ├── CardBack.tsx         # Card back design (SVG mystic pattern)
+│   ├── Navigation.tsx       # App-wide navigation bar
+│   ├── ParticleBackground.tsx  # Canvas 2D star/particle system
+│   └── shaders/
+│       ├── CardShaderCanvas.tsx  # WebGL shader renderer
+│       └── fragmentShader.ts     # GLSL fragment shader source
 ├── data/
-│   └── tarotCards.js  # All 22 cards with meanings
+│   └── tarotCards.ts        # All 22 Major Arcana + spread definitions
+├── types/
+│   ├── tarot.ts             # Domain types (TarotCardData, DrawnCard, SpreadType, etc.)
+│   └── reading.ts           # Persistence types (ReadingRecord, DailyCardStorage)
 └── theme/
-    └── theme.js       # MUI theme configuration
+    ├── theme.ts             # MUI dark theme with custom mystical palette
+    └── ThemeRegistry.tsx    # Emotion SSR cache provider
 ```
 
-## 📄 License 授權
+## License
 
 GNU General Public License v3.0
-
----
-
-Made with 🐕 and ✨ magic

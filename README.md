@@ -43,7 +43,7 @@ Tarot apps often feel either too generic or too cluttered. This project explores
 
 **Type-driven domain model** — `src/types/tarot.ts` and `src/types/reading.ts` define shared interfaces (`TarotCardData`, `CardMeaning`, `DrawnCard`, `SpreadType`, `ReadingRecord`). Components and pages import these types, ensuring consistency across the entire app.
 
-**CSS/SVG card art** — `CardFront.tsx` is ~940 lines of programmatic SVG. Each of the 22 dog breeds is a React component that draws the illustration purely with SVG primitives. This means zero external image dependencies and cards that scale to any resolution.
+**CSS/SVG card art** — Each of the 22 dog breeds lives in its own file under `components/cards/` (e.g., `FoolDog.tsx`, `MagicianDog.tsx`) with a barrel export in `index.ts`. `CardFront.tsx` (~190 lines) composes the selected illustration into the card layout. All illustrations use pure SVG primitives — zero external image dependencies, cards scale to any resolution, and individual files enable tree-shaking and code-splitting per card.
 
 **MUI theme extension** — the dark mystical palette uses MUI's module augmentation pattern to add a custom `mystical` palette section (purple, gold, pink, blue, dark, glow), keeping all color tokens centralized.
 
@@ -134,10 +134,14 @@ src/
 │   └── global-error.tsx     # Global error boundary
 ├── components/              # Shared React components
 │   ├── TarotCard.tsx        # Main card component (flip animation)
-│   ├── CardFront.tsx        # Card front — 22 SVG dog breed illustrations
+│   ├── CardFront.tsx        # Card front layout, border, text overlay (~190 lines)
 │   ├── CardBack.tsx         # Card back design (SVG mystic pattern)
 │   ├── Navigation.tsx       # App-wide navigation bar
 │   ├── ParticleBackground.tsx  # Canvas 2D star/particle system
+│   ├── cards/               # Individual dog breed SVG illustration components
+│   │   ├── index.ts         # DogIllustrations map + GenericDog export
+│   │   ├── FoolDog.tsx … WorldDog.tsx  # 22 card-specific illustrations
+│   │   └── GenericDog.tsx   # Fallback illustration
 │   └── shaders/
 │       ├── CardShaderCanvas.tsx  # WebGL shader renderer
 │       └── fragmentShader.ts     # GLSL fragment shader source

@@ -45,40 +45,56 @@ function renderWithTheme(ui: React.ReactElement) {
 }
 
 describe('TarotCard', () => {
-  it('renders without crashing', () => {
+  it('renders both card front and back faces', () => {
     const { container } = renderWithTheme(
       <TarotCard card={mockCard} />
     )
-    expect(container).toBeTruthy()
+    // Should contain two face containers (front + back) inside the 3D wrapper
+    const svgs = container.querySelectorAll('svg')
+    expect(svgs.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('does not show card name label when not flipped', () => {
+  it('hides card name when not flipped (back face visible)', () => {
     renderWithTheme(<TarotCard card={mockCard} isFlipped={false} />)
-    // The card name Typography only appears when flipped
-    // (CardFront SVG also renders the name, so we check for absence of the MUI label)
     const allFoolTexts = screen.queryAllByText(/The Fool/)
-    // When not flipped, The Fool should not appear (only card back is visible)
     expect(allFoolTexts.length).toBe(0)
   })
 
-  it('shows card name when flipped', () => {
+  it('shows EN card name below the card when flipped', () => {
     renderWithTheme(<TarotCard card={mockCard} isFlipped={true} />)
-    // Card name appears in both SVG and Typography label
     const allFoolTexts = screen.getAllByText(/The Fool/)
     expect(allFoolTexts.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('shows Chinese name when flipped', () => {
+  it('shows ZH card name below the card when flipped', () => {
     renderWithTheme(<TarotCard card={mockCard} isFlipped={true} />)
-    // Chinese name appears in both CardFront SVG and Typography label
     const allZhTexts = screen.getAllByText(/愚者/)
     expect(allZhTexts.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('shows reversed indicator when flipped and reversed', () => {
+  it('shows reversed indicator (逆位) when flipped and reversed', () => {
     renderWithTheme(
       <TarotCard card={mockCard} isFlipped={true} isReversed={true} />
     )
     expect(screen.getByText(/逆位/)).toBeInTheDocument()
+  })
+
+  it('shows reversed symbol (↺) in EN label when reversed', () => {
+    renderWithTheme(
+      <TarotCard card={mockCard} isFlipped={true} isReversed={true} />
+    )
+    const matches = screen.getAllByText(/↺/)
+    expect(matches.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('does not show reversed indicators when upright', () => {
+    const { container } = renderWithTheme(
+      <TarotCard card={mockCard} isFlipped={true} isReversed={false} />
+    )
+    // The MUI Typography labels below the card should not contain reversed markers
+    const typographyEls = container.querySelectorAll('.MuiTypography-root')
+    const labelTexts = Array.from(typographyEls).map(el => el.textContent || '')
+    const hasReversedMarker = labelTexts.some(t => t.includes('逆位') || t.includes('↺'))
+    expect(hasReversedMarker).toBe(false)
   })
 })

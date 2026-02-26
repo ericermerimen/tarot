@@ -56,7 +56,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Cinzel", "Noto Sans TC", serif',
+    fontFamily: 'var(--font-cinzel), "Cinzel", "Noto Sans TC", serif',
     h1: {
       fontWeight: 700,
       letterSpacing: '0.1em',
@@ -79,10 +79,10 @@ const theme = createTheme({
       fontWeight: 500,
     },
     body1: {
-      fontFamily: '"Noto Sans TC", "Roboto", sans-serif',
+      fontFamily: 'var(--font-noto-sans-tc), "Noto Sans TC", "Roboto", sans-serif',
     },
     body2: {
-      fontFamily: '"Noto Sans TC", "Roboto", sans-serif',
+      fontFamily: 'var(--font-noto-sans-tc), "Noto Sans TC", "Roboto", sans-serif',
     },
   },
   components: {

@@ -1,8 +1,23 @@
 import type { Metadata } from 'next';
+import { Cinzel, Noto_Sans_TC } from 'next/font/google';
 import ThemeRegistry from '@/theme/ThemeRegistry';
 import Navigation from '@/components/Navigation';
 import ParticleBackground from '@/components/ParticleBackground';
 import './globals.css';
+
+const cinzel = Cinzel({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  display: 'swap',
+  variable: '--font-cinzel',
+});
+
+const notoSansTC = Noto_Sans_TC({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  display: 'swap',
+  variable: '--font-noto-sans-tc',
+});
 
 export const metadata: Metadata = {
   title: '🐕 Mystical Dog Tarot | 神秘狗狗塔羅',
@@ -15,15 +30,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={`${cinzel.variable} ${notoSansTC.variable}`}>
       <body>
         <ThemeRegistry>
           <ParticleBackground />

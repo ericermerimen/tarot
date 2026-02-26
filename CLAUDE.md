@@ -22,7 +22,7 @@ npx tsc --noEmit # Type check without emitting
 - **UI**: Material-UI (MUI) v5 + Emotion CSS-in-JS
 - **Animations**: Framer Motion
 - **Icons**: MUI Icons (Material Icons)
-- **Fonts**: Cinzel (titles), Noto Sans TC (Chinese) — loaded via Google Fonts in `layout.tsx`
+- **Fonts**: Cinzel (titles), Noto Sans TC (Chinese) — loaded via `next/font/google` with CSS variables
 - **Testing**: Vitest + React Testing Library + @testing-library/jest-dom
 - **Deployment**: Vercel
 
@@ -41,10 +41,15 @@ src/
 │   └── global-error.tsx     # Global error boundary
 ├── components/              # Shared React components
 │   ├── TarotCard.tsx        # Main card component (flip animation)
-│   ├── CardFront.tsx        # Card front — dog breed illustrations via CSS/SVG
+│   ├── CardFront.tsx        # Card front — layout, border, text overlay
 │   ├── CardBack.tsx         # Card back design
 │   ├── Navigation.tsx       # App-wide navigation bar
-│   ├── ParticleBackground.tsx  # Animated particle canvas background
+│   ├── ParticleBackground.tsx  # Animated particle canvas background (pre-rendered sprites)
+│   ├── cards/               # Individual dog breed SVG illustration components
+│   │   ├── index.ts         # DogIllustrations map + GenericDog export
+│   │   ├── FoolDog.tsx      # Card 0 — The Fool (Golden Retriever)
+│   │   ├── ...              # 20 more card-specific illustrations
+│   │   └── WorldDog.tsx     # Card 21 — The World (Shiba Inu)
 │   └── shaders/
 │       ├── CardShaderCanvas.tsx  # WebGL shader renderer
 │       └── fragmentShader.ts     # GLSL fragment shader source
@@ -72,7 +77,7 @@ src/
 - **ThemeRegistry** (`src/theme/ThemeRegistry.tsx`) handles Emotion's SSR cache so MUI styles work correctly with Next.js server components.
 - **ParticleBackground** is rendered inside the root layout and sits behind all page content via CSS z-index.
 - **tarotCards.ts** is the single source of truth for card data. Each entry includes: card name, dog breed, upright/reversed meanings in both EN and ZH.
-- Card illustrations are generated purely with CSS/SVG inside `CardFront.tsx` — no external image assets.
+- Card illustrations live in `components/cards/` as individual SVG components — one file per card for maintainability and code-splitting.
 - **next.config.mjs** enables the Emotion compiler transform (`compiler.emotion: true`).
 - **MUI palette extension** — `theme.ts` uses module augmentation to add a custom `mystical` palette section.
 

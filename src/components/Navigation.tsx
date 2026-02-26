@@ -24,7 +24,14 @@ import StyleIcon from '@mui/icons-material/Style';
 import CollectionsIcon from '@mui/icons-material/Collections';
 import BookIcon from '@mui/icons-material/Book';
 
-const navItems = [
+interface NavItem {
+  label: string;
+  labelZh: string;
+  path: string;
+  icon: React.ReactNode;
+}
+
+const navItems: NavItem[] = [
   { label: 'Home', labelZh: '首頁', path: '/', icon: <HomeIcon /> },
   { label: 'Daily Card', labelZh: '每日一牌', path: '/daily', icon: <AutoAwesomeIcon /> },
   { label: 'Reading', labelZh: '占卜', path: '/reading', icon: <StyleIcon /> },
@@ -36,8 +43,8 @@ export default function Navigation() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
 
-  const toggleDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (event.type === 'keydown' && ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')) {
       return;
     }
     setDrawerOpen(open);
@@ -136,7 +143,6 @@ export default function Navigation() {
             </Typography>
           </Link>
 
-          {/* Mobile: hamburger menu — use CSS display to avoid hydration mismatch */}
           <IconButton
             color="primary"
             aria-label="menu"
@@ -149,7 +155,6 @@ export default function Navigation() {
             <MenuIcon />
           </IconButton>
 
-          {/* Desktop: nav buttons */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
             {navItems.map((item) => (
               <Button

@@ -3,9 +3,12 @@
 import React from 'react';
 import CardShaderCanvas from './shaders/CardShaderCanvas';
 
-// SVG overlay: gold border + paw print + moon phases + text + stars
-// Rendered on top of the WebGL shader background
-function CardBackOverlay({ width, height }) {
+interface CardBackOverlayProps {
+  width: number;
+  height: number;
+}
+
+function CardBackOverlay({ width, height }: CardBackOverlayProps) {
   const vw = 180;
   const vh = 300;
   return (
@@ -35,7 +38,6 @@ function CardBackOverlay({ width, height }) {
         </filter>
       </defs>
 
-      {/* Outer border */}
       <rect
         x="7" y="7" width="166" height="286" rx="9"
         fill="none"
@@ -43,7 +45,6 @@ function CardBackOverlay({ width, height }) {
         strokeWidth="2.2"
         filter="url(#cbGlow)"
       />
-      {/* Inner border */}
       <rect
         x="13" y="13" width="154" height="274" rx="6"
         fill="none"
@@ -52,33 +53,28 @@ function CardBackOverlay({ width, height }) {
         opacity="0.55"
       />
 
-      {/* Corner ornaments */}
-      {[
+      {([
         [20, 20, 'M0,16 Q0,0 16,0'],
         [160, 20, 'M0,16 Q0,0 -16,0'],
         [20, 280, 'M0,-16 Q0,0 16,0'],
         [160, 280, 'M0,-16 Q0,0 -16,0'],
-      ].map(([cx, cy, d], i) => (
+      ] as const).map(([cx, cy, d], i) => (
         <g key={i} transform={`translate(${cx},${cy})`} filter="url(#cbGlow)">
           <path d={d} fill="none" stroke="url(#cbGold)" strokeWidth="2" />
           <circle cx="0" cy="0" r="2.5" fill="url(#cbGold)" />
         </g>
       ))}
 
-      {/* Moon phase trio */}
       <g transform="translate(90,44)" filter="url(#cbGlow)">
         <circle cx="-28" cy="0" r="7"  fill="none" stroke="url(#cbGold)" strokeWidth="1" opacity="0.55" />
         <circle cx="0"   cy="0" r="9"  fill="url(#cbGold)" opacity="0.92" />
         <circle cx="28"  cy="0" r="7"  fill="none" stroke="url(#cbGold)" strokeWidth="1" opacity="0.55" />
       </g>
 
-      {/* Central paw-in-ring design */}
       <g transform="translate(90,152)" filter="url(#cbGlow)">
-        {/* Outer ring */}
         <circle cx="0" cy="0" r="48" fill="none" stroke="url(#cbPurple)" strokeWidth="2" />
         <circle cx="0" cy="0" r="40" fill="none" stroke="url(#cbGold)"   strokeWidth="0.8" opacity="0.55" />
 
-        {/* Dog paw print */}
         <g transform="translate(0,6)">
           <ellipse cx="0"   cy="10"  rx="14" ry="11" fill="url(#cbGold)" />
           <ellipse cx="-11" cy="-8"  rx="6.5" ry="7.5" fill="url(#cbGold)" />
@@ -87,7 +83,6 @@ function CardBackOverlay({ width, height }) {
           <ellipse cx="4"   cy="-17" rx="5.5" ry="6.5" fill="url(#cbGold)" />
         </g>
 
-        {/* Mystical dots at 60° intervals */}
         {[0, 60, 120, 180, 240, 300].map((deg, i) => (
           <g key={i} transform={`rotate(${deg})`}>
             <circle cx="0" cy="-57" r="3.5" fill="url(#cbPurple)" opacity="0.85" />
@@ -95,7 +90,6 @@ function CardBackOverlay({ width, height }) {
         ))}
       </g>
 
-      {/* Stars at bottom */}
       <g transform="translate(90,257)">
         {[-28, 0, 28].map((x, i) => (
           <polygon
@@ -109,7 +103,6 @@ function CardBackOverlay({ width, height }) {
         ))}
       </g>
 
-      {/* Brand text */}
       <text
         x="90" y="290"
         textAnchor="middle"
@@ -127,10 +120,14 @@ function CardBackOverlay({ width, height }) {
 
 const CARD_BACK_COLORS = ['#9c7cf4', '#f4cf7c', '#6b4bc1'];
 
-export default function CardBack({ width, height }) {
+interface CardBackProps {
+  width: number;
+  height: number;
+}
+
+export default function CardBack({ width, height }: CardBackProps) {
   return (
     <div style={{ position: 'relative', width, height, borderRadius: 12, overflow: 'hidden' }}>
-      {/* WebGL shader background – card back cosmic pattern */}
       <CardShaderCanvas
         width={width}
         height={height}
@@ -139,7 +136,6 @@ export default function CardBack({ width, height }) {
         reversed={false}
         animate={true}
       />
-      {/* SVG decorative overlay */}
       <CardBackOverlay width={width} height={height} />
     </div>
   );

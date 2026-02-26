@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import CardBack from './CardBack';
 import CardFront from './CardFront';
 import type { TarotCardData, CardSize } from '@/types/tarot';

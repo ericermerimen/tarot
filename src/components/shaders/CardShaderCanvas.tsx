@@ -91,7 +91,11 @@ export default function CardShaderCanvas({
   const rafRef     = useRef<number | null>(null);
   const startRef   = useRef<number | null>(null);
   const visibleRef = useRef(true);
-  const [webglFailed, setWebglFailed] = useState(false);
+  const [webglFailed, setWebglFailed] = useState(() => {
+    if (typeof document === 'undefined') return false;
+    const testCanvas = document.createElement('canvas');
+    return !testCanvas.getContext('webgl');
+  });
 
   const c0 = colors[0] || '#9c7cf4';
   const c1 = colors[1] || '#f4cf7c';
@@ -184,20 +188,19 @@ export default function CardShaderCanvas({
     }
   }, [c0, c1, c2, cardType, reversed]);
 
+  const loopRef = useRef<(ts: number) => void>(() => {});
   const loop = useCallback((timestamp: number) => {
     if (!visibleRef.current) return;
     render(timestamp);
     if (animate && glRef.current) {
-      rafRef.current = requestAnimationFrame(loop);
+      rafRef.current = requestAnimationFrame(loopRef.current);
     }
   }, [render, animate]);
+  useEffect(() => { loopRef.current = loop; }, [loop]);
 
   useEffect(() => {
     const ok = initGL();
-    if (!ok) {
-      setWebglFailed(true);
-      return;
-    }
+    if (!ok) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {

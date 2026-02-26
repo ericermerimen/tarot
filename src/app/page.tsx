@@ -12,7 +12,7 @@ import {
   CardContent,
   CardActionArea,
 } from '@mui/material';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import StyleIcon from '@mui/icons-material/Style';
 import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';

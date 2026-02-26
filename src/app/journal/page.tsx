@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -15,7 +15,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -25,17 +25,14 @@ import type { SpreadKey } from '@/types/tarot';
 import type { ReadingRecord } from '@/types/reading';
 
 export default function Journal() {
-  const [readings, setReadings] = useState<ReadingRecord[]>([]);
+  const [readings, setReadings] = useState<ReadingRecord[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const stored = localStorage.getItem('tarotHistory');
+    return stored ? JSON.parse(stored) : [];
+  });
   const [expandedReading, setExpandedReading] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<number | 'all' | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('tarotHistory');
-    if (stored) {
-      setReadings(JSON.parse(stored));
-    }
-  }, []);
 
   const handleDelete = (index: number) => {
     setDeleteTarget(index);

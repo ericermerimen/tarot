@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-A mystical tarot divination web app with dog-themed Major Arcana cards. Built with Next.js App Router, TypeScript, MUI v5, and Framer Motion. Supports bilingual (EN/ZH) content throughout.
+A mystical tarot divination web app with dog-themed Major Arcana cards. Built with Next.js 16 App Router, TypeScript, MUI v5, and Motion for React. Supports bilingual (EN/ZH) content throughout.
 
 ## Common Commands
 
@@ -17,10 +17,10 @@ npx tsc --noEmit # Type check without emitting
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router, `src/` directory)
+- **Framework**: Next.js 16 (App Router, Turbopack, `src/` directory)
 - **Language**: TypeScript (strict mode)
 - **UI**: Material-UI (MUI) v5 + Emotion CSS-in-JS
-- **Animations**: Framer Motion
+- **Animations**: Motion for React (formerly Framer Motion)
 - **Icons**: MUI Icons (Material Icons)
 - **Fonts**: Cinzel (titles), Noto Sans TC (Chinese) — loaded via `next/font/google` with CSS variables
 - **Testing**: Vitest + React Testing Library + @testing-library/jest-dom
@@ -88,7 +88,7 @@ src/
 - Domain types live in `src/types/`. Prefer shared types over inline type definitions.
 - Functional components with hooks only — no class components.
 - MUI `sx` prop or `styled()` for component styling; avoid plain inline styles where possible.
-- Framer Motion `motion.*` components for any new animations (card flips, page transitions).
+- Motion for React `motion.*` components for any new animations (card flips, page transitions). Import from `motion/react`.
 - Bilingual strings: keep EN and ZH versions together in the same data structure/component rather than separate i18n files.
 - No global state library — component-level `useState`/`useEffect` and `localStorage` for persistence (daily card, journal).
 

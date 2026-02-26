@@ -1,6 +1,6 @@
 # Mystical Dog Tarot | 神秘狗狗塔羅
 
-A mystical tarot divination web app where each of the 22 Major Arcana cards is represented by a unique dog breed. Built with Next.js, TypeScript, MUI, and Framer Motion.
+A mystical tarot divination web app where each of the 22 Major Arcana cards is represented by a unique dog breed. Built with Next.js, TypeScript, MUI, and Motion for React.
 
 一個神秘的塔羅牌占卜網站，以可愛的狗狗風格設計。22張大阿爾卡納牌各有獨特的狗狗品種與神秘元素。
 
@@ -20,16 +20,16 @@ Tarot apps often feel either too generic or too cluttered. This project explores
 - **Daily Card** — persisted daily guidance with one card per day
 - **Card Gallery** — browse all cards with detailed upright/reversed meanings
 - **Reading Journal** — save and review past readings from localStorage
-- **Mystical Effects** — WebGL shaders, particle canvas background, Framer Motion card flips
+- **Mystical Effects** — WebGL shaders, particle canvas background, Motion for React card flips
 
 ## Tech Stack
 
 | Layer | Technology | Why |
 |-------|-----------|-----|
-| Framework | Next.js 14 (App Router) | File-based routing, SSR support, Emotion compiler integration |
+| Framework | Next.js 16 (App Router, Turbopack) | File-based routing, SSR support, Emotion compiler integration |
 | Language | TypeScript (strict mode) | Full type safety across domain models, components, and pages |
 | UI | MUI v5 + Emotion | Rich component library with `sx` prop styling, custom dark theme |
-| Animation | Framer Motion | Declarative animations for card flips, page transitions, accordions |
+| Animation | Motion for React | Declarative animations for card flips, page transitions, accordions |
 | Rendering | WebGL (GLSL shaders) | Custom animated gradients on card backgrounds |
 | Background | Canvas 2D API | Star and particle system behind all page content |
 | Testing | Vitest + React Testing Library | Fast unit and component tests with jsdom |

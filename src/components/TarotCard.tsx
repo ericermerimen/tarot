@@ -68,7 +68,7 @@ export default function TarotCard({
         perspective: '1000px',
         touchAction: 'manipulation',
       }}
-      onClick={onClick}
+      {...(onClick ? { onClick } : {})}
     >
       <Box
         sx={{

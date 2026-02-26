@@ -52,7 +52,7 @@ function ReadingContent() {
     setReadingComplete(false);
   };
 
-  const handleCardClick = (index) => {
+  const handleCardClick = (index: number) => {
     if (flippedCards.includes(index)) {
       setShowMeaning(showMeaning === index ? null : index);
       return;
@@ -322,7 +322,7 @@ interface CelticCrossLayoutProps {
 function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positionsZh }: CelticCrossLayoutProps) {
   const cardSize = 'small';
 
-  const renderCard = (index) => (
+  const renderCard = (index: number) => (
     <Box sx={{ textAlign: 'center' }}>
       <Typography
         variant="caption"

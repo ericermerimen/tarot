@@ -717,12 +717,12 @@ function WorldDog() {
           />
         );
       })}
-      {[
+      {([
         [-42, -50, '#87CEEB'],
         [42, -50, '#DC143C'],
         [-42, 50, '#228B22'],
         [42, 50, '#4169E1'],
-      ].map(([x, y, color], i) => (
+      ] as const).map(([x, y, color], i) => (
         <g key={i} transform={`translate(${x}, ${y})`}>
           <circle cx="0" cy="0" r="8" fill={color} />
           <circle cx="-2" cy="-2" r="1.5" fill="#1a1a1a" />
@@ -868,12 +868,12 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
         />
 
         {/* Corner ornaments */}
-        {[
+        {([
           [18, 18, 'M0,14 Q0,0 14,0'],
           [162, 18, 'M0,14 Q0,0 -14,0'],
           [18, 282, 'M0,-14 Q0,0 14,0'],
           [162, 282, 'M0,-14 Q0,0 -14,0'],
-        ].map(([cx, cy, d], i) => (
+        ] as const).map(([cx, cy, d], i) => (
           <g key={i} transform={`translate(${cx},${cy})`} filter={`url(#${glowId})`}>
             <path d={d} fill="none" stroke={`url(#${goldId})`} strokeWidth="1.5" />
             <circle cx="0" cy="0" r="2" fill={`url(#${goldId})`} />

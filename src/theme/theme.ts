@@ -2,6 +2,29 @@
 
 import { createTheme } from '@mui/material/styles';
 
+declare module '@mui/material/styles' {
+  interface Palette {
+    mystical: {
+      purple: string;
+      gold: string;
+      pink: string;
+      blue: string;
+      dark: string;
+      glow: string;
+    };
+  }
+  interface PaletteOptions {
+    mystical?: {
+      purple?: string;
+      gold?: string;
+      pink?: string;
+      blue?: string;
+      dark?: string;
+      glow?: string;
+    };
+  }
+}
+
 const theme = createTheme({
   palette: {
     mode: 'dark',

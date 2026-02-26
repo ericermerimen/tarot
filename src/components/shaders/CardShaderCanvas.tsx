@@ -3,8 +3,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { VERTEX_SHADER, FRAGMENT_SHADER, FRAGMENT_SHADER_SIMPLE } from './fragmentShader';
 
-// Hex color string → [r, g, b] normalized (0-1)
-function hexToRgb(hex) {
+function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace('#', '');
   return [
     parseInt(h.substring(0, 2), 16) / 255,
@@ -13,7 +12,7 @@ function hexToRgb(hex) {
   ];
 }
 
-function compileShader(gl, type, source) {
+function compileShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   try {
     const shader = gl.createShader(type);
     if (!shader) return null;
@@ -29,7 +28,7 @@ function compileShader(gl, type, source) {
   }
 }
 
-function createProgram(gl, vsSource, fsSource) {
+function createProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram | null {
   try {
     const vs = compileShader(gl, gl.VERTEX_SHADER, vsSource);
     const fs = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
@@ -57,12 +56,25 @@ function createProgram(gl, vsSource, fsSource) {
   }
 }
 
-/**
- * CardShaderCanvas
- *
- * Renders a single WebGL shader frame for a tarot card.
- * Falls back to a CSS gradient on devices where WebGL shaders fail to compile.
- */
+interface UniformLocations {
+  resolution: WebGLUniformLocation | null;
+  time: WebGLUniformLocation | null;
+  color1: WebGLUniformLocation | null;
+  color2: WebGLUniformLocation | null;
+  color3: WebGLUniformLocation | null;
+  cardType: WebGLUniformLocation | null;
+  reversed: WebGLUniformLocation | null;
+}
+
+interface CardShaderCanvasProps {
+  width?: number;
+  height?: number;
+  cardType?: number;
+  colors?: string[];
+  reversed?: boolean;
+  animate?: boolean;
+}
+
 export default function CardShaderCanvas({
   width = 180,
   height = 300,
@@ -70,23 +82,21 @@ export default function CardShaderCanvas({
   colors = ['#9c7cf4', '#f4cf7c', '#6b4bc1'],
   reversed = false,
   animate = true,
-}) {
-  const canvasRef  = useRef(null);
-  const glRef      = useRef(null);
-  const progRef    = useRef(null);
-  const unifRef    = useRef({});
-  const bufRef     = useRef(null);
-  const rafRef     = useRef(null);
-  const startRef   = useRef(null);
+}: CardShaderCanvasProps) {
+  const canvasRef  = useRef<HTMLCanvasElement>(null);
+  const glRef      = useRef<WebGLRenderingContext | null>(null);
+  const progRef    = useRef<WebGLProgram | null>(null);
+  const unifRef    = useRef<UniformLocations>({} as UniformLocations);
+  const bufRef     = useRef<WebGLBuffer | null>(null);
+  const rafRef     = useRef<number | null>(null);
+  const startRef   = useRef<number | null>(null);
   const visibleRef = useRef(true);
   const [webglFailed, setWebglFailed] = useState(false);
 
-  // Stable color references to avoid unnecessary re-renders
   const c0 = colors[0] || '#9c7cf4';
   const c1 = colors[1] || '#f4cf7c';
   const c2 = colors[2] || '#6b4bc1';
 
-  // Initialise WebGL once — tries full shader first, then simple fallback
   const initGL = useCallback(() => {
     try {
       const canvas = canvasRef.current;
@@ -102,7 +112,6 @@ export default function CardShaderCanvas({
       if (!gl) return false;
       glRef.current = gl;
 
-      // Try full shader first, fall back to simple shader for mobile
       let prog = createProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER);
       if (!prog) {
         prog = createProgram(gl, VERTEX_SHADER, FRAGMENT_SHADER_SIMPLE);
@@ -110,7 +119,6 @@ export default function CardShaderCanvas({
       if (!prog) return false;
       progRef.current = prog;
 
-      // Cache uniform locations
       unifRef.current = {
         resolution: gl.getUniformLocation(prog, 'u_resolution'),
         time:       gl.getUniformLocation(prog, 'u_time'),
@@ -121,7 +129,6 @@ export default function CardShaderCanvas({
         reversed:   gl.getUniformLocation(prog, 'u_reversed'),
       };
 
-      // Full-screen quad
       const buf = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, buf);
       gl.bufferData(
@@ -135,10 +142,9 @@ export default function CardShaderCanvas({
       gl.enableVertexAttribArray(posLoc);
       gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-      // Handle context loss gracefully
       canvas.addEventListener('webglcontextlost', (e) => {
         e.preventDefault();
-        cancelAnimationFrame(rafRef.current);
+        if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
         glRef.current = null;
         progRef.current = null;
       });
@@ -149,8 +155,7 @@ export default function CardShaderCanvas({
     }
   }, []);
 
-  // Render one frame
-  const render = useCallback((timestamp) => {
+  const render = useCallback((timestamp: number) => {
     try {
       const gl   = glRef.current;
       const prog = progRef.current;
@@ -175,13 +180,11 @@ export default function CardShaderCanvas({
       if (u.reversed !== null) gl.uniform1i(u.reversed, reversed ? 1 : 0);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     } catch {
-      // WebGL error — stop rendering
       glRef.current = null;
     }
   }, [c0, c1, c2, cardType, reversed]);
 
-  // Animation loop
-  const loop = useCallback((timestamp) => {
+  const loop = useCallback((timestamp: number) => {
     if (!visibleRef.current) return;
     render(timestamp);
     if (animate && glRef.current) {
@@ -196,7 +199,6 @@ export default function CardShaderCanvas({
       return;
     }
 
-    // IntersectionObserver pauses rendering when the card is off-screen
     const observer = new IntersectionObserver(
       ([entry]) => {
         visibleRef.current = entry.isIntersecting;
@@ -209,7 +211,6 @@ export default function CardShaderCanvas({
     );
     if (canvasRef.current) observer.observe(canvasRef.current);
 
-    // Initial render
     if (animate) {
       rafRef.current = requestAnimationFrame(loop);
     } else {
@@ -217,7 +218,7 @@ export default function CardShaderCanvas({
     }
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       observer.disconnect();
       try {
         const gl = glRef.current;
@@ -230,14 +231,12 @@ export default function CardShaderCanvas({
     };
   }, [initGL, loop, render, animate]);
 
-  // Re-render on prop change (static mode)
   useEffect(() => {
     if (!animate && progRef.current) {
       requestAnimationFrame((ts) => render(ts));
     }
   }, [cardType, c0, c1, c2, reversed, animate, render]);
 
-  // CSS gradient fallback when WebGL is not available
   if (webglFailed) {
     return (
       <div

@@ -16,12 +16,13 @@ import { motion } from 'framer-motion';
 import CloseIcon from '@mui/icons-material/Close';
 import TarotCard from '@/components/TarotCard';
 import { tarotCards } from '@/data/tarotCards';
+import type { TarotCardData } from '@/types/tarot';
 
 export default function CardGallery() {
-  const [selectedCard, setSelectedCard] = useState(null);
+  const [selectedCard, setSelectedCard] = useState<TarotCardData | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleCardClick = (card) => {
+  const handleCardClick = (card: TarotCardData) => {
     setSelectedCard(card);
     setDialogOpen(true);
   };
@@ -38,7 +39,6 @@ export default function CardGallery() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Typography
             variant="h2"
@@ -66,7 +66,6 @@ export default function CardGallery() {
           </Typography>
         </Box>
 
-        {/* Card Grid */}
         <Grid container spacing={3} justifyContent="center">
           {tarotCards.map((card, index) => (
             <Grid item key={card.id}>
@@ -97,7 +96,6 @@ export default function CardGallery() {
           ))}
         </Grid>
 
-        {/* Card Detail Dialog */}
         <Dialog
           open={dialogOpen}
           onClose={handleClose}
@@ -135,7 +133,6 @@ export default function CardGallery() {
                   p: 4,
                 }}
               >
-                {/* Card Display */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
                   <TarotCard
                     card={selectedCard}
@@ -145,7 +142,6 @@ export default function CardGallery() {
                   />
                 </Box>
 
-                {/* Card Details */}
                 <Box>
                   <Typography
                     variant="h3"
@@ -191,7 +187,6 @@ export default function CardGallery() {
 
                   <Divider sx={{ my: 2, borderColor: 'rgba(156, 124, 244, 0.3)' }} />
 
-                  {/* Keywords */}
                   <Typography variant="subtitle2" color="secondary.main" gutterBottom>
                     Keywords 關鍵詞
                   </Typography>
@@ -209,7 +204,6 @@ export default function CardGallery() {
                     ))}
                   </Box>
 
-                  {/* Upright Meaning */}
                   <Typography variant="subtitle2" color="primary.light" gutterBottom>
                     ⬆️ Upright 正位
                   </Typography>
@@ -220,7 +214,6 @@ export default function CardGallery() {
                     {selectedCard.upright.meaningZh}
                   </Typography>
 
-                  {/* Reversed Meaning */}
                   <Typography variant="subtitle2" color="error.light" gutterBottom>
                     ⬇️ Reversed 逆位
                   </Typography>

@@ -21,7 +21,17 @@ import CollectionsIcon from '@mui/icons-material/Collections';
 import TarotCard from '@/components/TarotCard';
 import { tarotCards } from '@/data/tarotCards';
 
-const spreadOptions = [
+interface SpreadOption {
+  id: string;
+  title: string;
+  titleZh: string;
+  description: string;
+  descriptionZh: string;
+  icon: React.ReactNode;
+  color: string;
+}
+
+const spreadOptions: SpreadOption[] = [
   {
     id: 'single',
     title: 'Single Card',
@@ -61,12 +71,11 @@ const spreadOptions = [
 ];
 
 export default function Home() {
-  const featuredCards = [tarotCards[0], tarotCards[17], tarotCards[19]]; // Fool, Star, Sun
+  const featuredCards = [tarotCards[0], tarotCards[17], tarotCards[19]];
 
   return (
     <Box sx={{ minHeight: '100vh', pb: { xs: 4, md: 8 } }}>
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-        {/* Hero Section - Mobile Optimized */}
         <Box
           sx={{
             display: 'flex',
@@ -131,7 +140,6 @@ export default function Home() {
             </Typography>
           </motion.div>
 
-          {/* CTA Buttons - Stack on Mobile */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -182,7 +190,6 @@ export default function Home() {
           </motion.div>
         </Box>
 
-        {/* Featured Cards - Horizontal Scroll on Mobile */}
         <Box sx={{ py: { xs: 3, md: 5 } }}>
           <motion.div
             initial={{ opacity: 0 }}
@@ -224,7 +231,6 @@ export default function Home() {
           </motion.div>
         </Box>
 
-        {/* Reading Options - Mobile Grid */}
         <Box sx={{ py: { xs: 2, md: 4 } }}>
           <Typography
             variant="h4"
@@ -332,7 +338,6 @@ export default function Home() {
           </Grid>
         </Box>
 
-        {/* Gallery Link */}
         <Box sx={{ py: { xs: 2, md: 4 }, textAlign: 'center' }}>
           <motion.div
             initial={{ opacity: 0 }}
@@ -354,7 +359,6 @@ export default function Home() {
           </motion.div>
         </Box>
 
-        {/* Footer info */}
         <Box sx={{ py: { xs: 2, md: 4 }, textAlign: 'center' }}>
           <Typography
             variant="caption"

@@ -2,10 +2,11 @@
 
 import React from 'react';
 import CardShaderCanvas from './shaders/CardShaderCanvas';
+import type { TarotCardData } from '@/types/tarot';
 
 // ─── Dog Illustration Components (unchanged) ─────────────────────────────────
 
-function GenericDog({ primaryColor }) {
+function GenericDog({ primaryColor }: { primaryColor: string }) {
   return (
     <g>
       <ellipse cx="0" cy="20" rx="35" ry="30" fill={primaryColor} />
@@ -716,12 +717,12 @@ function WorldDog() {
           />
         );
       })}
-      {[
+      {([
         [-42, -50, '#87CEEB'],
         [42, -50, '#DC143C'],
         [-42, 50, '#228B22'],
         [42, 50, '#4169E1'],
-      ].map(([x, y, color], i) => (
+      ] as const).map(([x, y, color], i) => (
         <g key={i} transform={`translate(${x}, ${y})`}>
           <circle cx="0" cy="0" r="8" fill={color} />
           <circle cx="-2" cy="-2" r="1.5" fill="#1a1a1a" />
@@ -757,7 +758,7 @@ function WorldDog() {
 
 // ─── Illustration Map ─────────────────────────────────────────────────────────
 
-const DogIllustrations = {
+const DogIllustrations: Record<number, React.FC<{ primaryColor?: string; secondaryColor?: string }>> = {
   0: FoolDog, 1: MagicianDog, 2: HighPriestessDog, 3: EmpressDog,
   4: EmperorDog, 5: HierophantDog, 6: LoversDog, 7: ChariotDog,
   8: StrengthDog, 9: HermitDog, 10: WheelDog, 11: JusticeDog,
@@ -766,7 +767,7 @@ const DogIllustrations = {
   20: JudgementDog, 21: WorldDog,
 };
 
-function toRomanNumeral(num) {
+function toRomanNumeral(num: number): string {
   const numerals = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
     'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
   return numerals[num] || num.toString();
@@ -774,7 +775,14 @@ function toRomanNumeral(num) {
 
 // ─── CardFront ────────────────────────────────────────────────────────────────
 
-export default function CardFront({ card, isReversed, width, height }) {
+interface CardFrontProps {
+  card: TarotCardData;
+  isReversed: boolean;
+  width: number;
+  height: number;
+}
+
+export default function CardFront({ card, isReversed, width, height }: CardFrontProps) {
   if (!card) return null;
 
   const DogComponent   = DogIllustrations[card.id] || GenericDog;
@@ -860,12 +868,12 @@ export default function CardFront({ card, isReversed, width, height }) {
         />
 
         {/* Corner ornaments */}
-        {[
+        {([
           [18, 18, 'M0,14 Q0,0 14,0'],
           [162, 18, 'M0,14 Q0,0 -14,0'],
           [18, 282, 'M0,-14 Q0,0 14,0'],
           [162, 282, 'M0,-14 Q0,0 -14,0'],
-        ].map(([cx, cy, d], i) => (
+        ] as const).map(([cx, cy, d], i) => (
           <g key={i} transform={`translate(${cx},${cy})`} filter={`url(#${glowId})`}>
             <path d={d} fill="none" stroke={`url(#${goldId})`} strokeWidth="1.5" />
             <circle cx="0" cy="0" r="2" fill={`url(#${goldId})`} />

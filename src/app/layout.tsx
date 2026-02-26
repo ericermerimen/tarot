@@ -1,9 +1,10 @@
+import type { Metadata } from 'next';
 import ThemeRegistry from '@/theme/ThemeRegistry';
 import Navigation from '@/components/Navigation';
 import ParticleBackground from '@/components/ParticleBackground';
 import './globals.css';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: '🐕 Mystical Dog Tarot | 神秘狗狗塔羅',
   description: 'Divine your future with cute dog-styled tarot cards. Experience mystical readings with adorable canine companions. 用可愛的狗狗塔羅牌占卜你的未來，體驗神秘的命運指引。',
   keywords: 'tarot, divination, fortune telling, dog tarot, 塔羅牌, 占卜, 算命, 狗狗塔羅',
@@ -12,7 +13,7 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>

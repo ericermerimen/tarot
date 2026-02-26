@@ -3,17 +3,37 @@
 import React, { useEffect, useRef } from 'react';
 import { Box } from '@mui/material';
 
+interface Star {
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  twinkleSpeed: number;
+  twinkleOffset: number;
+}
+
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  speedX: number;
+  speedY: number;
+  opacity: number;
+  hue: number;
+}
+
 export default function ParticleBackground() {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    let animationFrameId;
-    let particles = [];
-    let stars = [];
+    if (!ctx) return;
+    let animationFrameId: number;
+    let particles: Particle[] = [];
+    let stars: Star[] = [];
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -23,7 +43,6 @@ export default function ParticleBackground() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Create stars
     const createStars = () => {
       stars = [];
       const starCount = Math.floor((canvas.width * canvas.height) / 8000);
@@ -39,7 +58,6 @@ export default function ParticleBackground() {
       }
     };
 
-    // Create floating particles
     const createParticles = () => {
       particles = [];
       const particleCount = 30;
@@ -51,7 +69,7 @@ export default function ParticleBackground() {
           speedX: (Math.random() - 0.5) * 0.3,
           speedY: (Math.random() - 0.5) * 0.3,
           opacity: Math.random() * 0.5 + 0.1,
-          hue: Math.random() * 60 + 250, // Purple to gold range
+          hue: Math.random() * 60 + 250,
         });
       }
     };
@@ -64,7 +82,6 @@ export default function ParticleBackground() {
       time += 0.016;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw stars with twinkling effect
       stars.forEach((star) => {
         const twinkle = Math.sin(time * star.twinkleSpeed * 60 + star.twinkleOffset);
         const opacity = star.opacity * (0.5 + twinkle * 0.5);
@@ -74,19 +91,15 @@ export default function ParticleBackground() {
         ctx.fill();
       });
 
-      // Draw floating particles with glow
       particles.forEach((particle) => {
-        // Update position
         particle.x += particle.speedX;
         particle.y += particle.speedY;
 
-        // Wrap around screen
         if (particle.x < 0) particle.x = canvas.width;
         if (particle.x > canvas.width) particle.x = 0;
         if (particle.y < 0) particle.y = canvas.height;
         if (particle.y > canvas.height) particle.y = 0;
 
-        // Draw glow
         const gradient = ctx.createRadialGradient(
           particle.x,
           particle.y,
@@ -103,7 +116,6 @@ export default function ParticleBackground() {
         ctx.fillStyle = gradient;
         ctx.fill();
 
-        // Draw core
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size * 0.5, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${particle.hue}, 80%, 80%, ${particle.opacity * 2})`;

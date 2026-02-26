@@ -3,7 +3,12 @@
 import { Box, Container, Typography, Button } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-export default function Error({ error, reset }) {
+interface ErrorProps {
+  error: Error & { digest?: string };
+  reset: () => void;
+}
+
+export default function Error({ error, reset }: ErrorProps) {
   return (
     <Container maxWidth="sm" sx={{ py: 8, textAlign: 'center' }}>
       <Box

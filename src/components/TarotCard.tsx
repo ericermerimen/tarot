@@ -5,6 +5,17 @@ import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import CardBack from './CardBack';
 import CardFront from './CardFront';
+import type { TarotCardData, CardSize } from '@/types/tarot';
+
+interface TarotCardProps {
+  card: TarotCardData;
+  isReversed?: boolean;
+  isFlipped?: boolean;
+  onClick?: () => void;
+  size?: CardSize;
+  disabled?: boolean;
+  responsive?: boolean;
+}
 
 export default function TarotCard({
   card,
@@ -14,13 +25,12 @@ export default function TarotCard({
   size = 'medium',
   disabled = false,
   responsive = true,
-}) {
+}: TarotCardProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
-  // Responsive sizes - optimized for mobile touch targets
-  const getSizes = () => {
+  const getSizes = (): { width: number; height: number } => {
     if (responsive) {
       if (isMobile) {
         switch (size) {
@@ -39,7 +49,6 @@ export default function TarotCard({
         }
       }
     }
-    // Desktop sizes
     switch (size) {
       case 'small': return { width: 120, height: 200 };
       case 'medium': return { width: 180, height: 300 };
@@ -59,7 +68,7 @@ export default function TarotCard({
         perspective: '1000px',
         touchAction: 'manipulation',
       }}
-      onClick={onClick}
+      {...(onClick ? { onClick } : {})}
     >
       <Box
         sx={{
@@ -71,7 +80,6 @@ export default function TarotCard({
           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
         }}
       >
-        {/* Card Back */}
         <Box
           sx={{
             position: 'absolute',
@@ -86,7 +94,6 @@ export default function TarotCard({
           <CardBack width={width} height={height} />
         </Box>
 
-        {/* Card Front */}
         <Box
           sx={{
             position: 'absolute',
@@ -108,7 +115,6 @@ export default function TarotCard({
         </Box>
       </Box>
 
-      {/* Card Name Below - Responsive text */}
       {isFlipped && card && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}

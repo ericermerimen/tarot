@@ -21,12 +21,14 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import { tarotCards, spreadTypes } from '@/data/tarotCards';
+import type { SpreadKey } from '@/types/tarot';
+import type { ReadingRecord } from '@/types/reading';
 
 export default function Journal() {
-  const [readings, setReadings] = useState([]);
-  const [expandedReading, setExpandedReading] = useState(null);
+  const [readings, setReadings] = useState<ReadingRecord[]>([]);
+  const [expandedReading, setExpandedReading] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState<number | 'all' | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('tarotHistory');
@@ -35,7 +37,7 @@ export default function Journal() {
     }
   }, []);
 
-  const handleDelete = (index) => {
+  const handleDelete = (index: number) => {
     setDeleteTarget(index);
     setDeleteDialogOpen(true);
   };
@@ -44,7 +46,7 @@ export default function Journal() {
     if (deleteTarget === 'all') {
       setReadings([]);
       localStorage.removeItem('tarotHistory');
-    } else {
+    } else if (typeof deleteTarget === 'number') {
       const newReadings = readings.filter((_, i) => i !== deleteTarget);
       setReadings(newReadings);
       localStorage.setItem('tarotHistory', JSON.stringify(newReadings));
@@ -58,11 +60,11 @@ export default function Journal() {
     setDeleteDialogOpen(true);
   };
 
-  const toggleExpand = (index) => {
+  const toggleExpand = (index: number) => {
     setExpandedReading(expandedReading === index ? null : index);
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return {
       date: date.toLocaleDateString('en-US', {
@@ -84,7 +86,6 @@ export default function Journal() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography
             variant="h2"
@@ -112,7 +113,6 @@ export default function Journal() {
           </Typography>
         </Box>
 
-        {/* Clear All Button */}
         {readings.length > 0 && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
             <Button
@@ -127,7 +127,6 @@ export default function Journal() {
           </Box>
         )}
 
-        {/* Readings List */}
         {readings.length === 0 ? (
           <Paper
             sx={{
@@ -157,7 +156,7 @@ export default function Journal() {
           <AnimatePresence>
             {readings.map((reading, index) => {
               const { date, time } = formatDate(reading.date);
-              const spread = spreadTypes[reading.spread] || spreadTypes.single;
+              const spread = spreadTypes[reading.spread as SpreadKey] || spreadTypes.single;
               const isExpanded = expandedReading === index;
 
               return (
@@ -180,7 +179,6 @@ export default function Journal() {
                       },
                     }}
                   >
-                    {/* Header */}
                     <Box
                       sx={{
                         p: 2,
@@ -224,7 +222,6 @@ export default function Journal() {
                       </Box>
                     </Box>
 
-                    {/* Expanded Content */}
                     <AnimatePresence>
                       {isExpanded && (
                         <motion.div
@@ -289,7 +286,6 @@ export default function Journal() {
           </AnimatePresence>
         )}
 
-        {/* Delete Confirmation Dialog */}
         <Dialog
           open={deleteDialogOpen}
           onClose={() => setDeleteDialogOpen(false)}

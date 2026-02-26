@@ -1,8 +1,6 @@
-// 22 Major Arcana Tarot Cards - Dog Edition
-// Each card features a cute dog with mystical elements
-// Enhanced with comprehensive interpretations, reflections, and symbolism
+import type { TarotCardData, DrawnCard, SpreadType, SpreadKey } from '@/types/tarot';
 
-export const tarotCards = [
+export const tarotCards: TarotCardData[] = [
   {
     id: 0,
     name: 'The Fool',
@@ -668,15 +666,13 @@ export const tarotCards = [
   },
 ];
 
-// Helper function to get a random card
-export const getRandomCard = () => {
+export const getRandomCard = (): DrawnCard => {
   const index = Math.floor(Math.random() * tarotCards.length);
   const isReversed = Math.random() > 0.5;
   return { card: tarotCards[index], isReversed };
 };
 
-// Helper function to get multiple random cards (no duplicates)
-export const getRandomCards = (count) => {
+export const getRandomCards = (count: number): DrawnCard[] => {
   const shuffled = [...tarotCards].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count).map(card => ({
     card,
@@ -684,8 +680,7 @@ export const getRandomCards = (count) => {
   }));
 };
 
-// Spread types
-export const spreadTypes = {
+export const spreadTypes: Record<SpreadKey, SpreadType> = {
   single: {
     name: 'Single Card',
     nameZh: '單牌占卜',

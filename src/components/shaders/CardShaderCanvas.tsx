@@ -91,11 +91,7 @@ export default function CardShaderCanvas({
   const rafRef     = useRef<number | null>(null);
   const startRef   = useRef<number | null>(null);
   const visibleRef = useRef(true);
-  const [webglFailed, setWebglFailed] = useState(() => {
-    if (typeof document === 'undefined') return false;
-    const testCanvas = document.createElement('canvas');
-    return !testCanvas.getContext('webgl');
-  });
+  const [webglFailed, setWebglFailed] = useState(false);
 
   const c0 = colors[0] || '#9c7cf4';
   const c1 = colors[1] || '#f4cf7c';
@@ -200,7 +196,10 @@ export default function CardShaderCanvas({
 
   useEffect(() => {
     const ok = initGL();
-    if (!ok) return;
+    if (!ok) {
+      setWebglFailed(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

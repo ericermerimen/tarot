@@ -24,7 +24,6 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import WorkIcon from '@mui/icons-material/Work';
 import SpaIcon from '@mui/icons-material/Spa';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ShareIcon from '@mui/icons-material/Share';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCard, tarotCards } from '@/data/tarotCards';
@@ -32,11 +31,12 @@ import type { DrawnCard } from '@/types/tarot';
 import type { DailyCardStorage } from '@/types/reading';
 
 function loadOrGenerateDaily(): DrawnCard {
+  const today = new Date().toDateString();
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem('dailyCard');
     if (stored) {
       const { date, cardId, isReversed }: DailyCardStorage = JSON.parse(stored);
-      if (date === new Date().toDateString()) {
+      if (date === today) {
         const card = tarotCards.find(c => c.id === cardId);
         if (card) return { card, isReversed };
       }
@@ -44,7 +44,7 @@ function loadOrGenerateDaily(): DrawnCard {
   }
   const drawn = getRandomCard();
   const storage: DailyCardStorage = {
-    date: new Date().toDateString(),
+    date: today,
     cardId: drawn.card.id,
     isReversed: drawn.isReversed,
   };
@@ -55,13 +55,15 @@ function loadOrGenerateDaily(): DrawnCard {
 }
 
 export default function DailyCard() {
-  const [dailyReading, setDailyReading] = useState<DrawnCard | null>(() => loadOrGenerateDaily());
+  const [dailyReading, setDailyReading] = useState<DrawnCard>(() => loadOrGenerateDaily());
   const [isFlipped, setIsFlipped] = useState(false);
   const [showMeaning, setShowMeaning] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | false>('meaning');
 
   const generateDailyCard = () => {
-    const drawn = loadOrGenerateDaily();
+    const today = new Date().toDateString();
+    const drawn = getRandomCard();
+    localStorage.setItem('dailyCard', JSON.stringify({ date: today, cardId: drawn.card.id, isReversed: drawn.isReversed } as DailyCardStorage));
     setDailyReading(drawn);
     setIsFlipped(false);
     setShowMeaning(false);
@@ -74,29 +76,9 @@ export default function DailyCard() {
     }
   };
 
-  const handleNewCard = () => {
-    generateDailyCard();
-  };
-
   const handleAccordionChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpandedSection(isExpanded ? panel : false);
   };
-
-  if (!dailyReading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-        >
-          <AutoAwesomeIcon sx={{ fontSize: 48, color: 'primary.main' }} />
-        </motion.div>
-        <Typography sx={{ mt: 2, color: 'text.secondary' }}>
-          Consulting the cards... 正在占卜...
-        </Typography>
-      </Container>
-    );
-  }
 
   const { card, isReversed } = dailyReading;
   const meaning = isReversed ? card.reversed : card.upright;
@@ -432,7 +414,7 @@ export default function DailyCard() {
                 <Button
                   variant="outlined"
                   startIcon={<RefreshIcon />}
-                  onClick={handleNewCard}
+                  onClick={generateDailyCard}
                   size="large"
                   sx={{ flex: { xs: '1 1 100%', sm: '0 1 auto' } }}
                 >

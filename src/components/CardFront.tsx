@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import CardShaderCanvas from './shaders/CardShaderCanvas';
 import { DogIllustrations, GenericDog } from './cards';
 import type { TarotCardData } from '@/types/tarot';
@@ -25,15 +26,127 @@ interface CardFrontProps {
 export default function CardFront({ card, isReversed, width, height }: CardFrontProps) {
   if (!card) return null;
 
-  const DogComponent   = DogIllustrations[card.id] || GenericDog;
-  const primaryColor   = card.colors?.[0] || '#FFD700';
-  const secondaryColor = card.colors?.[1] || '#9c7cf4';
-  const colors         = card.colors || ['#9c7cf4', '#f4cf7c', '#6b4bc1'];
-
   // Unique SVG filter IDs per card to avoid cross-card conflicts
   const goldId   = `cfGold-${card.id}`;
   const glowId   = `cfGlow-${card.id}`;
   const shadowId = `cfShadow-${card.id}`;
+
+  // ── Generated image variant ───────────────────────────────────────────────
+  if (card.imagePath) {
+    return (
+      <div
+        style={{
+          position: 'relative',
+          width,
+          height,
+          borderRadius: 12,
+          overflow: 'hidden',
+          transform: isReversed ? 'rotate(180deg)' : 'none',
+        }}
+      >
+        {/* AI-generated card art fills the full card */}
+        <Image
+          src={card.imagePath}
+          alt={`${card.name} tarot card`}
+          fill
+          style={{ objectFit: 'cover' }}
+          priority={card.id <= 3}
+          sizes={`${width}px`}
+        />
+
+        {/* SVG overlay: gold border frame + bilingual text footer */}
+        <svg
+          width={width}
+          height={height}
+          viewBox="0 0 180 300"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
+        >
+          <defs>
+            <linearGradient id={goldId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stopColor="#f4cf7c" />
+              <stop offset="50%"  stopColor="#ffe4a8" />
+              <stop offset="100%" stopColor="#c19b4c" />
+            </linearGradient>
+            <filter id={glowId} x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="1.8" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id={shadowId} x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="1" stdDeviation="2.5" floodColor="#000" floodOpacity="0.85" />
+            </filter>
+          </defs>
+
+          {/* Footer dark strip for text legibility */}
+          <path d="M0,258 L180,258 L180,288 Q180,300 168,300 L12,300 Q0,300 0,288 Z"
+            fill="rgba(0,0,0,0.62)" />
+
+          {/* Gold outer border */}
+          <rect
+            x="5" y="5" width="170" height="290" rx="10"
+            fill="none"
+            stroke={`url(#${goldId})`}
+            strokeWidth="2.5"
+            filter={`url(#${glowId})`}
+          />
+          {/* Inner border */}
+          <rect
+            x="10" y="10" width="160" height="280" rx="7"
+            fill="none"
+            stroke={`url(#${goldId})`}
+            strokeWidth="0.8"
+            opacity="0.4"
+          />
+
+          {/* Corner ornaments */}
+          {([
+            [18, 18, 'M0,14 Q0,0 14,0'],
+            [162, 18, 'M0,14 Q0,0 -14,0'],
+            [18, 282, 'M0,-14 Q0,0 14,0'],
+            [162, 282, 'M0,-14 Q0,0 -14,0'],
+          ] as const).map(([cx, cy, d], i) => (
+            <g key={i} transform={`translate(${cx},${cy})`} filter={`url(#${glowId})`}>
+              <path d={d} fill="none" stroke={`url(#${goldId})`} strokeWidth="1.5" />
+              <circle cx="0" cy="0" r="2" fill={`url(#${goldId})`} />
+            </g>
+          ))}
+
+          {/* Card name (Chinese) — complements the EN name baked into the image */}
+          <text
+            x="90" y="276"
+            textAnchor="middle"
+            fontFamily="Noto Sans TC, sans-serif"
+            fontSize="11"
+            fill="#d4b8f0"
+            filter={`url(#${shadowId})`}
+          >
+            {card.nameZh}
+          </text>
+
+          {/* Keywords (Chinese) */}
+          <text
+            x="90" y="291"
+            textAnchor="middle"
+            fontFamily="Noto Sans TC, sans-serif"
+            fontSize="7.5"
+            fill="#c8b8e0"
+            opacity="0.9"
+          >
+            {card.keywordsZh.slice(0, 2).join(' · ')}
+          </text>
+        </svg>
+      </div>
+    );
+  }
+
+  // ── Fallback: original SVG + WebGL variant (no imagePath) ─────────────────
+  const DogComponent   = DogIllustrations[card.id] || GenericDog;
+  const primaryColor   = card.colors?.[0] || '#FFD700';
+  const secondaryColor = card.colors?.[1] || '#9c7cf4';
+  const colors         = card.colors || ['#9c7cf4', '#f4cf7c', '#6b4bc1'];
 
   return (
     <div

@@ -95,14 +95,15 @@ describe('Daily Card Page', () => {
 
   it('renders the page title in both languages', () => {
     renderPage()
-    // Title contains both "Daily Card" and "每日一牌" in a single element
-    const titles = screen.getAllByText(/Daily Card/)
+    // Page uses a monospace terminal label for the section header
+    const titles = screen.getAllByText(/DAILY_READING/)
     expect(titles.length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders a tap-to-reveal prompt before flipping', () => {
     renderPage()
-    const prompts = screen.getAllByText(/Tap the card to reveal/)
+    // Prompt uses monospace terminal style: TAP_TO_REVEAL
+    const prompts = screen.getAllByText(/TAP_TO_REVEAL/)
     expect(prompts.length).toBeGreaterThanOrEqual(1)
   })
 })

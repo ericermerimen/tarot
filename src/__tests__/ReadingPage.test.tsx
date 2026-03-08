@@ -62,13 +62,13 @@ describe('Reading Page', () => {
   it('renders all four spread tabs', () => {
     renderPage()
     // MUI Tabs may render duplicate role="tab" elements in jsdom;
-    // verify all four labels appear in the tab list
+    // Tab labels use uppercase monospace terminal style
     const tabs = screen.getAllByRole('tab')
     const tabLabels = tabs.map(t => t.textContent)
-    expect(tabLabels).toContain('Single')
-    expect(tabLabels).toContain('Three Card')
-    expect(tabLabels).toContain('Love')
-    expect(tabLabels).toContain('Celtic Cross')
+    expect(tabLabels).toContain('SINGLE')
+    expect(tabLabels).toContain('THREE_CARD')
+    expect(tabLabels).toContain('LOVE')
+    expect(tabLabels).toContain('CELTIC_CROSS')
   })
 
   it('defaults to single spread when no search param', () => {
@@ -80,13 +80,15 @@ describe('Reading Page', () => {
 
   it('renders a "New Reading" button', () => {
     renderPage()
-    const buttons = screen.getAllByText(/New Reading/)
+    // Button uses monospace terminal label: NEW_READING 重新占卜
+    const buttons = screen.getAllByText(/NEW_READING/)
     expect(buttons.length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows click-to-reveal instruction', () => {
     renderPage()
-    const instructions = screen.getAllByText(/Click each card to reveal/)
+    // Instruction uses monospace terminal label: TAP_EACH_CARD_TO_REVEAL
+    const instructions = screen.getAllByText(/TAP_EACH_CARD_TO_REVEAL/)
     expect(instructions.length).toBeGreaterThanOrEqual(1)
   })
 

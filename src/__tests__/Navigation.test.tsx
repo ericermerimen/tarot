@@ -25,7 +25,9 @@ function renderWithTheme(ui: React.ReactElement) {
 describe('Navigation', () => {
   it('renders the app title', () => {
     renderWithTheme(<Navigation />)
-    expect(screen.getByText(/Mystical Dog Tarot/)).toBeInTheDocument()
+    // Navigation renders the compact monospace brand label
+    const titles = screen.getAllByText(/DOG_TAROT/)
+    expect(titles.length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders all navigation items', () => {

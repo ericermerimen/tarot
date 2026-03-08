@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import { motion, AnimatePresence } from 'motion/react';
 import TarotCard from '@/components/TarotCard';
@@ -41,13 +41,9 @@ function formatDate(d: Date): string {
 }
 
 export default function DailyCard() {
-  const [dailyReading, setDailyReading] = useState<DrawnCard | null>(null);
+  const [dailyReading, setDailyReading] = useState<DrawnCard | null>(() => loadOrGenerateDaily());
   const [isFlipped, setIsFlipped] = useState(false);
   const [showMeaning, setShowMeaning] = useState(false);
-
-  useEffect(() => {
-    setDailyReading(loadOrGenerateDaily());
-  }, []);
 
   const generateDailyCard = () => {
     const today = new Date().toDateString();

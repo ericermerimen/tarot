@@ -8,19 +8,19 @@ A mystical tarot divination web app where each of the 22 Major Arcana cards is r
 
 Tarot apps often feel either too generic or too cluttered. This project explores how to build a polished, feature-rich divination experience with:
 
-- **Pure CSS/SVG illustrations** — no external image assets; every dog breed is drawn programmatically
-- **WebGL shader effects** — animated card backgrounds via custom GLSL fragment shaders
+- **AI-generated card art** — each of the 22 Major Arcana cards is rendered from a unique AI-generated PNG, giving rich, painterly detail without hand-coding graphics
+- **WebGL shader effects** — animated card backgrounds via custom GLSL fragment shaders (active in fallback rendering path)
 - **Full bilingual support** — English and Traditional Chinese coexist in a single data model, not separate i18n files
 - **Client-side persistence** — localStorage for daily cards and reading history, zero backend needed
 
 ## Features
 
-- **22 Major Arcana Cards** — each card features a unique CSS/SVG dog breed illustration
+- **22 Major Arcana Cards** — each card displays a unique AI-generated dog breed illustration
 - **Multiple Reading Spreads** — Single card, Three card, Love reading, Celtic Cross (10 cards)
 - **Daily Card** — persisted daily guidance with one card per day
 - **Card Gallery** — browse all cards with detailed upright/reversed meanings
 - **Reading Journal** — save and review past readings from localStorage
-- **Mystical Effects** — WebGL shaders, particle canvas background, Motion for React card flips
+- **Mystical Effects** — particle canvas background, Motion for React card flips, WebGL shader fallback
 
 ## Tech Stack
 
@@ -30,7 +30,8 @@ Tarot apps often feel either too generic or too cluttered. This project explores
 | Language | TypeScript (strict mode) | Full type safety across domain models, components, and pages |
 | UI | MUI v5 + Emotion | Rich component library with `sx` prop styling, custom dark theme |
 | Animation | Motion for React | Declarative animations for card flips, page transitions, accordions |
-| Rendering | WebGL (GLSL shaders) | Custom animated gradients on card backgrounds |
+| Card Art | AI-generated PNG (`public/cards/`) | Rich painterly illustrations served as static assets via `next/image` |
+| Rendering (fallback) | WebGL (GLSL shaders) | Custom animated gradients on card backgrounds when no image asset exists |
 | Background | Canvas 2D API | Star and particle system behind all page content |
 | Testing | Vitest + React Testing Library | Fast unit and component tests with jsdom |
 | Deployment | Vercel | Zero-config Next.js hosting |
@@ -43,7 +44,13 @@ Tarot apps often feel either too generic or too cluttered. This project explores
 
 **Type-driven domain model** — `src/types/tarot.ts` and `src/types/reading.ts` define shared interfaces (`TarotCardData`, `CardMeaning`, `DrawnCard`, `SpreadType`, `ReadingRecord`). Components and pages import these types, ensuring consistency across the entire app.
 
-**CSS/SVG card art** — Each of the 22 dog breeds lives in its own file under `components/cards/` (e.g., `FoolDog.tsx`, `MagicianDog.tsx`) with a barrel export in `index.ts`. `CardFront.tsx` (~190 lines) composes the selected illustration into the card layout. All illustrations use pure SVG primitives — zero external image dependencies, cards scale to any resolution, and individual files enable tree-shaking and code-splitting per card.
+**AI-generated image card art (primary path)** — Card art has migrated from programmatic SVG illustrations to AI-generated PNG files stored in `public/cards/` (`card-00.png` through `card-21.png`). The `TarotCardData` type includes an optional `imagePath` field; when present, `CardFront.tsx` renders the image via `next/image` with an SVG overlay for the gold border frame and bilingual text footer. All 22 cards currently have `imagePath` set, so this is the only active rendering path in production. Benefits: far richer visual detail, easier to update art without touching code, maintains Next.js image optimisation (lazy loading, responsive sizes, format conversion).
+
+**SVG illustration components are legacy fallback only** — The 22 dog breed SVG components under `components/cards/` (e.g., `FoolDog.tsx`, `MagicianDog.tsx`) and the WebGL `CardShaderCanvas` are still wired into `CardFront.tsx` as the fallback branch when `card.imagePath` is absent. Since every card currently has an image, these components are unreachable dead code at runtime. **Do not delete them yet** — they serve as a safety net if an image asset goes missing and act as the reference design for each breed. A future cleanup pass should either formally deprecate and remove them or move them behind a dev-only flag. Do not add new SVG illustration logic here; all new card art should go through the `imagePath` pipeline.
+
+**`imagePath` as the art contract** — `TarotCardData.imagePath` (optional `string`) is the single field that controls which rendering path `CardFront.tsx` takes. If you need to swap art for a card, update only `imagePath` in `tarotCards.ts` and drop the new file in `public/cards/`. No component changes required. Keep image files named with the card's zero-padded ID (`card-XX.png`) for predictability.
+
+**SVG overlay on image cards** — even when using AI-generated images, `CardFront.tsx` renders an SVG layer on top for the gold border, corner ornaments, Chinese card name, and keyword text. This keeps the visual frame consistent across both rendering paths and means text/border styling stays in code rather than baked into each image asset.
 
 **MUI theme extension** — the dark mystical palette uses MUI's module augmentation pattern to add a custom `mystical` palette section (purple, gold, pink, blue, dark, glow), keeping all color tokens centralized.
 
@@ -52,9 +59,10 @@ Tarot apps often feel either too generic or too cluttered. This project explores
 ## Tradeoffs
 
 - **No i18n library** — bilingual strings are co-located in data structures (e.g., `name`/`nameZh`). This is simple for two languages but wouldn't scale to 5+. For this project, co-location keeps translations in sync.
-- **No image assets** — pure SVG illustrations are resolution-independent but limited in artistic detail compared to raster art. The stylized look fits the mystical theme.
+- **Static image assets** — AI-generated PNGs live in `public/cards/` and are served as static files. This keeps deployment simple but means updating card art requires a redeploy. If art changes frequently, a CDN or CMS-backed image pipeline would be worth the complexity.
+- **Legacy SVG components** — the original programmatic dog illustrations still exist but are now dead code. They add ~23 files and bundle weight that is never executed. A cleanup task should decide their fate before the codebase grows further.
 - **Client-only persistence** — localStorage means data doesn't sync across devices. A backend would add deployment complexity without clear benefit for a personal divination tool.
-- **WebGL in jsdom** — the shader component gracefully degrades since jsdom doesn't support `getContext('webgl')`. Tests focus on data and DOM rendering instead.
+- **WebGL in jsdom** — the shader component gracefully degrades since jsdom doesn't support `getContext('webgl')`. Tests focus on data and DOM rendering instead. The shader is currently only reachable via the legacy fallback path, so this is low risk.
 
 ## Card Designs
 
@@ -134,25 +142,34 @@ src/
 │   └── global-error.tsx     # Global error boundary
 ├── components/              # Shared React components
 │   ├── TarotCard.tsx        # Main card component (flip animation)
-│   ├── CardFront.tsx        # Card front layout, border, text overlay (~190 lines)
+│   ├── CardFront.tsx        # Card front — branches on card.imagePath:
+│   │                        #   • imagePath present → next/image + SVG overlay (active path)
+│   │                        #   • imagePath absent  → legacy SVG dog + WebGL shader (fallback)
 │   ├── CardBack.tsx         # Card back design (SVG mystic pattern)
 │   ├── Navigation.tsx       # App-wide navigation bar
 │   ├── ParticleBackground.tsx  # Canvas 2D star/particle system
-│   ├── cards/               # Individual dog breed SVG illustration components
+│   ├── cards/               # ⚠️ LEGACY — SVG dog breed illustrations (fallback only)
 │   │   ├── index.ts         # DogIllustrations map + GenericDog export
-│   │   ├── FoolDog.tsx … WorldDog.tsx  # 22 card-specific illustrations
+│   │   ├── FoolDog.tsx … WorldDog.tsx  # 22 card-specific SVG components (currently unreachable)
 │   │   └── GenericDog.tsx   # Fallback illustration
-│   └── shaders/
+│   └── shaders/             # ⚠️ LEGACY — only used when card.imagePath is absent
 │       ├── CardShaderCanvas.tsx  # WebGL shader renderer
 │       └── fragmentShader.ts     # GLSL fragment shader source
 ├── data/
 │   └── tarotCards.ts        # All 22 Major Arcana + spread definitions
+│                            # imagePath field points to public/cards/card-XX.png
 ├── types/
 │   ├── tarot.ts             # Domain types (TarotCardData, DrawnCard, SpreadType, etc.)
+│   │                        # imagePath?: string controls CardFront rendering path
 │   └── reading.ts           # Persistence types (ReadingRecord, DailyCardStorage)
 └── theme/
     ├── theme.ts             # MUI dark theme with custom mystical palette
     └── ThemeRegistry.tsx    # Emotion SSR cache provider
+
+public/
+└── cards/                   # AI-generated card art (primary card images)
+    ├── card-00.png … card-21.png  # One PNG per Major Arcana (zero-padded ID)
+    └── card-base.png        # Base template reference
 ```
 
 ## License

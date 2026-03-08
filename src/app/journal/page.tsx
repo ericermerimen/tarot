@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { tarotCards, spreadTypes } from '@/data/tarotCards';
 import type { SpreadKey } from '@/types/tarot';
 import type { ReadingRecord } from '@/types/reading';
+import InsightsPanel from '@/components/InsightsPanel';
 
 export default function Journal() {
   const [readings, setReadings] = useState<ReadingRecord[]>(() => {
@@ -24,6 +25,8 @@ export default function Journal() {
   const [expandedReading, setExpandedReading] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<number | 'all' | null>(null);
+  const [editingReflection, setEditingReflection] = useState<number | null>(null);
+  const [reflectionDraft, setReflectionDraft] = useState('');
 
   const handleDelete = (index: number) => {
     setDeleteTarget(index);
@@ -52,6 +55,20 @@ export default function Journal() {
     setExpandedReading(expandedReading === index ? null : index);
   };
 
+  const saveReflection = (index: number) => {
+    const updated = readings.map((r, i) =>
+      i === index ? { ...r, reflection: reflectionDraft.trim() || undefined } : r
+    );
+    setReadings(updated);
+    localStorage.setItem('tarotHistory', JSON.stringify(updated));
+    setEditingReflection(null);
+  };
+
+  const startEditReflection = (index: number, current?: string) => {
+    setReflectionDraft(current ?? '');
+    setEditingReflection(index);
+  };
+
   const formatTimestamp = (dateString: string) => {
     const date = new Date(dateString);
     const y = date.getFullYear();
@@ -70,16 +87,16 @@ export default function Journal() {
         transition={{ duration: 0.6 }}
       >
         {/* Header */}
-        <Box sx={{ mb: 4, pb: 2, borderBottom: '1px solid #252528' }}>
+        <Box sx={{ mb: 4, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: '#c4a96e', flexShrink: 0 }} />
+              <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0 }} />
               <Typography
                 sx={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.7rem',
                   letterSpacing: '0.12em',
-                  color: '#606068',
+                  color: 'secondary.dark',
                 }}
               >
                 READING_LOG
@@ -93,12 +110,12 @@ export default function Journal() {
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.6rem',
                   letterSpacing: '0.08em',
-                  color: '#606068',
+                  color: 'secondary.dark',
                   cursor: 'pointer',
                   background: 'none',
                   border: 'none',
                   p: 0,
-                  '&:hover': { color: '#e4e0d8' },
+                  '&:hover': { color: 'text.primary' },
                 }}
               >
                 CLEAR_ALL ×
@@ -111,7 +128,7 @@ export default function Journal() {
               fontFamily: 'var(--font-display)',
               fontSize: { xs: '1.75rem', md: '2.25rem' },
               fontWeight: 300,
-              color: '#e4e0d8',
+              color: 'text.primary',
               mb: 0.25,
             }}
           >
@@ -121,7 +138,7 @@ export default function Journal() {
             sx={{
               fontFamily: 'var(--font-noto-sans-tc)',
               fontSize: '0.95rem',
-              color: '#606068',
+              color: 'secondary.dark',
               mb: 0.75,
             }}
           >
@@ -131,7 +148,7 @@ export default function Journal() {
             sx={{
               fontFamily: 'var(--font-mono)',
               fontSize: '0.6rem',
-              color: '#3a3a3e',
+              color: 'secondary.dark',
               letterSpacing: '0.06em',
             }}
           >
@@ -139,13 +156,15 @@ export default function Journal() {
           </Typography>
         </Box>
 
+        <InsightsPanel readings={readings} />
+
         {readings.length === 0 ? (
           /* Empty state */
           <Box
             sx={{
               p: 6,
               textAlign: 'center',
-              border: '1px solid #252528',
+              border: '1px solid', borderColor: 'divider',
               bgcolor: 'background.paper',
             }}
           >
@@ -154,7 +173,7 @@ export default function Journal() {
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.75rem',
                 letterSpacing: '0.1em',
-                color: '#3a3a3e',
+                color: 'secondary.dark',
                 mb: 2,
               }}
             >
@@ -164,7 +183,7 @@ export default function Journal() {
               sx={{
                 fontFamily: 'var(--font-noto-sans-tc)',
                 fontSize: '0.875rem',
-                color: '#888078',
+                color: 'text.secondary',
                 mb: 3,
               }}
             >
@@ -178,10 +197,10 @@ export default function Journal() {
                 fontSize: '0.65rem',
                 letterSpacing: '0.1em',
                 borderRadius: 0,
-                bgcolor: '#c4a96e',
-                color: '#0d0d0f',
+                bgcolor: 'primary.main',
+                color: 'background.default',
                 boxShadow: 'none',
-                '&:hover': { bgcolor: '#b89a5e', boxShadow: 'none' },
+                '&:hover': { bgcolor: 'primary.dark', boxShadow: 'none' },
               }}
             >
               START_READING →
@@ -205,8 +224,8 @@ export default function Journal() {
                 >
                   <Box
                     sx={{
-                      borderBottom: '1px solid #1a1a1d',
-                      '&:first-of-type': { borderTop: '1px solid #1a1a1d' },
+                      borderBottom: '1px solid', borderBottomColor: 'divider',
+                      '&:first-of-type': { borderTop: '1px solid', borderTopColor: 'divider' },
                     }}
                   >
                     {/* Row header */}
@@ -228,7 +247,7 @@ export default function Journal() {
                             sx={{
                               fontFamily: 'var(--font-mono)',
                               fontSize: '0.6rem',
-                              color: '#606068',
+                              color: 'secondary.dark',
                               letterSpacing: '0.06em',
                               flexShrink: 0,
                             }}
@@ -239,7 +258,7 @@ export default function Journal() {
                             sx={{
                               fontFamily: 'var(--font-mono)',
                               fontSize: '0.6rem',
-                              color: '#c4a96e',
+                              color: 'primary.main',
                               letterSpacing: '0.08em',
                             }}
                           >
@@ -250,7 +269,7 @@ export default function Journal() {
                           sx={{
                             fontFamily: 'var(--font-mono)',
                             fontSize: '0.75rem',
-                            color: '#e4e0d8',
+                            color: 'text.primary',
                             letterSpacing: '0.04em',
                           }}
                         >
@@ -260,20 +279,54 @@ export default function Journal() {
                             sx={{
                               fontFamily: 'var(--font-noto-sans-tc)',
                               fontSize: '0.75rem',
-                              color: '#888078',
+                              color: 'text.secondary',
                               ml: 1,
                             }}
                           >
                             {spread.nameZh}
                           </Box>
                         </Typography>
+                        {reading.intention && (
+                          <Typography
+                            sx={{
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '0.6rem',
+                              color: 'secondary.dark',
+                              letterSpacing: '0.08em',
+                            }}
+                          >
+                            {'INTENT > '}{reading.intention.tag.toUpperCase()}
+                            {reading.intention.note && (
+                              <Box component="span" sx={{ color: 'text.secondary', ml: 1 }}>
+                                · {reading.intention.note}
+                              </Box>
+                            )}
+                          </Typography>
+                        )}
+                        {!isExpanded && reading.reflection && (
+                          <Typography
+                            sx={{
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '0.6rem',
+                              color: 'text.secondary',
+                              letterSpacing: '0.04em',
+                              mt: 0.25,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              maxWidth: '60ch',
+                            }}
+                          >
+                            {reading.reflection.slice(0, 80)}{reading.reflection.length > 80 ? '…' : ''}
+                          </Typography>
+                        )}
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
                         <Typography
                           sx={{
                             fontFamily: 'var(--font-mono)',
                             fontSize: '0.6rem',
-                            color: '#3a3a3e',
+                            color: 'secondary.dark',
                             letterSpacing: '0.06em',
                           }}
                         >
@@ -288,13 +341,13 @@ export default function Journal() {
                           sx={{
                             fontFamily: 'var(--font-mono)',
                             fontSize: '0.75rem',
-                            color: '#3a3a3e',
+                            color: 'secondary.dark',
                             cursor: 'pointer',
                             background: 'none',
                             border: 'none',
                             p: 0,
                             lineHeight: 1,
-                            '&:hover': { color: '#888078' },
+                            '&:hover': { color: 'text.secondary' },
                           }}
                         >
                           ×
@@ -303,7 +356,7 @@ export default function Journal() {
                           sx={{
                             fontFamily: 'var(--font-mono)',
                             fontSize: '0.55rem',
-                            color: '#3a3a3e',
+                            color: 'secondary.dark',
                             userSelect: 'none',
                           }}
                         >
@@ -321,7 +374,7 @@ export default function Journal() {
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <Box sx={{ borderTop: '1px solid #1a1a1d', bgcolor: 'background.paper' }}>
+                          <Box sx={{ borderTop: '1px solid', borderTopColor: 'divider', bgcolor: 'background.paper' }}>
                             {reading.cards.map((cardData, cardIndex) => {
                               const card = tarotCards.find(c => c.id === cardData.cardId);
                               if (!card) return null;
@@ -333,10 +386,8 @@ export default function Journal() {
                                   sx={{
                                     px: 2,
                                     py: 1.5,
-                                    borderBottom:
-                                      cardIndex < reading.cards.length - 1
-                                        ? '1px solid #1a1a1d'
-                                        : 'none',
+                                    borderBottom: cardIndex < reading.cards.length - 1 ? '1px solid' : 'none',
+                                    borderBottomColor: 'divider',
                                   }}
                                 >
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 0.5, flexWrap: 'wrap' }}>
@@ -344,7 +395,7 @@ export default function Journal() {
                                       sx={{
                                         fontFamily: 'var(--font-mono)',
                                         fontSize: '0.6rem',
-                                        color: '#606068',
+                                        color: 'secondary.dark',
                                         letterSpacing: '0.08em',
                                       }}
                                     >
@@ -355,7 +406,7 @@ export default function Journal() {
                                         sx={{
                                           fontFamily: 'var(--font-mono)',
                                           fontSize: '0.6rem',
-                                          color: '#888078',
+                                          color: 'text.secondary',
                                           letterSpacing: '0.08em',
                                         }}
                                       >
@@ -367,7 +418,7 @@ export default function Journal() {
                                     sx={{
                                       fontFamily: 'var(--font-mono)',
                                       fontSize: '0.75rem',
-                                      color: '#e4e0d8',
+                                      color: 'text.primary',
                                       letterSpacing: '0.06em',
                                       mb: 0.5,
                                     }}
@@ -376,13 +427,86 @@ export default function Journal() {
                                   </Typography>
                                   <Typography
                                     variant="body2"
-                                    sx={{ color: '#888078', lineHeight: 1.7, fontSize: '0.8rem' }}
+                                    sx={{ color: 'text.secondary', lineHeight: 1.7, fontSize: '0.8rem' }}
                                   >
                                     {meaning.meaning}
                                   </Typography>
                                 </Box>
                               );
                             })}
+
+                            {/* Reflection */}
+                            <Box sx={{ px: 2, py: 1.5, borderTop: '1px solid', borderTopColor: 'divider' }}>
+                              <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 1 }}>
+                                REFLECTION · 反思
+                              </Typography>
+                              {editingReflection === index ? (
+                                <Box>
+                                  <Box
+                                    component="textarea"
+                                    value={reflectionDraft}
+                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setReflectionDraft(e.target.value)}
+                                    placeholder="Write your reflection... 寫下你的反思..."
+                                    rows={3}
+                                    autoFocus
+                                    sx={{
+                                      width: '100%',
+                                      fontFamily: 'var(--font-mono)',
+                                      fontSize: '0.7rem',
+                                      color: 'text.primary',
+                                      bgcolor: 'background.default',
+                                      border: '1px solid',
+                                      borderColor: 'primary.main',
+                                      p: 1,
+                                      resize: 'vertical',
+                                      outline: 'none',
+                                      display: 'block',
+                                      mb: 1,
+                                      '&::placeholder': { color: 'secondary.dark' },
+                                    }}
+                                  />
+                                  <Box sx={{ display: 'flex', gap: 1 }}>
+                                    <Box
+                                      component="button"
+                                      onClick={() => saveReflection(index)}
+                                      sx={{
+                                        fontFamily: 'var(--font-mono)', fontSize: '0.55rem', letterSpacing: '0.08em',
+                                        color: 'primary.main', cursor: 'pointer', background: 'none', border: 'none', p: 0,
+                                        '&:hover': { color: 'text.primary' },
+                                      }}
+                                    >
+                                      SAVE
+                                    </Box>
+                                    <Box
+                                      component="button"
+                                      onClick={() => setEditingReflection(null)}
+                                      sx={{
+                                        fontFamily: 'var(--font-mono)', fontSize: '0.55rem', letterSpacing: '0.08em',
+                                        color: 'secondary.dark', cursor: 'pointer', background: 'none', border: 'none', p: 0,
+                                        '&:hover': { color: 'text.secondary' },
+                                      }}
+                                    >
+                                      CANCEL
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              ) : (
+                                <Box
+                                  onClick={() => startEditReflection(index, reading.reflection)}
+                                  sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}
+                                >
+                                  {reading.reflection ? (
+                                    <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'text.secondary', lineHeight: 1.7 }}>
+                                      {reading.reflection}
+                                    </Typography>
+                                  ) : (
+                                    <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'secondary.dark', fontStyle: 'italic' }}>
+                                      + ADD REFLECTION · 新增反思
+                                    </Typography>
+                                  )}
+                                </Box>
+                              )}
+                            </Box>
                           </Box>
                         </motion.div>
                       )}
@@ -401,7 +525,7 @@ export default function Journal() {
           PaperProps={{
             sx: {
               bgcolor: 'background.default',
-              border: '1px solid #252528',
+              border: '1px solid', borderColor: 'divider',
               borderRadius: 0,
               boxShadow: 'none',
             },
@@ -412,20 +536,20 @@ export default function Journal() {
               sx={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.65rem',
-                color: '#606068',
+                color: 'secondary.dark',
                 letterSpacing: '0.08em',
                 mb: 2,
               }}
             >
               {deleteTarget === 'all' ? 'CONFIRM > CLEAR_ALL' : 'CONFIRM > DELETE_ENTRY'}
             </Typography>
-            <Typography variant="body2" sx={{ color: '#e4e0d8', mb: 1 }}>
+            <Typography variant="body2" sx={{ color: 'text.primary', mb: 1 }}>
               {deleteTarget === 'all'
                 ? 'This will permanently delete all your saved readings.'
                 : 'This will permanently delete this reading.'}
             </Typography>
             <Typography
-              sx={{ fontFamily: 'var(--font-noto-sans-tc)', fontSize: '0.875rem', color: '#888078' }}
+              sx={{ fontFamily: 'var(--font-noto-sans-tc)', fontSize: '0.875rem', color: 'text.secondary' }}
             >
               {deleteTarget === 'all'
                 ? '這將永久刪除您所有保存的占卜記錄。'
@@ -440,9 +564,9 @@ export default function Journal() {
                 fontSize: '0.6rem',
                 letterSpacing: '0.08em',
                 borderRadius: 0,
-                border: '1px solid #252528',
-                color: '#888078',
-                '&:hover': { border: '1px solid #c4a96e', color: '#c4a96e', bgcolor: 'transparent' },
+                border: '1px solid', borderColor: 'divider',
+                color: 'text.secondary',
+                '&:hover': { border: '1px solid', borderColor: 'primary.main', color: 'primary.main', bgcolor: 'transparent' },
               }}
             >
               CANCEL
@@ -454,10 +578,10 @@ export default function Journal() {
                 fontSize: '0.6rem',
                 letterSpacing: '0.08em',
                 borderRadius: 0,
-                bgcolor: '#252528',
-                color: '#e4e0d8',
+                bgcolor: 'divider',
+                color: 'text.primary',
                 boxShadow: 'none',
-                '&:hover': { bgcolor: '#3a3a3e', boxShadow: 'none' },
+                '&:hover': { bgcolor: 'secondary.dark', color: 'text.primary', boxShadow: 'none' },
               }}
             >
               DELETE

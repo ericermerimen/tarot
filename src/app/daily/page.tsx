@@ -1,34 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Paper,
-  Divider,
-  Chip,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Card,
-  CardContent,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Container, Typography, Button } from '@mui/material';
 import { motion, AnimatePresence } from 'motion/react';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import WorkIcon from '@mui/icons-material/Work';
-import SpaIcon from '@mui/icons-material/Spa';
-import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
-import ShareIcon from '@mui/icons-material/Share';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCard, tarotCards } from '@/data/tarotCards';
 import type { DrawnCard } from '@/types/tarot';
 import type { DailyCardStorage } from '@/types/reading';
+import { useColorMode } from '@/theme/ColorModeContext';
 
 function loadOrGenerateDaily(): DrawnCard {
   const today = new Date().toDateString();
@@ -54,11 +33,21 @@ function loadOrGenerateDaily(): DrawnCard {
   return drawn;
 }
 
+function formatDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export default function DailyCard() {
-  const [dailyReading, setDailyReading] = useState<DrawnCard>(() => loadOrGenerateDaily());
+  const [dailyReading, setDailyReading] = useState<DrawnCard | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showMeaning, setShowMeaning] = useState(false);
-  const [expandedSection, setExpandedSection] = useState<string | false>('meaning');
+
+  useEffect(() => {
+    setDailyReading(loadOrGenerateDaily());
+  }, []);
 
   const generateDailyCard = () => {
     const today = new Date().toDateString();
@@ -76,9 +65,23 @@ export default function DailyCard() {
     }
   };
 
-  const handleAccordionChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
-    setExpandedSection(isExpanded ? panel : false);
-  };
+  const { mode } = useColorMode();
+  const isDark = mode === 'dark';
+  const textDim = isDark ? '#2e2e34' : '#9a958e';
+  const textFaint = isDark ? '#3a3a3e' : '#7a756e';
+  const rowBorder = isDark ? '#1a1a1d' : '#d8d5d0';
+
+  if (!dailyReading) {
+    return (
+      <Container maxWidth="sm" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>
+        <Box sx={{ minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'secondary.dark', letterSpacing: '0.1em' }}>
+            LOADING...
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
 
   const { card, isReversed } = dailyReading;
   const meaning = isReversed ? card.reversed : card.upright;
@@ -90,30 +93,36 @@ export default function DailyCard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <Box sx={{ textAlign: 'center', mb: 3 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: 'Cinzel',
-              fontSize: { xs: '1.5rem', sm: '2rem' },
-              mb: 0.5,
-              background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            Daily Card 每日一牌
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {new Date().toLocaleDateString('zh-TW', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              weekday: 'long'
-            })}
-          </Typography>
+        {/* Header */}
+        <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0 }} />
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.12em',
+                  color: 'secondary.dark',
+                }}
+              >
+                DAILY_READING
+              </Typography>
+            </Box>
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.65rem',
+                color: textFaint,
+                letterSpacing: '0.06em',
+              }}
+            >
+              {formatDate(new Date())}
+            </Typography>
+          </Box>
         </Box>
 
+        {/* Card area */}
         <Box
           sx={{
             display: 'flex',
@@ -127,19 +136,27 @@ export default function DailyCard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
+              style={{ textAlign: 'center', marginBottom: '16px' }}
             >
               <Typography
-                variant="body2"
                 sx={{
-                  mb: 2,
-                  color: 'secondary.main',
-                  textAlign: 'center',
-                  fontStyle: 'italic',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.65rem',
+                  letterSpacing: '0.1em',
+                  color: textFaint,
+                  mb: 0.5,
                 }}
               >
-                Tap the card to reveal your guidance
-                <br />
-                <span style={{ fontSize: '0.85rem', opacity: 0.8 }}>點擊卡片揭示今日指引</span>
+                TAP_TO_REVEAL
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-noto-sans-tc)',
+                  fontSize: '0.75rem',
+                  color: textDim,
+                }}
+              >
+                點擊揭示今日指引
               </Typography>
             </motion.div>
           )}
@@ -153,6 +170,7 @@ export default function DailyCard() {
           />
         </Box>
 
+        {/* Meaning panel */}
         <AnimatePresence>
           {showMeaning && (
             <motion.div
@@ -161,264 +179,370 @@ export default function DailyCard() {
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.5 }}
             >
-              <Paper
-                sx={{
-                  p: { xs: 2, sm: 3 },
-                  mb: 2,
-                  background: 'rgba(20, 10, 40, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(156, 124, 244, 0.3)',
-                  borderRadius: 3,
-                }}
-              >
-                <Box sx={{ textAlign: 'center', mb: 2 }}>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      fontFamily: 'Cinzel',
-                      color: 'secondary.main',
-                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                    }}
-                  >
-                    {card.name} {isReversed && '(Reversed)'}
-                  </Typography>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary' }}
-                  >
-                    {card.nameZh} {isReversed && '(逆位)'}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'primary.light', display: 'block', mt: 1 }}>
-                    {card.dogBreed} · {card.dogBreedZh}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                  <Chip
-                    size="small"
-                    label={`Element: ${card.element}`}
-                    sx={{ background: 'rgba(156, 124, 244, 0.2)', color: 'primary.light' }}
-                  />
-                  <Chip
-                    size="small"
-                    label={`${card.zodiac}`}
-                    sx={{ background: 'rgba(244, 207, 124, 0.2)', color: 'secondary.main' }}
-                  />
-                  {card.numerology !== undefined && (
-                    <Chip
-                      size="small"
-                      label={`#${card.numerology}`}
-                      variant="outlined"
-                      sx={{ borderColor: 'primary.main', color: 'primary.light' }}
-                    />
+              {/* Card identity */}
+              <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontFamily: 'var(--font-display)',
+                    color: 'text.primary',
+                    fontWeight: 300,
+                    fontSize: { xs: '1.4rem', sm: '1.75rem' },
+                    mb: 0.25,
+                  }}
+                >
+                  {card.name}
+                  {isReversed && (
+                    <Box component="span" sx={{ color: 'secondary.dark', fontSize: '0.7em', ml: '0.5em' }}>(Reversed)</Box>
                   )}
-                </Box>
-
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center' }}>
-                  {card.keywords.map((keyword, i) => (
-                    <Chip
-                      key={i}
-                      size="small"
-                      label={keyword}
-                      sx={{
-                        background: 'rgba(156, 124, 244, 0.15)',
-                        color: 'text.primary',
-                        fontSize: '0.75rem',
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Paper>
-
-              <Box sx={{ mb: 2 }}>
-                <Accordion
-                  expanded={expandedSection === 'meaning'}
-                  onChange={handleAccordionChange('meaning')}
+                </Typography>
+                <Typography
                   sx={{
-                    background: 'rgba(20, 10, 40, 0.8)',
-                    border: '1px solid rgba(156, 124, 244, 0.2)',
-                    borderRadius: '12px !important',
-                    mb: 1,
-                    '&:before': { display: 'none' },
+                    fontFamily: 'var(--font-noto-sans-tc)',
+                    color: 'secondary.dark',
+                    fontSize: '0.95rem',
+                    mb: 0.5,
                   }}
                 >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'primary.main' }} />}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <TipsAndUpdatesIcon sx={{ color: 'secondary.main' }} />
-                      <Typography sx={{ fontWeight: 600 }}>Today&apos;s Message 今日訊息</Typography>
-                    </Box>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body1" paragraph sx={{ lineHeight: 1.8 }}>
-                      {meaning.meaning}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', lineHeight: 1.8 }}>
-                      {meaning.meaningZh}
-                    </Typography>
-                    {meaning.advice && (
-                      <Box sx={{ mt: 2, p: 2, background: 'rgba(244, 207, 124, 0.1)', borderRadius: 2 }}>
-                        <Typography variant="subtitle2" sx={{ color: 'secondary.main', mb: 1 }}>
-                          Advice 建議
-                        </Typography>
-                        <Typography variant="body2">{meaning.advice}</Typography>
-                        {meaning.adviceZh && (
-                          <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', mt: 1 }}>
-                            {meaning.adviceZh}
-                          </Typography>
-                        )}
-                      </Box>
-                    )}
-                  </AccordionDetails>
-                </Accordion>
-
-                <Accordion
-                  expanded={expandedSection === 'love'}
-                  onChange={handleAccordionChange('love')}
+                  {card.nameZh} {isReversed && '(逆位)'}
+                </Typography>
+                <Typography
                   sx={{
-                    background: 'rgba(20, 10, 40, 0.8)',
-                    border: '1px solid rgba(244, 124, 196, 0.2)',
-                    borderRadius: '12px !important',
-                    mb: 1,
-                    '&:before': { display: 'none' },
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.6rem',
+                    color: 'text.secondary',
+                    letterSpacing: '0.08em',
                   }}
                 >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#f47cc4' }} />}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <FavoriteIcon sx={{ color: '#f47cc4' }} />
-                      <Typography sx={{ fontWeight: 600 }}>Love 愛情</Typography>
-                    </Box>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body1" paragraph sx={{ lineHeight: 1.8 }}>
-                      {meaning.love}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', lineHeight: 1.8 }}>
-                      {meaning.loveZh}
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
+                  {card.dogBreed.toUpperCase()} · {card.dogBreedZh}
+                </Typography>
+              </Box>
 
-                <Accordion
-                  expanded={expandedSection === 'career'}
-                  onChange={handleAccordionChange('career')}
-                  sx={{
-                    background: 'rgba(20, 10, 40, 0.8)',
-                    border: '1px solid rgba(124, 184, 244, 0.2)',
-                    borderRadius: '12px !important',
-                    mb: 1,
-                    '&:before': { display: 'none' },
-                  }}
-                >
-                  <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#7cb8f4' }} />}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <WorkIcon sx={{ color: '#7cb8f4' }} />
-                      <Typography sx={{ fontWeight: 600 }}>Career 事業</Typography>
-                    </Box>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body1" paragraph sx={{ lineHeight: 1.8 }}>
-                      {meaning.career}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', lineHeight: 1.8 }}>
-                      {meaning.careerZh}
-                    </Typography>
-                  </AccordionDetails>
-                </Accordion>
-
-                {meaning.health && (
-                  <Accordion
-                    expanded={expandedSection === 'health'}
-                    onChange={handleAccordionChange('health')}
+              {/* Metadata row */}
+              <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                {card.element && (
+                  <Typography
                     sx={{
-                      background: 'rgba(20, 10, 40, 0.8)',
-                      border: '1px solid rgba(152, 251, 152, 0.2)',
-                      borderRadius: '12px !important',
-                      mb: 1,
-                      '&:before': { display: 'none' },
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.6rem',
+                      color: 'primary.main',
+                      letterSpacing: '0.08em',
                     }}
                   >
-                    <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#98FB98' }} />}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <SpaIcon sx={{ color: '#98FB98' }} />
-                        <Typography sx={{ fontWeight: 600 }}>Health 健康</Typography>
-                      </Box>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Typography variant="body1" paragraph sx={{ lineHeight: 1.8 }}>
-                        {meaning.health}
-                      </Typography>
-                      {meaning.healthZh && (
-                        <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', lineHeight: 1.8 }}>
-                          {meaning.healthZh}
-                        </Typography>
-                      )}
-                    </AccordionDetails>
-                  </Accordion>
+                    ELEMENT · {card.element.toUpperCase()}
+                  </Typography>
+                )}
+                {card.zodiac && (
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.6rem',
+                      color: 'primary.main',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    ZODIAC · {card.zodiac.toUpperCase()}
+                  </Typography>
+                )}
+                {card.numerology !== undefined && (
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.6rem',
+                      color: 'primary.main',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    NUM · {card.numerology}
+                  </Typography>
                 )}
               </Box>
 
-              {card.reflectionQuestions && (
-                <Paper
+              {/* Main meaning */}
+              <Box
+                sx={{
+                  mb: 3,
+                  p: 2,
+                  border: '1px solid', borderColor: 'divider',
+                  bgcolor: 'background.paper',
+                }}
+              >
+                <Typography
                   sx={{
-                    p: { xs: 2, sm: 3 },
-                    mb: 2,
-                    background: 'linear-gradient(135deg, rgba(156, 124, 244, 0.1) 0%, rgba(244, 207, 124, 0.1) 100%)',
-                    border: '1px solid rgba(156, 124, 244, 0.3)',
-                    borderRadius: 3,
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.65rem',
+                    color: 'secondary.dark',
+                    letterSpacing: '0.08em',
+                    mb: 1.5,
                   }}
                 >
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: 'secondary.main' }}>
-                    Reflection Questions 反思問題
+                  {isReversed ? '> REVERSED' : '> UPRIGHT'}
+                </Typography>
+                <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 1.5 }}>
+                  {meaning.meaning}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'var(--font-noto-sans-tc)',
+                    color: 'text.secondary',
+                    lineHeight: 1.8,
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  {meaning.meaningZh}
+                </Typography>
+              </Box>
+
+              {/* Keywords */}
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  sx={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.6rem',
+                    color: textDim,
+                    letterSpacing: '0.1em',
+                    mb: 1,
+                  }}
+                >
+                  KEYWORDS ————————
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {card.keywords.map((keyword, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        px: 1,
+                        py: 0.25,
+                        border: '1px solid', borderColor: 'divider',
+                        bgcolor: 'background.paper',
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.6rem',
+                          color: 'text.secondary',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        {keyword}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+
+              {/* Advice */}
+              {meaning.advice && (
+                <Box sx={{ mb: 3, pl: 2, borderLeft: '2px solid', borderLeftColor: 'divider' }}>
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.65rem',
+                      color: 'primary.main',
+                      letterSpacing: '0.08em',
+                      mb: 0.75,
+                    }}
+                  >
+                    {'> ADVICE'}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.primary', lineHeight: 1.8, mb: 0.5 }}>
+                    {meaning.advice}
+                  </Typography>
+                  {meaning.adviceZh && (
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-noto-sans-tc)',
+                        color: 'text.secondary',
+                        fontSize: '0.875rem',
+                        lineHeight: 1.8,
+                      }}
+                    >
+                      {meaning.adviceZh}
+                    </Typography>
+                  )}
+                </Box>
+              )}
+
+              {/* Love */}
+              <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid', borderTopColor: rowBorder }}>
+                <Typography
+                  sx={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.65rem',
+                    color: 'secondary.dark',
+                    letterSpacing: '0.1em',
+                    mb: 1,
+                  }}
+                >
+                  {'> LOVE'}
+                </Typography>
+                <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 0.5 }}>
+                  {meaning.love}
+                </Typography>
+                {meaning.loveZh && (
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-noto-sans-tc)',
+                      color: 'secondary.dark',
+                      lineHeight: 1.8,
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    {meaning.loveZh}
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Career */}
+              <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid', borderTopColor: rowBorder }}>
+                <Typography
+                  sx={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.65rem',
+                    color: 'secondary.dark',
+                    letterSpacing: '0.1em',
+                    mb: 1,
+                  }}
+                >
+                  {'> CAREER'}
+                </Typography>
+                <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 0.5 }}>
+                  {meaning.career}
+                </Typography>
+                {meaning.careerZh && (
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-noto-sans-tc)',
+                      color: 'secondary.dark',
+                      lineHeight: 1.8,
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    {meaning.careerZh}
+                  </Typography>
+                )}
+              </Box>
+
+              {/* Health */}
+              {meaning.health && (
+                <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid', borderTopColor: rowBorder }}>
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.65rem',
+                      color: 'secondary.dark',
+                      letterSpacing: '0.1em',
+                      mb: 1,
+                    }}
+                  >
+                    {'> HEALTH'}
+                  </Typography>
+                  <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 0.5 }}>
+                    {meaning.health}
+                  </Typography>
+                  {meaning.healthZh && (
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-noto-sans-tc)',
+                        color: 'secondary.dark',
+                        lineHeight: 1.8,
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      {meaning.healthZh}
+                    </Typography>
+                  )}
+                </Box>
+              )}
+
+              {/* Reflection questions */}
+              {card.reflectionQuestions && (
+                <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: rowBorder }}>
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.6rem',
+                      color: textDim,
+                      letterSpacing: '0.1em',
+                      mb: 1.5,
+                    }}
+                  >
+                    REFLECTION ————————
                   </Typography>
                   {card.reflectionQuestions.map((q, i) => (
-                    <Box key={i} sx={{ mb: 2 }}>
-                      <Typography variant="body2" sx={{ mb: 0.5, fontStyle: 'italic' }}>
+                    <Box key={i} sx={{ mb: 1.5, pl: 1, borderLeft: '1px solid', borderLeftColor: 'divider' }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7, mb: 0.25 }}>
                         {q}
                       </Typography>
                       {card.reflectionQuestionsZh && (
-                        <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: 'Noto Sans TC' }}>
+                        <Typography
+                          sx={{
+                            fontFamily: 'var(--font-noto-sans-tc)',
+                            color: 'secondary.dark',
+                            fontSize: '0.8rem',
+                            lineHeight: 1.6,
+                          }}
+                        >
                           {card.reflectionQuestionsZh[i]}
                         </Typography>
                       )}
                     </Box>
                   ))}
-                </Paper>
+                </Box>
               )}
 
+              {/* Affirmation */}
               {card.affirmation && (
-                <Paper
+                <Box
                   sx={{
-                    p: { xs: 2, sm: 3 },
-                    mb: 2,
-                    background: 'rgba(244, 207, 124, 0.1)',
-                    border: '1px solid rgba(244, 207, 124, 0.3)',
-                    borderRadius: 3,
+                    mb: 3,
+                    p: 2,
+                    border: '1px solid', borderColor: 'divider',
+                    bgcolor: 'background.paper',
                     textAlign: 'center',
                   }}
                 >
-                  <Typography variant="subtitle2" sx={{ color: 'secondary.main', mb: 1 }}>
-                    Daily Affirmation 每日肯定語
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.6rem',
+                      color: 'secondary.dark',
+                      letterSpacing: '0.1em',
+                      mb: 1,
+                    }}
+                  >
+                    {'> AFFIRMATION'}
                   </Typography>
-                  <Typography variant="body1" sx={{ fontStyle: 'italic', mb: 1 }}>
+                  <Typography
+                    variant="body1"
+                    sx={{ color: 'text.primary', fontStyle: 'italic', lineHeight: 1.8, mb: 0.5 }}
+                  >
                     &ldquo;{card.affirmation}&rdquo;
                   </Typography>
                   {card.affirmationZh && (
-                    <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary' }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-noto-sans-tc)',
+                        color: 'text.secondary',
+                        fontSize: '0.875rem',
+                      }}
+                    >
                       「{card.affirmationZh}」
                     </Typography>
                   )}
-                </Paper>
+                </Box>
               )}
 
-              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {/* CTA */}
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Button
                   variant="outlined"
-                  startIcon={<RefreshIcon />}
                   onClick={generateDailyCard}
                   size="large"
                   sx={{ flex: { xs: '1 1 100%', sm: '0 1 auto' } }}
                 >
-                  Draw New Card 重新抽牌
+                  DRAW NEW CARD 重新抽牌
                 </Button>
               </Box>
             </motion.div>

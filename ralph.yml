@@ -1,0 +1,37 @@
+event_loop:
+  prompt_file: "PROMPT.md"
+  completion_promise: "LOOP_COMPLETE"
+  max_iterations: 25
+  max_runtime_seconds: 7200
+  checkpoint_interval: 1
+
+cli:
+  backend: "claude"
+
+hats:
+  builder:
+    name: "Builder"
+    description: "Implements one task at a time from PROMPT.md, validates lint, and commits."
+    triggers: ["work.start", "review.approved"]
+    publishes: ["build.done", "build.blocked"]
+    default_publishes: "build.done"
+    instructions: |
+      Pick ONE unchecked task from PROMPT.md. Read all target files before editing.
+      Implement exactly what the task describes. Follow design tokens from PROMPT.md strictly.
+      Backpressure — run before committing:
+        npm run lint 2>&1 | tail -10
+      Evidence required: lint: pass (zero NEW errors in files you touched).
+      One task, one commit. Do NOT output LOOP_COMPLETE.
+
+  reviewer:
+    name: "Reviewer"
+    description: "Verifies each commit follows PROMPT.md design tokens and passes lint before approving."
+    triggers: ["build.done"]
+    publishes: ["review.approved", "review.changes_requested"]
+    default_publishes: "review.approved"
+    instructions: |
+      Check the latest commit against PROMPT.md design tokens.
+      Verify: no purple/gradient colors, no rounded corners outside exceptions,
+      only #c4a96e as accent, correct font families per token table, no new deps.
+      Run: npm run lint 2>&1 | tail -5
+      Do NOT modify code. Approve or list specific files + lines to fix.

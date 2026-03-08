@@ -6,42 +6,74 @@ import { usePathname } from 'next/navigation';
 import {
   AppBar,
   Toolbar,
-  Typography,
-  Button,
   IconButton,
   Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Box,
+  Typography,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import HomeIcon from '@mui/icons-material/Home';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import StyleIcon from '@mui/icons-material/Style';
-import CollectionsIcon from '@mui/icons-material/Collections';
-import BookIcon from '@mui/icons-material/Book';
+import { useColorMode } from '@/theme/ColorModeContext';
 
 interface NavItem {
   label: string;
   labelZh: string;
   path: string;
-  icon: React.ReactNode;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Home', labelZh: '首頁', path: '/', icon: <HomeIcon /> },
-  { label: 'Daily Card', labelZh: '每日一牌', path: '/daily', icon: <AutoAwesomeIcon /> },
-  { label: 'Reading', labelZh: '占卜', path: '/reading', icon: <StyleIcon /> },
-  { label: 'Gallery', labelZh: '牌卡圖鑑', path: '/gallery', icon: <CollectionsIcon /> },
-  { label: 'Journal', labelZh: '占卜日記', path: '/journal', icon: <BookIcon /> },
+  { label: 'Home', labelZh: '首頁', path: '/' },
+  { label: 'Daily Card', labelZh: '每日一牌', path: '/daily' },
+  { label: 'Reading', labelZh: '占卜', path: '/reading' },
+  { label: 'Gallery', labelZh: '牌卡圖鑑', path: '/gallery' },
+  { label: 'Journal', labelZh: '占卜日記', path: '/journal' },
 ];
+
+interface ThemeToggleProps {
+  isDark: boolean;
+  border: string;
+  textMuted: string;
+  onToggle: () => void;
+}
+
+function ThemeToggle({ isDark, border, textMuted, onToggle }: ThemeToggleProps) {
+  return (
+    <Box
+      component="button"
+      onClick={onToggle}
+      sx={{
+        fontFamily: 'var(--font-mono)',
+        fontSize: '0.6rem',
+        letterSpacing: '0.1em',
+        color: textMuted,
+        background: 'none',
+        border: `1px solid ${border}`,
+        cursor: 'pointer',
+        px: 1,
+        py: 0.5,
+        lineHeight: 1.4,
+        '&:hover': {
+          color: '#c4a96e',
+          borderColor: '#c4a96e',
+        },
+      }}
+    >
+      {isDark ? 'LIGHT' : 'DARK'}
+    </Box>
+  );
+}
 
 export default function Navigation() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+  const { mode, toggleMode } = useColorMode();
+
+  const isDark = mode === 'dark';
+  const bg = isDark ? '#0d0d0f' : '#f0ede8';
+  const border = isDark ? '#252528' : '#d8d5d0';
+  const textPrimary = isDark ? '#e4e0d8' : '#1a1816';
+  const textMuted = isDark ? '#606068' : '#888078';
+  const textDim = isDark ? '#2e2e34' : '#b0aa9e';
+  const rowBorder = isDark ? '#1a1a1d' : '#d8d5d0';
+  const hoverBg = isDark ? '#131316' : '#e8e5e0';
 
   const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (event.type === 'keydown' && ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')) {
@@ -55,61 +87,88 @@ export default function Navigation() {
       sx={{
         width: 280,
         height: '100%',
-        background: 'linear-gradient(180deg, #1a0a2e 0%, #0a0612 100%)',
+        backgroundColor: bg,
+        borderLeft: `1px solid ${border}`,
         pt: 2,
       }}
       role="presentation"
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
-      <Box sx={{ px: 3, pb: 3 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontFamily: 'Cinzel',
-            fontWeight: 700,
-            background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          🐕 Dog Tarot
-        </Typography>
+      <Box sx={{ px: 3, pb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: '#c4a96e',
+              flexShrink: 0,
+            }}
+          />
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75rem',
+              letterSpacing: '0.15em',
+              color: textPrimary,
+            }}
+          >
+            DOG_TAROT
+          </Typography>
+        </Box>
+        <Box onClick={(e) => e.stopPropagation()}>
+          <ThemeToggle isDark={isDark} border={border} textMuted={textMuted} onToggle={toggleMode} />
+        </Box>
       </Box>
-      <List>
-        {navItems.map((item) => (
-          <ListItem key={item.path} disablePadding>
-            <ListItemButton
+      <Box>
+        {navItems.map((item, index) => {
+          const isActive = pathname === item.path;
+          const idx = String(index + 1).padStart(2, '0');
+          return (
+            <Box
+              key={item.path}
               component={Link}
               href={item.path}
-              selected={pathname === item.path}
               sx={{
-                mx: 1,
-                borderRadius: 2,
-                '&.Mui-selected': {
-                  background: 'rgba(156, 124, 244, 0.2)',
-                  '&:hover': {
-                    background: 'rgba(156, 124, 244, 0.3)',
-                  },
-                },
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                px: 3,
+                py: 1.5,
+                borderBottom: `1px solid ${rowBorder}`,
+                textDecoration: 'none',
                 '&:hover': {
-                  background: 'rgba(156, 124, 244, 0.1)',
+                  backgroundColor: hoverBg,
                 },
               }}
             >
-              <ListItemIcon sx={{ color: 'primary.main', minWidth: 40 }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                secondary={item.labelZh}
-                primaryTypographyProps={{ fontWeight: 500 }}
-                secondaryTypographyProps={{ fontSize: '0.75rem', color: 'text.secondary' }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.65rem',
+                  color: textDim,
+                  flexShrink: 0,
+                  userSelect: 'none',
+                }}
+              >
+                {idx}
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.1em',
+                  color: isActive ? '#c4a96e' : textPrimary,
+                  textTransform: 'uppercase',
+                }}
+              >
+                {item.label}
+              </Typography>
+            </Box>
+          );
+        })}
+      </Box>
     </Box>
   );
 
@@ -117,74 +176,110 @@ export default function Navigation() {
     <>
       <AppBar
         position="fixed"
+        elevation={0}
         sx={{
-          background: 'rgba(10, 6, 18, 0.85)',
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(156, 124, 244, 0.2)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
+          backgroundColor: bg,
+          borderBottom: `1px solid ${border}`,
+          boxShadow: 'none',
+          backgroundImage: 'none',
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <Typography
-              variant="h6"
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Box
               sx={{
-                fontFamily: 'Cinzel',
-                fontWeight: 700,
-                background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: '#c4a96e',
+                flexShrink: 0,
+              }}
+            />
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.75rem',
+                letterSpacing: '0.15em',
+                color: textPrimary,
               }}
             >
-              🐕 Mystical Dog Tarot
+              DOG_TAROT
             </Typography>
           </Link>
 
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
+            {navItems.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Box
+                  key={item.path}
+                  component={Link}
+                  href={item.path}
+                  sx={{
+                    textDecoration: 'none',
+                    position: 'relative',
+                    pb: 0.25,
+                    '&::after': isActive
+                      ? {
+                          content: '""',
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: '1px',
+                          backgroundColor: '#c4a96e',
+                        }
+                      : {},
+                    '&:hover .nav-label': {
+                      color: textPrimary,
+                    },
+                  }}
+                >
+                  <Typography
+                    className="nav-label"
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.7rem',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      color: isActive ? textPrimary : textMuted,
+                      transition: 'color 0.15s',
+                    }}
+                  >
+                    {item.label}
+                  </Typography>
+                </Box>
+              );
+            })}
+            <ThemeToggle isDark={isDark} border={border} textMuted={textMuted} onToggle={toggleMode} />
+          </Box>
+
           <IconButton
-            color="primary"
             aria-label="menu"
             onClick={toggleDrawer(true)}
             sx={{
-              color: 'primary.light',
+              color: textMuted,
               display: { xs: 'inline-flex', md: 'none' },
+              borderRadius: 0,
+              '&:hover': {
+                color: textPrimary,
+                backgroundColor: 'transparent',
+              },
             }}
           >
-            <MenuIcon />
+            ☰
           </IconButton>
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-            {navItems.map((item) => (
-              <Button
-                key={item.path}
-                component={Link}
-                href={item.path}
-                startIcon={item.icon}
-                sx={{
-                  color: pathname === item.path ? 'primary.main' : 'text.secondary',
-                  fontWeight: pathname === item.path ? 600 : 400,
-                  '&:hover': {
-                    color: 'primary.light',
-                    background: 'rgba(156, 124, 244, 0.1)',
-                  },
-                }}
-              >
-                {item.label}
-              </Button>
-            ))}
-          </Box>
         </Toolbar>
       </AppBar>
 
       <Drawer
-        anchor="left"
+        anchor="right"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
         PaperProps={{
           sx: {
-            background: 'transparent',
+            backgroundColor: 'transparent',
+            boxShadow: 'none',
           },
         }}
       >

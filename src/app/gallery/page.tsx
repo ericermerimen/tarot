@@ -5,12 +5,9 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Dialog,
   DialogContent,
   IconButton,
-  Divider,
-  Chip,
 } from '@mui/material';
 import { motion } from 'motion/react';
 import CloseIcon from '@mui/icons-material/Close';
@@ -33,69 +30,99 @@ export default function CardGallery() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
+        {/* Header */}
+        <Box sx={{ mb: 4, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+            <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0 }} />
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.7rem',
+                letterSpacing: '0.12em',
+                color: 'secondary.dark',
+              }}
+            >
+              CARD_GALLERY
+            </Typography>
+          </Box>
           <Typography
             variant="h2"
             sx={{
-              fontFamily: 'Cinzel',
-              fontSize: { xs: '2rem', md: '2.5rem' },
-              mb: 1,
-              background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              fontFamily: 'var(--font-display)',
+              fontSize: { xs: '1.75rem', md: '2.25rem' },
+              fontWeight: 300,
+              color: 'text.primary',
+              mb: 0.25,
             }}
           >
             Card Gallery
           </Typography>
           <Typography
-            variant="h5"
-            sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', mb: 2 }}
+            sx={{
+              fontFamily: 'var(--font-noto-sans-tc)',
+              fontSize: '0.95rem',
+              color: 'secondary.dark',
+              mb: 0.75,
+            }}
           >
             牌卡圖鑑
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Explore all 22 Major Arcana cards and their meanings
-            <br />
-            探索全部22張大阿爾卡納牌及其含義
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.6rem',
+              color: 'secondary.dark',
+              letterSpacing: '0.06em',
+            }}
+          >
+            22 MAJOR ARCANA · 點擊查看詳情
           </Typography>
         </Box>
 
-        <Grid container spacing={3} justifyContent="center">
+        {/* Grid */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 2,
+            justifyContent: 'center',
+          }}
+        >
           {tarotCards.map((card, index) => (
-            <Grid item key={card.id}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: index * 0.04 }}
+            >
+              <Box
+                sx={{
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease',
+                  '&:hover': {
+                    transform: 'translateY(-6px)',
+                  },
+                }}
+                onClick={() => handleCardClick(card)}
               >
-                <Box
-                  sx={{
-                    cursor: 'pointer',
-                    transition: 'transform 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-10px)',
-                    },
-                  }}
-                  onClick={() => handleCardClick(card)}
-                >
-                  <TarotCard
-                    card={card}
-                    isFlipped={true}
-                    size="small"
-                    disabled
-                  />
-                </Box>
-              </motion.div>
-            </Grid>
+                <TarotCard
+                  card={card}
+                  isFlipped={true}
+                  size="small"
+                  disabled
+                />
+              </Box>
+            </motion.div>
           ))}
-        </Grid>
+        </Box>
 
+        {/* Detail Dialog */}
         <Dialog
           open={dialogOpen}
           onClose={handleClose}
@@ -103,10 +130,10 @@ export default function CardGallery() {
           fullWidth
           PaperProps={{
             sx: {
-              background: 'rgba(20, 10, 40, 0.95)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(156, 124, 244, 0.3)',
-              borderRadius: 3,
+              bgcolor: 'background.default',
+              border: '1px solid', borderColor: 'divider',
+              borderRadius: 0,
+              boxShadow: 'none',
             },
           }}
         >
@@ -118,22 +145,33 @@ export default function CardGallery() {
                   position: 'absolute',
                   right: 8,
                   top: 8,
-                  color: 'text.secondary',
+                  color: 'secondary.dark',
                   zIndex: 1,
+                  borderRadius: 0,
+                  '&:hover': { color: 'text.primary', bgcolor: 'transparent' },
                 }}
               >
-                <CloseIcon />
+                <CloseIcon fontSize="small" />
               </IconButton>
 
               <Box
                 sx={{
                   display: 'grid',
                   gridTemplateColumns: { xs: '1fr', md: '1fr 1.5fr' },
-                  gap: 4,
-                  p: 4,
+                  gap: 0,
                 }}
               >
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+                {/* Card visual */}
+                <Box
+                  sx={(theme) => ({
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'flex-start',
+                    p: 4,
+                    borderRight: { xs: 'none', md: `1px solid ${theme.palette.divider}` },
+                    borderBottom: { xs: `1px solid ${theme.palette.divider}`, md: 'none' },
+                  })}
+                >
                   <TarotCard
                     card={selectedCard}
                     isFlipped={true}
@@ -142,87 +180,200 @@ export default function CardGallery() {
                   />
                 </Box>
 
-                <Box>
-                  <Typography
-                    variant="h3"
-                    sx={{ fontFamily: 'Cinzel', color: 'secondary.main', mb: 1 }}
-                  >
-                    {selectedCard.name}
-                  </Typography>
-                  <Typography
-                    variant="h4"
-                    sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', mb: 2 }}
-                  >
-                    {selectedCard.nameZh}
-                  </Typography>
-
-                  <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
-                    <Chip
-                      label={`${selectedCard.dogBreed}`}
-                      size="small"
+                {/* Card details */}
+                <Box sx={{ p: 4, overflow: 'auto', maxHeight: { md: '80vh' } }}>
+                  {/* Identity */}
+                  <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
+                    <Typography
                       sx={{
-                        background: 'rgba(156, 124, 244, 0.2)',
-                        color: 'primary.light',
+                        fontFamily: 'var(--font-display)',
+                        fontSize: { xs: '1.5rem', md: '1.875rem' },
+                        fontWeight: 300,
+                        color: 'text.primary',
+                        mb: 0.25,
                       }}
-                    />
-                    <Chip
-                      label={selectedCard.dogBreedZh}
-                      size="small"
+                    >
+                      {selectedCard.name}
+                    </Typography>
+                    <Typography
                       sx={{
-                        background: 'rgba(244, 207, 124, 0.2)',
-                        color: 'secondary.main',
+                        fontFamily: 'var(--font-noto-sans-tc)',
+                        color: 'secondary.dark',
+                        fontSize: '0.95rem',
+                        mb: 0.75,
                       }}
-                    />
-                    <Chip
-                      label={`Element: ${selectedCard.element}`}
-                      size="small"
-                      variant="outlined"
-                      sx={{ borderColor: 'primary.main', color: 'primary.light' }}
-                    />
+                    >
+                      {selectedCard.nameZh}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.6rem',
+                        color: 'text.secondary',
+                        letterSpacing: '0.08em',
+                      }}
+                    >
+                      {selectedCard.dogBreed.toUpperCase()} · {selectedCard.dogBreedZh}
+                    </Typography>
                   </Box>
 
-                  <Typography variant="body2" color="text.secondary" paragraph sx={{ fontStyle: 'italic' }}>
-                    {selectedCard.description}
-                  </Typography>
-
-                  <Divider sx={{ my: 2, borderColor: 'rgba(156, 124, 244, 0.3)' }} />
-
-                  <Typography variant="subtitle2" color="secondary.main" gutterBottom>
-                    Keywords 關鍵詞
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3 }}>
-                    {selectedCard.keywords.map((keyword, i) => (
-                      <Chip
-                        key={i}
-                        label={`${keyword} · ${selectedCard.keywordsZh[i]}`}
-                        size="small"
+                  {/* Metadata */}
+                  <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                    {selectedCard.element && (
+                      <Typography
                         sx={{
-                          background: 'rgba(156, 124, 244, 0.15)',
-                          color: 'text.primary',
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.6rem',
+                          color: 'primary.main',
+                          letterSpacing: '0.08em',
                         }}
-                      />
-                    ))}
+                      >
+                        ELEMENT · {selectedCard.element.toUpperCase()}
+                      </Typography>
+                    )}
+                    {selectedCard.zodiac && (
+                      <Typography
+                        sx={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.6rem',
+                          color: 'primary.main',
+                          letterSpacing: '0.08em',
+                        }}
+                      >
+                        ZODIAC · {selectedCard.zodiac.toUpperCase()}
+                      </Typography>
+                    )}
+                    {selectedCard.numerology !== undefined && (
+                      <Typography
+                        sx={{
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.6rem',
+                          color: 'primary.main',
+                          letterSpacing: '0.08em',
+                        }}
+                      >
+                        NUM · {selectedCard.numerology}
+                      </Typography>
+                    )}
                   </Box>
 
-                  <Typography variant="subtitle2" color="primary.light" gutterBottom>
-                    ⬆️ Upright 正位
-                  </Typography>
-                  <Typography variant="body2" paragraph>
-                    {selectedCard.upright.meaning}
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', mb: 3 }}>
-                    {selectedCard.upright.meaningZh}
-                  </Typography>
+                  {/* Description */}
+                  {selectedCard.description && (
+                    <Box sx={{ mb: 3, pl: 2, borderLeft: '2px solid', borderLeftColor: 'divider' }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8, fontStyle: 'italic' }}>
+                        {selectedCard.description}
+                      </Typography>
+                    </Box>
+                  )}
 
-                  <Typography variant="subtitle2" color="error.light" gutterBottom>
-                    ⬇️ Reversed 逆位
-                  </Typography>
-                  <Typography variant="body2" paragraph>
-                    {selectedCard.reversed.meaning}
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary' }}>
-                    {selectedCard.reversed.meaningZh}
-                  </Typography>
+                  {/* Keywords */}
+                  <Box sx={{ mb: 3 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.6rem',
+                        color: 'secondary.dark',
+                        letterSpacing: '0.1em',
+                        mb: 1,
+                      }}
+                    >
+                      KEYWORDS ————————
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selectedCard.keywords.map((keyword, i) => (
+                        <Box
+                          key={i}
+                          sx={{
+                            px: 1,
+                            py: 0.25,
+                            border: '1px solid', borderColor: 'divider',
+                            bgcolor: 'background.paper',
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '0.6rem',
+                              color: 'text.secondary',
+                              letterSpacing: '0.05em',
+                            }}
+                          >
+                            {keyword}{selectedCard.keywordsZh?.[i] ? ` · ${selectedCard.keywordsZh[i]}` : ''}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+
+                  {/* Upright */}
+                  <Box
+                    sx={{
+                      mb: 3,
+                      p: 2,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.65rem',
+                        color: 'secondary.dark',
+                        letterSpacing: '0.08em',
+                        mb: 1.5,
+                      }}
+                    >
+                      {'> UPRIGHT 正位'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary', lineHeight: 1.8, mb: 1 }}>
+                      {selectedCard.upright.meaning}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-noto-sans-tc)',
+                        color: 'text.secondary',
+                        fontSize: '0.875rem',
+                        lineHeight: 1.8,
+                      }}
+                    >
+                      {selectedCard.upright.meaningZh}
+                    </Typography>
+                  </Box>
+
+                  {/* Reversed */}
+                  <Box
+                    sx={{
+                      mb: 3,
+                      p: 2,
+                      border: '1px solid', borderColor: 'divider',
+                      bgcolor: 'background.paper',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.65rem',
+                        color: 'secondary.dark',
+                        letterSpacing: '0.08em',
+                        mb: 1.5,
+                      }}
+                    >
+                      {'> REVERSED 逆位'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.primary', lineHeight: 1.8, mb: 1 }}>
+                      {selectedCard.reversed.meaning}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-noto-sans-tc)',
+                        color: 'text.secondary',
+                        fontSize: '0.875rem',
+                        lineHeight: 1.8,
+                      }}
+                    >
+                      {selectedCard.reversed.meaningZh}
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
             </DialogContent>

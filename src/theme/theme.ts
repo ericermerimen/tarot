@@ -5,132 +5,159 @@ import { createTheme } from '@mui/material/styles';
 declare module '@mui/material/styles' {
   interface Palette {
     mystical: {
-      purple: string;
       gold: string;
-      pink: string;
-      blue: string;
       dark: string;
-      glow: string;
     };
   }
   interface PaletteOptions {
     mystical?: {
-      purple?: string;
       gold?: string;
-      pink?: string;
-      blue?: string;
       dark?: string;
-      glow?: string;
     };
   }
 }
 
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#9c7cf4',
-      light: '#c4a8ff',
-      dark: '#6b4bc1',
-    },
-    secondary: {
-      main: '#f4cf7c',
-      light: '#ffe4a8',
-      dark: '#c19b4c',
-    },
-    background: {
-      default: '#0a0612',
-      paper: 'rgba(20, 10, 40, 0.85)',
-    },
-    text: {
-      primary: '#f0e6ff',
-      secondary: '#b8a8d4',
-    },
-    mystical: {
-      purple: '#9c7cf4',
-      gold: '#f4cf7c',
-      pink: '#f47cc4',
-      blue: '#7cb8f4',
-      dark: '#1a0a2e',
-      glow: 'rgba(156, 124, 244, 0.6)',
-    },
-  },
-  typography: {
-    fontFamily: 'var(--font-cinzel), "Cinzel", "Noto Sans TC", serif',
-    h1: {
-      fontWeight: 700,
-      letterSpacing: '0.1em',
-    },
-    h2: {
-      fontWeight: 600,
-      letterSpacing: '0.08em',
-    },
-    h3: {
-      fontWeight: 600,
-      letterSpacing: '0.05em',
-    },
-    h4: {
-      fontWeight: 600,
-    },
-    h5: {
-      fontWeight: 500,
-    },
-    h6: {
-      fontWeight: 500,
-    },
-    body1: {
-      fontFamily: 'var(--font-noto-sans-tc), "Noto Sans TC", "Roboto", sans-serif',
-    },
-    body2: {
-      fontFamily: 'var(--font-noto-sans-tc), "Noto Sans TC", "Roboto", sans-serif',
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-          textTransform: 'none',
-          fontWeight: 600,
-          padding: '12px 32px',
-          fontSize: '1rem',
-        },
-        contained: {
-          background: 'linear-gradient(135deg, #9c7cf4 0%, #7c5ce0 100%)',
-          boxShadow: '0 4px 20px rgba(156, 124, 244, 0.4)',
-          '&:hover': {
-            background: 'linear-gradient(135deg, #b090ff 0%, #9070f0 100%)',
-            boxShadow: '0 6px 30px rgba(156, 124, 244, 0.6)',
-          },
-        },
-        outlined: {
-          borderColor: '#9c7cf4',
-          borderWidth: 2,
-          '&:hover': {
-            borderWidth: 2,
-            backgroundColor: 'rgba(156, 124, 244, 0.1)',
-          },
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 16,
-          background: 'rgba(20, 10, 40, 0.85)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(156, 124, 244, 0.2)',
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundImage: 'none',
-        },
-      },
-    },
-  },
-});
+export function createAppTheme(mode: 'dark' | 'light') {
+  const isDark = mode === 'dark';
 
-export default theme;
+  return createTheme({
+    palette: {
+      mode,
+      primary: {
+        main: '#c4a96e',
+        light: '#d4b97e',
+        dark: '#a48950',
+      },
+      secondary: {
+        main: '#888078',
+        light: isDark ? '#b0aa9e' : '#5a554e',
+        dark: isDark ? '#8a8490' : '#6a655e',
+      },
+      background: {
+        default: isDark ? '#0d0d0f' : '#f0ede8',
+        paper: isDark ? '#131316' : '#e8e5e0',
+      },
+      text: {
+        primary: isDark ? '#e4e0d8' : '#1a1816',
+        secondary: isDark ? '#888078' : '#6a655e',
+      },
+      divider: isDark ? '#252528' : '#c8c5c0',
+      mystical: {
+        gold: '#c4a96e',
+        dark: isDark ? '#0d0d0f' : '#f0ede8',
+      },
+    },
+    typography: {
+      fontFamily: 'var(--font-mono), "Space Mono", monospace',
+      h1: {
+        fontFamily: 'var(--font-display), "Cormorant Garamond", serif',
+        fontWeight: 300,
+        letterSpacing: '0.02em',
+      },
+      h2: {
+        fontFamily: 'var(--font-display), "Cormorant Garamond", serif',
+        fontWeight: 400,
+        letterSpacing: '0.02em',
+      },
+      h3: {
+        fontFamily: 'var(--font-display), "Cormorant Garamond", serif',
+        fontWeight: 400,
+        letterSpacing: '0.02em',
+      },
+      h4: {
+        fontFamily: 'var(--font-mono), "Space Mono", monospace',
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+      },
+      h5: {
+        fontFamily: 'var(--font-mono), "Space Mono", monospace',
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+      },
+      h6: {
+        fontFamily: 'var(--font-mono), "Space Mono", monospace',
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+      },
+      body1: {
+        fontFamily: 'var(--font-noto-sans-tc), "Noto Sans TC", sans-serif',
+      },
+      body2: {
+        fontFamily: 'var(--font-noto-sans-tc), "Noto Sans TC", sans-serif',
+      },
+      caption: {
+        fontFamily: 'var(--font-mono), "Space Mono", monospace',
+      },
+      button: {
+        fontFamily: 'var(--font-mono), "Space Mono", monospace',
+      },
+      overline: {
+        fontFamily: 'var(--font-mono), "Space Mono", monospace',
+      },
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 0,
+            textTransform: 'uppercase',
+            fontWeight: 700,
+            padding: '10px 28px',
+            fontSize: '0.75rem',
+            letterSpacing: '0.1em',
+            boxShadow: 'none',
+            '&:hover': {
+              boxShadow: 'none',
+            },
+          },
+          contained: {
+            backgroundColor: '#c4a96e',
+            color: '#0d0d0f',
+            '&:hover': {
+              backgroundColor: '#d4b97e',
+            },
+          },
+          outlined: {
+            borderColor: isDark ? '#252528' : '#c8c5c0',
+            borderWidth: 1,
+            color: isDark ? '#e4e0d8' : '#1a1816',
+            '&:hover': {
+              borderWidth: 1,
+              borderColor: '#c4a96e',
+              color: '#c4a96e',
+              backgroundColor: 'transparent',
+            },
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: 0,
+            background: isDark ? '#131316' : '#e8e5e0',
+            border: `1px solid ${isDark ? '#252528' : '#c8c5c0'}`,
+            boxShadow: 'none',
+          },
+        },
+      },
+      MuiAppBar: {
+        styleOverrides: {
+          root: {
+            boxShadow: 'none',
+            backgroundImage: 'none',
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: 'none',
+          },
+        },
+      },
+    },
+  });
+}
+
+// Default dark theme export for backwards compatibility
+export default createAppTheme('dark');

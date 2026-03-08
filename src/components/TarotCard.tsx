@@ -67,6 +67,9 @@ export default function TarotCard({
         cursor: disabled ? 'default' : 'pointer',
         perspective: '1000px',
         touchAction: 'manipulation',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
       {...(onClick ? { onClick } : {})}
     >
@@ -86,9 +89,9 @@ export default function TarotCard({
             width: '100%',
             height: '100%',
             backfaceVisibility: 'hidden',
-            borderRadius: { xs: 2, sm: 3 },
+            borderRadius: '12px',
             overflow: 'hidden',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 16px rgba(156, 124, 244, 0.25)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}
         >
           <CardBack width={width} height={height} />
@@ -101,9 +104,9 @@ export default function TarotCard({
             height: '100%',
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
-            borderRadius: { xs: 2, sm: 3 },
+            borderRadius: '12px',
             overflow: 'hidden',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 24px rgba(244, 207, 124, 0.3)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}
         >
           <CardFront
@@ -126,11 +129,12 @@ export default function TarotCard({
             align="center"
             sx={{
               mt: { xs: 1, sm: 1.5 },
-              fontFamily: 'Cinzel',
-              fontWeight: 600,
-              color: 'secondary.main',
-              textShadow: '0 0 10px rgba(244, 207, 124, 0.5)',
-              fontSize: { xs: '0.8rem', sm: '0.9rem' },
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 400,
+              color: '#c4a96e',
+              fontSize: '0.6rem',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
             }}
           >
             {card.name} {isReversed && '↺'}
@@ -141,8 +145,8 @@ export default function TarotCard({
             display="block"
             sx={{
               color: 'text.secondary',
-              fontSize: { xs: '0.65rem', sm: '0.75rem' },
-              fontFamily: 'Noto Sans TC',
+              fontSize: '0.6rem',
+              fontFamily: 'var(--font-noto-sans-tc)',
             }}
           >
             {card.nameZh} {isReversed && '(逆位)'}

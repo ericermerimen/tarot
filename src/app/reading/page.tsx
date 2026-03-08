@@ -7,13 +7,9 @@ import {
   Container,
   Typography,
   Button,
-  Paper,
   Tabs,
   Tab,
-  Fade,
   Divider,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
 import { motion, AnimatePresence } from 'motion/react';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -105,75 +101,115 @@ function ReadingContent() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid #252528' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+            <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: '#c4a96e', flexShrink: 0 }} />
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.7rem',
+                letterSpacing: '0.12em',
+                color: '#606068',
+              }}
+            >
+              TAROT_READING
+            </Typography>
+          </Box>
           <Typography
             variant="h2"
             sx={{
-              fontFamily: 'Cinzel',
+              fontFamily: 'var(--font-display)',
               fontSize: { xs: '1.8rem', md: '2.5rem' },
-              mb: 1,
-              background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              fontWeight: 300,
+              color: '#e4e0d8',
+              mb: 0.25,
             }}
           >
             Tarot Reading
           </Typography>
           <Typography
-            variant="h5"
-            sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary' }}
+            sx={{
+              fontFamily: 'var(--font-noto-sans-tc)',
+              color: '#606068',
+              fontSize: '0.95rem',
+            }}
           >
             塔羅占卜
           </Typography>
         </Box>
 
         {/* Spread Selection Tabs */}
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 3 }}>
           <Tabs
             value={selectedSpread}
             onChange={handleSpreadChange}
             centered
             sx={{
+              borderBottom: '1px solid #252528',
               '& .MuiTab-root': {
-                color: 'text.secondary',
-                fontFamily: 'Cinzel',
+                color: '#606068',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.65rem',
+                letterSpacing: '0.1em',
+                minHeight: 40,
                 '&.Mui-selected': {
-                  color: 'primary.main',
+                  color: '#c4a96e',
                 },
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: 'primary.main',
+                backgroundColor: '#c4a96e',
+                height: 1,
               },
             }}
           >
-            <Tab value="single" label="Single" />
-            <Tab value="threeCard" label="Three Card" />
-            <Tab value="love" label="Love" />
-            <Tab value="celticCross" label="Celtic Cross" />
+            <Tab value="single" label="SINGLE" />
+            <Tab value="threeCard" label="THREE_CARD" />
+            <Tab value="love" label="LOVE" />
+            <Tab value="celticCross" label="CELTIC_CROSS" />
           </Tabs>
         </Box>
 
         {/* Spread Info */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography variant="h5" sx={{ fontFamily: 'Cinzel', color: 'secondary.main' }}>
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-display)',
+              fontSize: { xs: '1.1rem', md: '1.3rem' },
+              fontWeight: 300,
+              color: '#e4e0d8',
+              mb: 0.25,
+            }}
+          >
             {currentSpread.name}
           </Typography>
-          <Typography variant="subtitle1" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary' }}>
+          <Typography
+            sx={{ fontFamily: 'var(--font-noto-sans-tc)', color: '#606068', fontSize: '0.875rem', mb: 0.5 }}
+          >
             {currentSpread.nameZh}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: '#3a3a3e', letterSpacing: '0.06em' }}
+          >
             {currentSpread.description} · {currentSpread.descriptionZh}
           </Typography>
           {!readingComplete && (
-            <Typography variant="body2" sx={{ mt: 2, color: 'primary.light', fontStyle: 'italic' }}>
-              Click each card to reveal · 點擊每張牌揭示
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.6rem',
+                color: '#3a3a3e',
+                letterSpacing: '0.08em',
+                mt: 1,
+              }}
+            >
+              TAP_EACH_CARD_TO_REVEAL · 點擊每張牌揭示
             </Typography>
           )}
         </Box>
@@ -201,23 +237,23 @@ function ReadingContent() {
             {cards.map((cardData, index) => (
               <Box key={index} sx={{ textAlign: 'center' }}>
                 <Typography
-                  variant="caption"
                   sx={{
                     display: 'block',
-                    mb: 1,
-                    color: flippedCards.includes(index) ? 'secondary.main' : 'text.secondary',
-                    fontFamily: 'Cinzel',
+                    mb: 0.5,
+                    color: flippedCards.includes(index) ? '#c4a96e' : '#3a3a3e',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.6rem',
+                    letterSpacing: '0.08em',
                   }}
                 >
-                  {currentSpread.positions[index]}
+                  {currentSpread.positions[index].toUpperCase()}
                 </Typography>
                 <Typography
-                  variant="caption"
                   sx={{
                     display: 'block',
-                    mb: 2,
-                    color: 'text.secondary',
-                    fontFamily: 'Noto Sans TC',
+                    mb: 1.5,
+                    color: '#2e2e34',
+                    fontFamily: 'var(--font-noto-sans-tc)',
                     fontSize: '0.7rem',
                   }}
                 >
@@ -235,8 +271,7 @@ function ReadingContent() {
           </Box>
         )}
 
-        {/* Reading Result Display */}
-        {/* For single card: show individual meaning when card is clicked */}
+        {/* Single card meaning */}
         {selectedSpread === 'single' && (
           <AnimatePresence>
             {showMeaning !== null && cards[showMeaning] && (
@@ -257,7 +292,7 @@ function ReadingContent() {
           </AnimatePresence>
         )}
 
-        {/* For multi-card spreads: show holistic summary when all cards revealed */}
+        {/* Multi-card summary */}
         {selectedSpread !== 'single' && (
           <AnimatePresence>
             {readingComplete && (
@@ -285,15 +320,15 @@ function ReadingContent() {
             startIcon={<RefreshIcon />}
             onClick={() => startNewReading()}
           >
-            New Reading 重新占卜
+            NEW_READING 重新占卜
           </Button>
           {readingComplete && (
             <Button
-              variant="contained"
+              variant="outlined"
               startIcon={<SaveIcon />}
               onClick={saveReading}
             >
-              Save to Journal 保存到日記
+              SAVE_TO_JOURNAL 保存到日記
             </Button>
           )}
         </Box>
@@ -316,25 +351,24 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
   const renderCard = (index: number) => (
     <Box sx={{ textAlign: 'center' }}>
       <Typography
-        variant="caption"
         sx={{
           display: 'block',
           mb: 0.5,
-          color: flippedCards.includes(index) ? 'secondary.main' : 'text.secondary',
-          fontFamily: 'Cinzel',
-          fontSize: { xs: '0.55rem', md: '0.65rem' },
+          color: flippedCards.includes(index) ? '#c4a96e' : '#3a3a3e',
+          fontFamily: 'var(--font-mono)',
+          fontSize: { xs: '0.5rem', md: '0.6rem' },
+          letterSpacing: '0.06em',
           whiteSpace: 'nowrap',
         }}
       >
-        {positions[index]}
+        {positions[index].toUpperCase()}
       </Typography>
       <Typography
-        variant="caption"
         sx={{
           display: 'block',
           mb: 0.5,
-          color: 'text.secondary',
-          fontFamily: 'Noto Sans TC',
+          color: '#2e2e34',
+          fontFamily: 'var(--font-noto-sans-tc)',
           fontSize: '0.55rem',
         }}
       >
@@ -363,7 +397,7 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
         maxWidth: 900,
       }}
     >
-      {/* Cross section - uses CSS grid for the traditional cross shape */}
+      {/* Cross section */}
       <Box
         sx={{
           display: 'grid',
@@ -374,18 +408,14 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
           alignItems: 'center',
         }}
       >
-        {/* Row 1: Above (top center) */}
         <Box sx={{ gridColumn: '2', gridRow: '1' }}>
           {renderCard(4)}
         </Box>
-
-        {/* Row 2: Past | Present+Challenge | Future */}
         <Box sx={{ gridColumn: '1', gridRow: '2' }}>
           {renderCard(2)}
         </Box>
         <Box sx={{ gridColumn: '2', gridRow: '2', position: 'relative' }}>
           {renderCard(0)}
-          {/* Challenge card - offset below to avoid blocking Present */}
           <Box
             sx={{
               position: 'absolute',
@@ -409,41 +439,37 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
         <Box sx={{ gridColumn: '3', gridRow: '2' }}>
           {renderCard(3)}
         </Box>
-
-        {/* Row 3: Below (bottom center) */}
         <Box sx={{ gridColumn: '2', gridRow: '3' }}>
           {renderCard(5)}
         </Box>
       </Box>
 
-      {/* Challenge card - standalone clickable version */}
+      {/* Crossing card — standalone clickable */}
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: 0.5,
-          order: { xs: 0, md: 0 },
-          border: '1px solid rgba(244, 207, 124, 0.2)',
-          borderRadius: 2,
+          border: '1px solid #252528',
           p: 1,
-          background: 'rgba(244, 207, 124, 0.05)',
+          bgcolor: '#131316',
         }}
       >
         <Typography
-          variant="caption"
           sx={{
-            color: 'secondary.main',
-            fontFamily: 'Cinzel',
-            fontSize: '0.6rem',
+            color: '#c4a96e',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.55rem',
+            letterSpacing: '0.08em',
           }}
         >
-          Crossing Card
+          CROSSING_CARD
         </Typography>
         {renderCard(1)}
       </Box>
 
-      {/* Staff column (right side - 4 cards vertically) */}
+      {/* Staff column */}
       <Box
         sx={{
           display: 'flex',
@@ -471,64 +497,117 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
   const meaning = isReversed ? card.reversed : card.upright;
 
   return (
-    <Paper
-      sx={{
-        p: 3,
-        mt: 2,
-        background: 'rgba(20, 10, 40, 0.9)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(156, 124, 244, 0.3)',
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-        <Box
+    <Box sx={{ mt: 2, border: '1px solid #252528', bgcolor: '#0d0d0f' }}>
+      {/* Position header */}
+      <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #252528', bgcolor: '#131316' }}>
+        <Typography
           sx={{
-            px: 2,
-            py: 0.5,
-            borderRadius: 1,
-            background: 'rgba(244, 207, 124, 0.2)',
-            border: '1px solid rgba(244, 207, 124, 0.4)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.6rem',
+            color: '#c4a96e',
+            letterSpacing: '0.08em',
           }}
         >
-          <Typography variant="caption" sx={{ color: 'secondary.main' }}>
-            {position} · {positionZh}
-          </Typography>
-        </Box>
+          {position.toUpperCase()} · {positionZh}
+        </Typography>
       </Box>
 
-      <Typography variant="h5" sx={{ fontFamily: 'Cinzel', color: 'secondary.main' }}>
-        {card.name} {isReversed && '(Reversed)'}
-      </Typography>
-      <Typography variant="subtitle1" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', mb: 2 }}>
-        {card.nameZh} {isReversed && '(逆位)'}
-      </Typography>
-
-      <Typography variant="body1" paragraph>
-        {meaning.meaning}
-      </Typography>
-      <Typography variant="body1" sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary' }}>
-        {meaning.meaningZh}
-      </Typography>
-
-      <Divider sx={{ my: 2, borderColor: 'rgba(156, 124, 244, 0.2)' }} />
-
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-        {card.keywords.map((keyword, i) => (
-          <Box
-            key={i}
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
+        {/* Card identity */}
+        <Box sx={{ mb: 2, pb: 2, borderBottom: '1px solid #252528' }}>
+          <Typography
             sx={{
-              px: 1.5,
-              py: 0.25,
-              borderRadius: 1,
-              background: 'rgba(156, 124, 244, 0.15)',
-              fontSize: '0.75rem',
+              fontFamily: 'var(--font-display)',
+              color: '#e4e0d8',
+              fontWeight: 300,
+              fontSize: { xs: '1.3rem', md: '1.6rem' },
+              mb: 0.25,
             }}
           >
-            {keyword}
+            {card.name}
+            {isReversed && (
+              <span style={{ color: '#606068', fontSize: '0.7em', marginLeft: '0.5em' }}>(Reversed)</span>
+            )}
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-noto-sans-tc)',
+              color: '#606068',
+              fontSize: '0.95rem',
+            }}
+          >
+            {card.nameZh} {isReversed && '(逆位)'}
+          </Typography>
+        </Box>
+
+        {/* Meaning */}
+        <Box sx={{ mb: 2, p: 2, border: '1px solid #252528', bgcolor: '#131316' }}>
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.65rem',
+              color: '#606068',
+              letterSpacing: '0.08em',
+              mb: 1.5,
+            }}
+          >
+            {isReversed ? '> REVERSED' : '> UPRIGHT'}
+          </Typography>
+          <Typography variant="body1" sx={{ lineHeight: 1.8, color: '#e4e0d8', mb: 1.5 }}>
+            {meaning.meaning}
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-noto-sans-tc)',
+              color: '#888078',
+              lineHeight: 1.8,
+              fontSize: '0.9rem',
+            }}
+          >
+            {meaning.meaningZh}
+          </Typography>
+        </Box>
+
+        {/* Keywords */}
+        <Box>
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.6rem',
+              color: '#2e2e34',
+              letterSpacing: '0.1em',
+              mb: 1,
+            }}
+          >
+            KEYWORDS ————————
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {card.keywords.map((keyword, i) => (
+              <Box
+                key={i}
+                sx={{
+                  px: 1,
+                  py: 0.25,
+                  border: '1px solid #252528',
+                  bgcolor: '#131316',
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.6rem',
+                    color: '#888078',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {keyword}
+                </Typography>
+              </Box>
+            ))}
           </Box>
-        ))}
+        </Box>
       </Box>
-    </Paper>
+    </Box>
   );
 }
 
@@ -628,118 +707,119 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
   if (!summary) return null;
 
   return (
-    <Paper
-      sx={{
-        p: { xs: 2, md: 4 },
-        mt: 3,
-        background: 'linear-gradient(135deg, rgba(20, 10, 40, 0.95) 0%, rgba(30, 15, 60, 0.95) 100%)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(244, 207, 124, 0.3)',
-        borderRadius: 2,
-      }}
-    >
+    <Box sx={{ mt: 3, border: '1px solid #252528', bgcolor: '#0d0d0f' }}>
       {/* Summary header */}
-      <Box sx={{ textAlign: 'center', mb: 3 }}>
+      <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #252528', bgcolor: '#131316' }}>
         <Typography
-          variant="h4"
           sx={{
-            fontFamily: 'Cinzel',
-            fontSize: { xs: '1.3rem', md: '1.6rem' },
-            background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            fontFamily: 'var(--font-display)',
+            fontSize: { xs: '1.2rem', md: '1.5rem' },
+            fontWeight: 300,
+            color: '#e4e0d8',
+            mb: 0.25,
           }}
         >
           {summary.title}
         </Typography>
         <Typography
-          variant="subtitle1"
-          sx={{ fontFamily: 'Noto Sans TC', color: 'text.secondary', mt: 0.5 }}
+          sx={{ fontFamily: 'var(--font-noto-sans-tc)', color: '#606068', fontSize: '0.875rem' }}
         >
           {summary.titleZh}
         </Typography>
       </Box>
 
-      <Divider sx={{ mb: 3, borderColor: 'rgba(244, 207, 124, 0.2)' }} />
-
-      {/* Card list overview */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 3, justifyContent: 'center' }}>
-        {cards.map((cardData, index) => (
-          <Box
-            key={index}
+      <Box sx={{ p: { xs: 2, md: 3 } }}>
+        {/* Card list overview */}
+        <Box sx={{ mb: 2 }}>
+          <Typography
             sx={{
-              px: 1.5,
-              py: 0.75,
-              borderRadius: 1,
-              background: 'rgba(156, 124, 244, 0.1)',
-              border: '1px solid rgba(156, 124, 244, 0.25)',
-              textAlign: 'center',
-              minWidth: 100,
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.6rem',
+              color: '#2e2e34',
+              letterSpacing: '0.1em',
+              mb: 1,
             }}
           >
-            <Typography
-              variant="caption"
-              sx={{
-                display: 'block',
-                color: 'secondary.main',
-                fontFamily: 'Cinzel',
-                fontSize: '0.65rem',
-                mb: 0.25,
-              }}
-            >
-              {positions[index]} · {positionsZh[index]}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                display: 'block',
-                color: 'text.primary',
-                fontSize: '0.7rem',
-              }}
-            >
-              {cardData.card.name}
-              {cardData.isReversed && ' (Rev)'}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                display: 'block',
-                color: 'text.secondary',
-                fontFamily: 'Noto Sans TC',
-                fontSize: '0.65rem',
-              }}
-            >
-              {cardData.card.nameZh}
-              {cardData.isReversed && ' (逆位)'}
-            </Typography>
+            CARDS ————————
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {cards.map((cardData, index) => (
+              <Box
+                key={index}
+                sx={{
+                  px: 1.5,
+                  py: 0.75,
+                  border: '1px solid #252528',
+                  bgcolor: '#131316',
+                  textAlign: 'center',
+                  minWidth: 90,
+                }}
+              >
+                <Typography
+                  sx={{
+                    display: 'block',
+                    color: '#c4a96e',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.55rem',
+                    letterSpacing: '0.06em',
+                    mb: 0.25,
+                  }}
+                >
+                  {positions[index].toUpperCase()} · {positionsZh[index]}
+                </Typography>
+                <Typography
+                  sx={{
+                    display: 'block',
+                    color: '#e4e0d8',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.8rem',
+                    fontWeight: 300,
+                  }}
+                >
+                  {cardData.card.name}
+                  {cardData.isReversed && ' (Rev)'}
+                </Typography>
+                <Typography
+                  sx={{
+                    display: 'block',
+                    color: '#606068',
+                    fontFamily: 'var(--font-noto-sans-tc)',
+                    fontSize: '0.65rem',
+                  }}
+                >
+                  {cardData.card.nameZh}
+                  {cardData.isReversed && ' (逆位)'}
+                </Typography>
+              </Box>
+            ))}
           </Box>
-        ))}
+        </Box>
+
+        <Divider sx={{ mb: 2.5, borderColor: '#252528' }} />
+
+        {/* Holistic interpretation */}
+        <Typography
+          variant="body1"
+          sx={{ lineHeight: 1.8, mb: 2, color: '#e4e0d8', whiteSpace: 'pre-line' }}
+        >
+          {summary.summary}
+        </Typography>
+
+        <Divider sx={{ my: 2, borderColor: '#1a1a1d' }} />
+
+        <Typography
+          variant="body1"
+          sx={{
+            fontFamily: 'var(--font-noto-sans-tc)',
+            color: '#888078',
+            lineHeight: 1.8,
+            whiteSpace: 'pre-line',
+          }}
+        >
+          {summary.summaryZh}
+        </Typography>
       </Box>
-
-      <Divider sx={{ mb: 3, borderColor: 'rgba(156, 124, 244, 0.15)' }} />
-
-      {/* Holistic interpretation */}
-      <Typography
-        variant="body1"
-        sx={{ lineHeight: 1.8, mb: 2, whiteSpace: 'pre-line' }}
-      >
-        {summary.summary}
-      </Typography>
-
-      <Divider sx={{ my: 2, borderColor: 'rgba(156, 124, 244, 0.15)' }} />
-
-      <Typography
-        variant="body1"
-        sx={{
-          fontFamily: 'Noto Sans TC',
-          color: 'text.secondary',
-          lineHeight: 1.8,
-          whiteSpace: 'pre-line',
-        }}
-      >
-        {summary.summaryZh}
-      </Typography>
-    </Paper>
+    </Box>
   );
 }
 
@@ -747,7 +827,9 @@ export default function ReadingPage() {
   return (
     <Suspense fallback={
       <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
-        <Typography>Loading...</Typography>
+        <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#606068', letterSpacing: '0.1em' }}>
+          LOADING...
+        </Typography>
       </Container>
     }>
       <ReadingContent />

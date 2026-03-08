@@ -89,7 +89,7 @@ export default function Home() {
                   width: 6,
                   height: 6,
                   borderRadius: '50%',
-                  bgcolor: '#c4a96e',
+                  bgcolor: 'primary.main',
                   flexShrink: 0,
                 }}
               />
@@ -98,7 +98,7 @@ export default function Home() {
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.7rem',
                   letterSpacing: '0.12em',
-                  color: '#606068',
+                  color: 'secondary.dark',
                 }}
               >
                 ORACLE_SYS — INITIALIZED
@@ -111,7 +111,7 @@ export default function Home() {
                 fontSize: { xs: '2.5rem', sm: '4rem', md: '6rem' },
                 fontWeight: 300,
                 fontFamily: 'var(--font-display)',
-                color: '#e4e0d8',
+                color: 'text.primary',
                 mb: 1.5,
                 lineHeight: 1.1,
               }}
@@ -123,7 +123,7 @@ export default function Home() {
               sx={{
                 fontFamily: 'var(--font-noto-sans-tc)',
                 fontSize: { xs: '1rem', sm: '1.2rem' },
-                color: '#606068',
+                color: 'secondary.dark',
                 mb: 3,
               }}
             >
@@ -134,7 +134,7 @@ export default function Home() {
             <Box
               sx={{
                 display: 'inline-block',
-                border: '1px solid #252528',
+                border: '1px solid', borderColor: 'divider',
                 px: { xs: 2, sm: 3 },
                 py: 1,
                 mb: 4,
@@ -145,7 +145,7 @@ export default function Home() {
                   fontFamily: 'var(--font-mono)',
                   fontSize: { xs: '0.6rem', sm: '0.7rem' },
                   letterSpacing: '0.1em',
-                  color: '#888078',
+                  color: 'text.secondary',
                 }}
               >
                 DECK · 22 / SPREADS · 04 / LANG · EN·ZH
@@ -222,14 +222,14 @@ export default function Home() {
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.65rem',
                   letterSpacing: '0.1em',
-                  color: '#2e2e34',
+                  color: 'secondary.dark',
                   whiteSpace: 'nowrap',
                   flexShrink: 0,
                 }}
               >
                 FEATURED
               </Typography>
-              <Box sx={{ flex: 1, height: '1px', bgcolor: '#1a1a1d' }} />
+              <Box sx={{ flex: 1, height: '1px', bgcolor: 'divider' }} />
             </Box>
 
             <Box
@@ -268,7 +268,7 @@ export default function Home() {
 
         {/* Spread selection */}
         <Box sx={{ py: { xs: 2, md: 4 } }}>
-          <Box sx={{ borderTop: '1px solid #252528' }}>
+          <Box sx={{ borderTop: '1px solid', borderTopColor: 'divider' }}>
             {spreadOptions.map((spread, index) => (
               <motion.div
                 key={spread.id}
@@ -285,7 +285,7 @@ export default function Home() {
                     gap: { xs: 2, sm: 3 },
                     px: { xs: 1, sm: 2 },
                     py: { xs: 1.5, sm: 2 },
-                    borderBottom: '1px solid #1a1a1d',
+                    borderBottom: '1px solid', borderBottomColor: 'divider',
                     textDecoration: 'none',
                     transition: 'background-color 0.15s ease',
                     '&:hover': {
@@ -298,7 +298,7 @@ export default function Home() {
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.7rem',
-                      color: '#2e2e34',
+                      color: 'secondary.dark',
                       letterSpacing: '0.05em',
                       flexShrink: 0,
                       minWidth: '3rem',
@@ -314,7 +314,7 @@ export default function Home() {
                         fontFamily: 'var(--font-mono)',
                         fontSize: { xs: '0.75rem', sm: '0.85rem' },
                         letterSpacing: '0.08em',
-                        color: '#e4e0d8',
+                        color: 'text.primary',
                         mb: 0.25,
                       }}
                     >
@@ -324,7 +324,7 @@ export default function Home() {
                       sx={{
                         fontFamily: 'var(--font-noto-sans-tc)',
                         fontSize: '0.7rem',
-                        color: '#606068',
+                        color: 'secondary.dark',
                       }}
                     >
                       {spread.titleZh}
@@ -336,7 +336,7 @@ export default function Home() {
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.65rem',
-                      color: '#3a3a3e',
+                      color: 'secondary.dark',
                       letterSpacing: '0.05em',
                       display: { xs: 'none', sm: 'block' },
                       flexShrink: 0,
@@ -350,7 +350,7 @@ export default function Home() {
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.85rem',
-                      color: '#3a3a3e',
+                      color: 'secondary.dark',
                       flexShrink: 0,
                       ml: { xs: 0, sm: 1 },
                     }}
@@ -378,8 +378,8 @@ export default function Home() {
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.7rem',
                 letterSpacing: '0.1em',
-                color: '#606068',
-                '&:hover': { color: '#e4e0d8' },
+                color: 'secondary.dark',
+                '&:hover': { color: 'text.primary' },
               }}
             >
               BROWSE ALL 22 CARDS 瀏覽全部牌卡 →

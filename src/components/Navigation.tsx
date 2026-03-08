@@ -68,7 +68,7 @@ export default function Navigation() {
 
   const isDark = mode === 'dark';
   const bg = isDark ? '#0d0d0f' : '#f0ede8';
-  const border = isDark ? '#252528' : '#c8c5c0';
+  const border = isDark ? '#252528' : '#d8d5d0';
   const textPrimary = isDark ? '#e4e0d8' : '#1a1816';
   const textMuted = isDark ? '#606068' : '#888078';
   const textDim = isDark ? '#2e2e34' : '#b0aa9e';

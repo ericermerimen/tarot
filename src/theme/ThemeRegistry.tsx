@@ -58,7 +58,10 @@ export default function ThemeRegistry({ children }: ThemeRegistryProps) {
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', mode);
-  }, [mode]);
+    // Explicitly sync body background — CssBaseline's injected style may not
+    // update reliably when Emotion's SSR cache is active.
+    document.body.style.backgroundColor = theme.palette.background.default;
+  }, [mode, theme.palette.background.default]);
 
   return (
     <CacheProvider value={cache}>

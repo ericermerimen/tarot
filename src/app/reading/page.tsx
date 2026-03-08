@@ -23,6 +23,14 @@ function ReadingContent() {
   const searchParams = useSearchParams();
   const initialSpread = (searchParams.get('spread') || 'single') as SpreadKey;
 
+  // Force-fix MUI Tabs indicator height — SWC Emotion compiler caches height:100%
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = '.MuiTabs-indicator { height: 2px !important; }';
+    document.head.appendChild(style);
+    return () => { document.head.removeChild(style); };
+  }, []);
+
   const [selectedSpread, setSelectedSpread] = useState<SpreadKey>(initialSpread);
   const currentSpread = spreadTypes[selectedSpread] || spreadTypes.single;
   const [cards, setCards] = useState<DrawnCard[]>([]);
@@ -179,9 +187,11 @@ function ReadingContent() {
             onChange={handleSpreadChange}
             centered
             sx={{
-              borderBottom: '1px solid', borderBottomColor: 'divider',
+              borderBottom: '1px solid',
+              borderBottomColor: 'divider',
+              minHeight: 40,
               '& .MuiTab-root': {
-                color: 'secondary.dark',
+                color: 'text.secondary',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.65rem',
                 letterSpacing: '0.1em',
@@ -189,10 +199,6 @@ function ReadingContent() {
                 '&.Mui-selected': {
                   color: 'primary.main',
                 },
-              },
-              '& .MuiTabs-indicator': {
-                backgroundColor: 'primary.main',
-                height: 1,
               },
             }}
           >

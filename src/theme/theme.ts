@@ -30,8 +30,8 @@ export function createAppTheme(mode: 'dark' | 'light') {
       },
       secondary: {
         main: '#888078',
-        light: '#b0aa9e',
-        dark: '#606068',
+        light: isDark ? '#b0aa9e' : '#5a554e',
+        dark: isDark ? '#8a8490' : '#6a655e',
       },
       background: {
         default: isDark ? '#0d0d0f' : '#f0ede8',
@@ -39,7 +39,7 @@ export function createAppTheme(mode: 'dark' | 'light') {
       },
       text: {
         primary: isDark ? '#e4e0d8' : '#1a1816',
-        secondary: '#888078',
+        secondary: isDark ? '#888078' : '#6a655e',
       },
       divider: isDark ? '#252528' : '#c8c5c0',
       mystical: {

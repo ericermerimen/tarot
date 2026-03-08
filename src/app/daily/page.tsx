@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import { motion, AnimatePresence } from 'motion/react';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCard, tarotCards } from '@/data/tarotCards';
 import type { DrawnCard } from '@/types/tarot';
 import type { DailyCardStorage } from '@/types/reading';
+import { useColorMode } from '@/theme/ColorModeContext';
 
 function loadOrGenerateDaily(): DrawnCard {
   const today = new Date().toDateString();
@@ -40,9 +41,13 @@ function formatDate(d: Date): string {
 }
 
 export default function DailyCard() {
-  const [dailyReading, setDailyReading] = useState<DrawnCard>(() => loadOrGenerateDaily());
+  const [dailyReading, setDailyReading] = useState<DrawnCard | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showMeaning, setShowMeaning] = useState(false);
+
+  useEffect(() => {
+    setDailyReading(loadOrGenerateDaily());
+  }, []);
 
   const generateDailyCard = () => {
     const today = new Date().toDateString();
@@ -60,6 +65,24 @@ export default function DailyCard() {
     }
   };
 
+  const { mode } = useColorMode();
+  const isDark = mode === 'dark';
+  const textDim = isDark ? '#2e2e34' : '#9a958e';
+  const textFaint = isDark ? '#3a3a3e' : '#7a756e';
+  const rowBorder = isDark ? '#1a1a1d' : '#d8d5d0';
+
+  if (!dailyReading) {
+    return (
+      <Container maxWidth="sm" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>
+        <Box sx={{ minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'secondary.dark', letterSpacing: '0.1em' }}>
+            LOADING...
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
+
   const { card, isReversed } = dailyReading;
   const meaning = isReversed ? card.reversed : card.upright;
 
@@ -71,16 +94,16 @@ export default function DailyCard() {
         transition={{ duration: 0.6 }}
       >
         {/* Header */}
-        <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid #252528' }}>
+        <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: '#c4a96e', flexShrink: 0 }} />
+              <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0 }} />
               <Typography
                 sx={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.7rem',
                   letterSpacing: '0.12em',
-                  color: '#606068',
+                  color: 'secondary.dark',
                 }}
               >
                 DAILY_READING
@@ -90,7 +113,7 @@ export default function DailyCard() {
               sx={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.65rem',
-                color: '#3a3a3e',
+                color: textFaint,
                 letterSpacing: '0.06em',
               }}
             >
@@ -120,7 +143,7 @@ export default function DailyCard() {
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.65rem',
                   letterSpacing: '0.1em',
-                  color: '#3a3a3e',
+                  color: textFaint,
                   mb: 0.5,
                 }}
               >
@@ -130,7 +153,7 @@ export default function DailyCard() {
                 sx={{
                   fontFamily: 'var(--font-noto-sans-tc)',
                   fontSize: '0.75rem',
-                  color: '#2e2e34',
+                  color: textDim,
                 }}
               >
                 點擊揭示今日指引
@@ -157,12 +180,12 @@ export default function DailyCard() {
               transition={{ duration: 0.5 }}
             >
               {/* Card identity */}
-              <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid #252528' }}>
+              <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
                 <Typography
                   variant="h5"
                   sx={{
                     fontFamily: 'var(--font-display)',
-                    color: '#e4e0d8',
+                    color: 'text.primary',
                     fontWeight: 300,
                     fontSize: { xs: '1.4rem', sm: '1.75rem' },
                     mb: 0.25,
@@ -170,13 +193,13 @@ export default function DailyCard() {
                 >
                   {card.name}
                   {isReversed && (
-                    <span style={{ color: '#606068', fontSize: '0.7em', marginLeft: '0.5em' }}>(Reversed)</span>
+                    <Box component="span" sx={{ color: 'secondary.dark', fontSize: '0.7em', ml: '0.5em' }}>(Reversed)</Box>
                   )}
                 </Typography>
                 <Typography
                   sx={{
                     fontFamily: 'var(--font-noto-sans-tc)',
-                    color: '#606068',
+                    color: 'secondary.dark',
                     fontSize: '0.95rem',
                     mb: 0.5,
                   }}
@@ -187,7 +210,7 @@ export default function DailyCard() {
                   sx={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.6rem',
-                    color: '#888078',
+                    color: 'text.secondary',
                     letterSpacing: '0.08em',
                   }}
                 >
@@ -202,7 +225,7 @@ export default function DailyCard() {
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.6rem',
-                      color: '#c4a96e',
+                      color: 'primary.main',
                       letterSpacing: '0.08em',
                     }}
                   >
@@ -214,7 +237,7 @@ export default function DailyCard() {
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.6rem',
-                      color: '#c4a96e',
+                      color: 'primary.main',
                       letterSpacing: '0.08em',
                     }}
                   >
@@ -226,7 +249,7 @@ export default function DailyCard() {
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.6rem',
-                      color: '#c4a96e',
+                      color: 'primary.main',
                       letterSpacing: '0.08em',
                     }}
                   >
@@ -240,7 +263,7 @@ export default function DailyCard() {
                 sx={{
                   mb: 3,
                   p: 2,
-                  border: '1px solid #252528',
+                  border: '1px solid', borderColor: 'divider',
                   bgcolor: 'background.paper',
                 }}
               >
@@ -248,20 +271,20 @@ export default function DailyCard() {
                   sx={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.65rem',
-                    color: '#606068',
+                    color: 'secondary.dark',
                     letterSpacing: '0.08em',
                     mb: 1.5,
                   }}
                 >
                   {isReversed ? '> REVERSED' : '> UPRIGHT'}
                 </Typography>
-                <Typography variant="body1" sx={{ lineHeight: 1.8, color: '#e4e0d8', mb: 1.5 }}>
+                <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 1.5 }}>
                   {meaning.meaning}
                 </Typography>
                 <Typography
                   sx={{
                     fontFamily: 'var(--font-noto-sans-tc)',
-                    color: '#888078',
+                    color: 'text.secondary',
                     lineHeight: 1.8,
                     fontSize: '0.9rem',
                   }}
@@ -276,7 +299,7 @@ export default function DailyCard() {
                   sx={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.6rem',
-                    color: '#2e2e34',
+                    color: textDim,
                     letterSpacing: '0.1em',
                     mb: 1,
                   }}
@@ -290,7 +313,7 @@ export default function DailyCard() {
                       sx={{
                         px: 1,
                         py: 0.25,
-                        border: '1px solid #252528',
+                        border: '1px solid', borderColor: 'divider',
                         bgcolor: 'background.paper',
                       }}
                     >
@@ -298,7 +321,7 @@ export default function DailyCard() {
                         sx={{
                           fontFamily: 'var(--font-mono)',
                           fontSize: '0.6rem',
-                          color: '#888078',
+                          color: 'text.secondary',
                           letterSpacing: '0.05em',
                         }}
                       >
@@ -311,26 +334,26 @@ export default function DailyCard() {
 
               {/* Advice */}
               {meaning.advice && (
-                <Box sx={{ mb: 3, pl: 2, borderLeft: '2px solid #252528' }}>
+                <Box sx={{ mb: 3, pl: 2, borderLeft: '2px solid', borderLeftColor: 'divider' }}>
                   <Typography
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.65rem',
-                      color: '#c4a96e',
+                      color: 'primary.main',
                       letterSpacing: '0.08em',
                       mb: 0.75,
                     }}
                   >
                     {'> ADVICE'}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#e4e0d8', lineHeight: 1.8, mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ color: 'text.primary', lineHeight: 1.8, mb: 0.5 }}>
                     {meaning.advice}
                   </Typography>
                   {meaning.adviceZh && (
                     <Typography
                       sx={{
                         fontFamily: 'var(--font-noto-sans-tc)',
-                        color: '#888078',
+                        color: 'text.secondary',
                         fontSize: '0.875rem',
                         lineHeight: 1.8,
                       }}
@@ -342,26 +365,26 @@ export default function DailyCard() {
               )}
 
               {/* Love */}
-              <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid #1a1a1d' }}>
+              <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid', borderTopColor: rowBorder }}>
                 <Typography
                   sx={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.65rem',
-                    color: '#606068',
+                    color: 'secondary.dark',
                     letterSpacing: '0.1em',
                     mb: 1,
                   }}
                 >
                   {'> LOVE'}
                 </Typography>
-                <Typography variant="body1" sx={{ lineHeight: 1.8, color: '#b0aa9e', mb: 0.5 }}>
+                <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 0.5 }}>
                   {meaning.love}
                 </Typography>
                 {meaning.loveZh && (
                   <Typography
                     sx={{
                       fontFamily: 'var(--font-noto-sans-tc)',
-                      color: '#606068',
+                      color: 'secondary.dark',
                       lineHeight: 1.8,
                       fontSize: '0.875rem',
                     }}
@@ -372,26 +395,26 @@ export default function DailyCard() {
               </Box>
 
               {/* Career */}
-              <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid #1a1a1d' }}>
+              <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid', borderTopColor: rowBorder }}>
                 <Typography
                   sx={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.65rem',
-                    color: '#606068',
+                    color: 'secondary.dark',
                     letterSpacing: '0.1em',
                     mb: 1,
                   }}
                 >
                   {'> CAREER'}
                 </Typography>
-                <Typography variant="body1" sx={{ lineHeight: 1.8, color: '#b0aa9e', mb: 0.5 }}>
+                <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 0.5 }}>
                   {meaning.career}
                 </Typography>
                 {meaning.careerZh && (
                   <Typography
                     sx={{
                       fontFamily: 'var(--font-noto-sans-tc)',
-                      color: '#606068',
+                      color: 'secondary.dark',
                       lineHeight: 1.8,
                       fontSize: '0.875rem',
                     }}
@@ -403,26 +426,26 @@ export default function DailyCard() {
 
               {/* Health */}
               {meaning.health && (
-                <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid #1a1a1d' }}>
+                <Box sx={{ mb: 3, pt: 2, borderTop: '1px solid', borderTopColor: rowBorder }}>
                   <Typography
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.65rem',
-                      color: '#606068',
+                      color: 'secondary.dark',
                       letterSpacing: '0.1em',
                       mb: 1,
                     }}
                   >
                     {'> HEALTH'}
                   </Typography>
-                  <Typography variant="body1" sx={{ lineHeight: 1.8, color: '#b0aa9e', mb: 0.5 }}>
+                  <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 0.5 }}>
                     {meaning.health}
                   </Typography>
                   {meaning.healthZh && (
                     <Typography
                       sx={{
                         fontFamily: 'var(--font-noto-sans-tc)',
-                        color: '#606068',
+                        color: 'secondary.dark',
                         lineHeight: 1.8,
                         fontSize: '0.875rem',
                       }}
@@ -435,12 +458,12 @@ export default function DailyCard() {
 
               {/* Reflection questions */}
               {card.reflectionQuestions && (
-                <Box sx={{ mb: 3, p: 2, border: '1px solid #1a1a1d' }}>
+                <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: rowBorder }}>
                   <Typography
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.6rem',
-                      color: '#2e2e34',
+                      color: textDim,
                       letterSpacing: '0.1em',
                       mb: 1.5,
                     }}
@@ -448,15 +471,15 @@ export default function DailyCard() {
                     REFLECTION ————————
                   </Typography>
                   {card.reflectionQuestions.map((q, i) => (
-                    <Box key={i} sx={{ mb: 1.5, pl: 1, borderLeft: '1px solid #252528' }}>
-                      <Typography variant="body2" sx={{ color: '#888078', lineHeight: 1.7, mb: 0.25 }}>
+                    <Box key={i} sx={{ mb: 1.5, pl: 1, borderLeft: '1px solid', borderLeftColor: 'divider' }}>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7, mb: 0.25 }}>
                         {q}
                       </Typography>
                       {card.reflectionQuestionsZh && (
                         <Typography
                           sx={{
                             fontFamily: 'var(--font-noto-sans-tc)',
-                            color: '#606068',
+                            color: 'secondary.dark',
                             fontSize: '0.8rem',
                             lineHeight: 1.6,
                           }}
@@ -475,7 +498,7 @@ export default function DailyCard() {
                   sx={{
                     mb: 3,
                     p: 2,
-                    border: '1px solid #252528',
+                    border: '1px solid', borderColor: 'divider',
                     bgcolor: 'background.paper',
                     textAlign: 'center',
                   }}
@@ -484,7 +507,7 @@ export default function DailyCard() {
                     sx={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: '0.6rem',
-                      color: '#606068',
+                      color: 'secondary.dark',
                       letterSpacing: '0.1em',
                       mb: 1,
                     }}
@@ -493,7 +516,7 @@ export default function DailyCard() {
                   </Typography>
                   <Typography
                     variant="body1"
-                    sx={{ color: '#e4e0d8', fontStyle: 'italic', lineHeight: 1.8, mb: 0.5 }}
+                    sx={{ color: 'text.primary', fontStyle: 'italic', lineHeight: 1.8, mb: 0.5 }}
                   >
                     &ldquo;{card.affirmation}&rdquo;
                   </Typography>
@@ -501,7 +524,7 @@ export default function DailyCard() {
                     <Typography
                       sx={{
                         fontFamily: 'var(--font-noto-sans-tc)',
-                        color: '#888078',
+                        color: 'text.secondary',
                         fontSize: '0.875rem',
                       }}
                     >

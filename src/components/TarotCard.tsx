@@ -144,7 +144,7 @@ export default function TarotCard({
             align="center"
             display="block"
             sx={{
-              color: '#606068',
+              color: 'text.secondary',
               fontSize: '0.6rem',
               fontFamily: 'var(--font-noto-sans-tc)',
             }}

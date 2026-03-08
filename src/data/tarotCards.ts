@@ -54,6 +54,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Air',
     zodiac: 'Uranus',
     colors: ['#FFE4B5', '#87CEEB', '#98FB98'],
+    imagePath: '/cards/card-00.png',
   },
   {
     id: 1,
@@ -83,6 +84,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Air',
     zodiac: 'Mercury',
     colors: ['#FFD700', '#FF4500', '#9400D3'],
+    imagePath: '/cards/card-01.png',
   },
   {
     id: 2,
@@ -112,6 +114,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Water',
     zodiac: 'Moon',
     colors: ['#4169E1', '#C0C0C0', '#191970'],
+    imagePath: '/cards/card-02.png',
   },
   {
     id: 3,
@@ -141,6 +144,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Earth',
     zodiac: 'Venus',
     colors: ['#FFB6C1', '#228B22', '#FFD700'],
+    imagePath: '/cards/card-03.png',
   },
   {
     id: 4,
@@ -170,6 +174,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Fire',
     zodiac: 'Aries',
     colors: ['#DC143C', '#FFD700', '#808080'],
+    imagePath: '/cards/card-04.png',
   },
   {
     id: 5,
@@ -199,6 +204,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Earth',
     zodiac: 'Taurus',
     colors: ['#8B0000', '#FFD700', '#F5F5DC'],
+    imagePath: '/cards/card-05.png',
   },
   {
     id: 6,
@@ -228,6 +234,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Air',
     zodiac: 'Gemini',
     colors: ['#FF69B4', '#FFD700', '#87CEEB'],
+    imagePath: '/cards/card-06.png',
   },
   {
     id: 7,
@@ -257,6 +264,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Water',
     zodiac: 'Cancer',
     colors: ['#4682B4', '#FFD700', '#000080'],
+    imagePath: '/cards/card-07.png',
   },
   {
     id: 8,
@@ -286,6 +294,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Fire',
     zodiac: 'Leo',
     colors: ['#FF8C00', '#FFD700', '#DC143C'],
+    imagePath: '/cards/card-08.png',
   },
   {
     id: 9,
@@ -315,6 +324,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Earth',
     zodiac: 'Virgo',
     colors: ['#708090', '#4169E1', '#FFD700'],
+    imagePath: '/cards/card-09.png',
   },
   {
     id: 10,
@@ -344,6 +354,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Fire',
     zodiac: 'Jupiter',
     colors: ['#9400D3', '#FFD700', '#4169E1'],
+    imagePath: '/cards/card-10.png',
   },
   {
     id: 11,
@@ -373,6 +384,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Air',
     zodiac: 'Libra',
     colors: ['#4169E1', '#FFD700', '#DC143C'],
+    imagePath: '/cards/card-11.png',
   },
   {
     id: 12,
@@ -402,6 +414,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Water',
     zodiac: 'Neptune',
     colors: ['#4169E1', '#228B22', '#FFD700'],
+    imagePath: '/cards/card-12.png',
   },
   {
     id: 13,
@@ -431,6 +444,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Water',
     zodiac: 'Scorpio',
     colors: ['#000000', '#FFFFFF', '#DC143C'],
+    imagePath: '/cards/card-13.png',
   },
   {
     id: 14,
@@ -460,6 +474,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Fire',
     zodiac: 'Sagittarius',
     colors: ['#87CEEB', '#FFD700', '#FF69B4'],
+    imagePath: '/cards/card-14.png',
   },
   {
     id: 15,
@@ -489,6 +504,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Earth',
     zodiac: 'Capricorn',
     colors: ['#000000', '#DC143C', '#FFD700'],
+    imagePath: '/cards/card-15.png',
   },
   {
     id: 16,
@@ -518,6 +534,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Fire',
     zodiac: 'Mars',
     colors: ['#DC143C', '#FFD700', '#000000'],
+    imagePath: '/cards/card-16.png',
   },
   {
     id: 17,
@@ -547,6 +564,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Air',
     zodiac: 'Aquarius',
     colors: ['#87CEEB', '#FFD700', '#4169E1'],
+    imagePath: '/cards/card-17.png',
   },
   {
     id: 18,
@@ -576,6 +594,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Water',
     zodiac: 'Pisces',
     colors: ['#4169E1', '#C0C0C0', '#9400D3'],
+    imagePath: '/cards/card-18.png',
   },
   {
     id: 19,
@@ -605,6 +624,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Fire',
     zodiac: 'Sun',
     colors: ['#FFD700', '#FF8C00', '#FFFF00'],
+    imagePath: '/cards/card-19.png',
   },
   {
     id: 20,
@@ -634,6 +654,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Fire',
     zodiac: 'Pluto',
     colors: ['#FFD700', '#FFFFFF', '#DC143C'],
+    imagePath: '/cards/card-20.png',
   },
   {
     id: 21,
@@ -663,6 +684,7 @@ export const tarotCards: TarotCardData[] = [
     element: 'Earth',
     zodiac: 'Saturn',
     colors: ['#4169E1', '#228B22', '#FFD700'],
+    imagePath: '/cards/card-21.png',
   },
 ];
 

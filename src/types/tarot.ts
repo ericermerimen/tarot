@@ -34,6 +34,7 @@ export interface TarotCardData {
   element: string;
   zodiac: string;
   colors: string[];
+  imagePath?: string;
 }
 
 export interface DrawnCard {

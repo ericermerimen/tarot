@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Box,
@@ -17,7 +17,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCards, spreadTypes, tarotCards } from '@/data/tarotCards';
 import type { TarotCardData, DrawnCard, CardMeaning, SpreadKey } from '@/types/tarot';
-import type { ReadingRecord } from '@/types/reading';
+import type { ReadingRecord, IntentionTag } from '@/types/reading';
 
 function ReadingContent() {
   const searchParams = useSearchParams();
@@ -25,10 +25,19 @@ function ReadingContent() {
 
   const [selectedSpread, setSelectedSpread] = useState<SpreadKey>(initialSpread);
   const currentSpread = spreadTypes[selectedSpread] || spreadTypes.single;
-  const [cards, setCards] = useState<DrawnCard[]>(() => getRandomCards(currentSpread.count));
+  const [cards, setCards] = useState<DrawnCard[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [showMeaning, setShowMeaning] = useState<number | null>(null);
   const [readingComplete, setReadingComplete] = useState(false);
+  const [showIntentionPrompt, setShowIntentionPrompt] = useState(false);
+  const [selectedTag, setSelectedTag] = useState<IntentionTag>('general');
+  const [intentionNote, setIntentionNote] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setCards(getRandomCards(currentSpread.count));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const startNewReading = (spread?: SpreadKey) => {
     const target = spread ? (spreadTypes[spread] || spreadTypes.single) : currentSpread;
     const newCards = getRandomCards(target.count);
@@ -57,7 +66,7 @@ function ReadingContent() {
     startNewReading(newValue);
   };
 
-  const saveReading = () => {
+  const confirmSave = (withIntention: boolean) => {
     const reading: ReadingRecord = {
       date: new Date().toISOString(),
       spread: selectedSpread,
@@ -67,13 +76,21 @@ function ReadingContent() {
         position: currentSpread.positions[i],
         positionZh: currentSpread.positionsZh[i],
       })),
+      ...(withIntention && {
+        intention: {
+          tag: selectedTag,
+          note: intentionNote.trim() || undefined,
+        },
+      }),
     };
 
     const history: ReadingRecord[] = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
     history.unshift(reading);
     localStorage.setItem('tarotHistory', JSON.stringify(history.slice(0, 50)));
 
-    alert('Reading saved to your journal! 占卜已保存到日記！');
+    setShowIntentionPrompt(false);
+    setSaved(true);
+    setIntentionNote('');
   };
 
   const getCardLayout = (): Record<string, string | number> => {
@@ -100,6 +117,16 @@ function ReadingContent() {
     }
   };
 
+  if (cards.length === 0) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
+        <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'secondary.dark', letterSpacing: '0.1em' }}>
+          LOADING...
+        </Typography>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>
       <motion.div
@@ -108,15 +135,15 @@ function ReadingContent() {
         transition={{ duration: 0.6 }}
       >
         {/* Header */}
-        <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid #252528' }}>
+        <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-            <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: '#c4a96e', flexShrink: 0 }} />
+            <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0 }} />
             <Typography
               sx={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.7rem',
                 letterSpacing: '0.12em',
-                color: '#606068',
+                color: 'secondary.dark',
               }}
             >
               TAROT_READING
@@ -128,7 +155,7 @@ function ReadingContent() {
               fontFamily: 'var(--font-display)',
               fontSize: { xs: '1.8rem', md: '2.5rem' },
               fontWeight: 300,
-              color: '#e4e0d8',
+              color: 'text.primary',
               mb: 0.25,
             }}
           >
@@ -137,7 +164,7 @@ function ReadingContent() {
           <Typography
             sx={{
               fontFamily: 'var(--font-noto-sans-tc)',
-              color: '#606068',
+              color: 'secondary.dark',
               fontSize: '0.95rem',
             }}
           >
@@ -152,19 +179,19 @@ function ReadingContent() {
             onChange={handleSpreadChange}
             centered
             sx={{
-              borderBottom: '1px solid #252528',
+              borderBottom: '1px solid', borderBottomColor: 'divider',
               '& .MuiTab-root': {
-                color: '#606068',
+                color: 'secondary.dark',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.65rem',
                 letterSpacing: '0.1em',
                 minHeight: 40,
                 '&.Mui-selected': {
-                  color: '#c4a96e',
+                  color: 'primary.main',
                 },
               },
               '& .MuiTabs-indicator': {
-                backgroundColor: '#c4a96e',
+                backgroundColor: 'primary.main',
                 height: 1,
               },
             }}
@@ -183,19 +210,19 @@ function ReadingContent() {
               fontFamily: 'var(--font-display)',
               fontSize: { xs: '1.1rem', md: '1.3rem' },
               fontWeight: 300,
-              color: '#e4e0d8',
+              color: 'text.primary',
               mb: 0.25,
             }}
           >
             {currentSpread.name}
           </Typography>
           <Typography
-            sx={{ fontFamily: 'var(--font-noto-sans-tc)', color: '#606068', fontSize: '0.875rem', mb: 0.5 }}
+            sx={{ fontFamily: 'var(--font-noto-sans-tc)', color: 'secondary.dark', fontSize: '0.875rem', mb: 0.5 }}
           >
             {currentSpread.nameZh}
           </Typography>
           <Typography
-            sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: '#3a3a3e', letterSpacing: '0.06em' }}
+            sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.06em' }}
           >
             {currentSpread.description} · {currentSpread.descriptionZh}
           </Typography>
@@ -204,7 +231,7 @@ function ReadingContent() {
               sx={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.6rem',
-                color: '#3a3a3e',
+                color: 'secondary.dark',
                 letterSpacing: '0.08em',
                 mt: 1,
               }}
@@ -240,7 +267,7 @@ function ReadingContent() {
                   sx={{
                     display: 'block',
                     mb: 0.5,
-                    color: flippedCards.includes(index) ? '#c4a96e' : '#3a3a3e',
+                    color: flippedCards.includes(index) ? 'primary.main' : 'secondary.dark',
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.6rem',
                     letterSpacing: '0.08em',
@@ -252,7 +279,7 @@ function ReadingContent() {
                   sx={{
                     display: 'block',
                     mb: 1.5,
-                    color: '#2e2e34',
+                    color: 'secondary.dark',
                     fontFamily: 'var(--font-noto-sans-tc)',
                     fontSize: '0.7rem',
                   }}
@@ -318,20 +345,114 @@ function ReadingContent() {
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
-            onClick={() => startNewReading()}
+            onClick={() => { startNewReading(); setSaved(false); setShowIntentionPrompt(false); }}
           >
             NEW_READING 重新占卜
           </Button>
-          {readingComplete && (
+          {readingComplete && !saved && (
             <Button
               variant="outlined"
               startIcon={<SaveIcon />}
-              onClick={saveReading}
+              onClick={() => setShowIntentionPrompt(true)}
             >
               SAVE_TO_JOURNAL 保存到日記
             </Button>
           )}
+          {saved && (
+            <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'primary.main', letterSpacing: '0.08em', alignSelf: 'center' }}>
+              SAVED ✓ · 已保存
+            </Typography>
+          )}
         </Box>
+
+        {/* Intention prompt */}
+        <AnimatePresence>
+          {showIntentionPrompt && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 2 }}>
+                  INTENT {'>'} WHAT ARE YOU ASKING ABOUT? · 你在問什麼？
+                </Typography>
+
+                {/* Tag chips */}
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2 }}>
+                  {(['general', 'career', 'love', 'self', 'finance', 'health'] as const).map((tag) => (
+                    <Box
+                      key={tag}
+                      component="button"
+                      onClick={() => setSelectedTag(tag)}
+                      sx={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.6rem',
+                        letterSpacing: '0.08em',
+                        px: 1.25,
+                        py: 0.5,
+                        border: '1px solid',
+                        borderColor: selectedTag === tag ? 'primary.main' : 'divider',
+                        color: selectedTag === tag ? 'primary.main' : 'secondary.dark',
+                        bgcolor: 'transparent',
+                        cursor: 'pointer',
+                        '&:hover': { borderColor: 'primary.main', color: 'primary.main' },
+                      }}
+                    >
+                      {tag.toUpperCase()}
+                    </Box>
+                  ))}
+                </Box>
+
+                {/* Optional note */}
+                <Box
+                  component="input"
+                  placeholder="Optional context... (optional 可選)"
+                  value={intentionNote}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIntentionNote(e.target.value)}
+                  sx={{
+                    width: '100%',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.7rem',
+                    color: 'text.primary',
+                    bgcolor: 'background.default',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    p: 1,
+                    mb: 2,
+                    outline: 'none',
+                    '&:focus': { borderColor: 'primary.main' },
+                    '&::placeholder': { color: 'secondary.dark' },
+                  }}
+                />
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    onClick={() => confirmSave(true)}
+                    sx={{
+                      fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.08em',
+                      borderRadius: 0, bgcolor: 'primary.main', color: 'background.default', boxShadow: 'none',
+                      '&:hover': { bgcolor: 'primary.dark', boxShadow: 'none' },
+                    }}
+                  >
+                    CONFIRM_SAVE →
+                  </Button>
+                  <Button
+                    onClick={() => confirmSave(false)}
+                    sx={{
+                      fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.08em',
+                      borderRadius: 0, border: '1px solid', borderColor: 'divider', color: 'secondary.dark',
+                      '&:hover': { borderColor: 'text.secondary', color: 'text.secondary' },
+                    }}
+                  >
+                    SKIP
+                  </Button>
+                </Box>
+              </Box>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </Container>
   );
@@ -354,7 +475,7 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
         sx={{
           display: 'block',
           mb: 0.5,
-          color: flippedCards.includes(index) ? '#c4a96e' : '#3a3a3e',
+          color: flippedCards.includes(index) ? 'primary.main' : 'secondary.dark',
           fontFamily: 'var(--font-mono)',
           fontSize: { xs: '0.5rem', md: '0.6rem' },
           letterSpacing: '0.06em',
@@ -367,7 +488,7 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
         sx={{
           display: 'block',
           mb: 0.5,
-          color: '#2e2e34',
+          color: 'secondary.dark',
           fontFamily: 'var(--font-noto-sans-tc)',
           fontSize: '0.55rem',
         }}
@@ -451,14 +572,14 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
           flexDirection: 'column',
           alignItems: 'center',
           gap: 0.5,
-          border: '1px solid #252528',
+          border: '1px solid', borderColor: 'divider',
           p: 1,
           bgcolor: 'background.paper',
         }}
       >
         <Typography
           sx={{
-            color: '#c4a96e',
+            color: 'primary.main',
             fontFamily: 'var(--font-mono)',
             fontSize: '0.55rem',
             letterSpacing: '0.08em',
@@ -497,14 +618,14 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
   const meaning = isReversed ? card.reversed : card.upright;
 
   return (
-    <Box sx={{ mt: 2, border: '1px solid #252528', bgcolor: 'background.default' }}>
+    <Box sx={{ mt: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
       {/* Position header */}
-      <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #252528', bgcolor: 'background.paper' }}>
+      <Box sx={{ px: 2, py: 1, borderBottom: '1px solid', borderBottomColor: 'divider', bgcolor: 'background.paper' }}>
         <Typography
           sx={{
             fontFamily: 'var(--font-mono)',
             fontSize: '0.6rem',
-            color: '#c4a96e',
+            color: 'primary.main',
             letterSpacing: '0.08em',
           }}
         >
@@ -514,11 +635,11 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
 
       <Box sx={{ p: { xs: 2, md: 3 } }}>
         {/* Card identity */}
-        <Box sx={{ mb: 2, pb: 2, borderBottom: '1px solid #252528' }}>
+        <Box sx={{ mb: 2, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
           <Typography
             sx={{
               fontFamily: 'var(--font-display)',
-              color: '#e4e0d8',
+              color: 'text.primary',
               fontWeight: 300,
               fontSize: { xs: '1.3rem', md: '1.6rem' },
               mb: 0.25,
@@ -526,13 +647,13 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
           >
             {card.name}
             {isReversed && (
-              <span style={{ color: '#606068', fontSize: '0.7em', marginLeft: '0.5em' }}>(Reversed)</span>
+              <Box component="span" sx={{ color: 'secondary.dark', fontSize: '0.7em', ml: '0.5em' }}>(Reversed)</Box>
             )}
           </Typography>
           <Typography
             sx={{
               fontFamily: 'var(--font-noto-sans-tc)',
-              color: '#606068',
+              color: 'secondary.dark',
               fontSize: '0.95rem',
             }}
           >
@@ -541,25 +662,25 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
         </Box>
 
         {/* Meaning */}
-        <Box sx={{ mb: 2, p: 2, border: '1px solid #252528', bgcolor: 'background.paper' }}>
+        <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
           <Typography
             sx={{
               fontFamily: 'var(--font-mono)',
               fontSize: '0.65rem',
-              color: '#606068',
+              color: 'secondary.dark',
               letterSpacing: '0.08em',
               mb: 1.5,
             }}
           >
             {isReversed ? '> REVERSED' : '> UPRIGHT'}
           </Typography>
-          <Typography variant="body1" sx={{ lineHeight: 1.8, color: '#e4e0d8', mb: 1.5 }}>
+          <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 1.5 }}>
             {meaning.meaning}
           </Typography>
           <Typography
             sx={{
               fontFamily: 'var(--font-noto-sans-tc)',
-              color: '#888078',
+              color: 'text.secondary',
               lineHeight: 1.8,
               fontSize: '0.9rem',
             }}
@@ -574,7 +695,7 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
             sx={{
               fontFamily: 'var(--font-mono)',
               fontSize: '0.6rem',
-              color: '#2e2e34',
+              color: 'secondary.dark',
               letterSpacing: '0.1em',
               mb: 1,
             }}
@@ -588,7 +709,7 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
                 sx={{
                   px: 1,
                   py: 0.25,
-                  border: '1px solid #252528',
+                  border: '1px solid', borderColor: 'divider',
                   bgcolor: 'background.paper',
                 }}
               >
@@ -596,7 +717,7 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
                   sx={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.6rem',
-                    color: '#888078',
+                    color: 'text.secondary',
                     letterSpacing: '0.05em',
                   }}
                 >
@@ -707,22 +828,22 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
   if (!summary) return null;
 
   return (
-    <Box sx={{ mt: 3, border: '1px solid #252528', bgcolor: 'background.default' }}>
+    <Box sx={{ mt: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
       {/* Summary header */}
-      <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #252528', bgcolor: 'background.paper' }}>
+      <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderBottomColor: 'divider', bgcolor: 'background.paper' }}>
         <Typography
           sx={{
             fontFamily: 'var(--font-display)',
             fontSize: { xs: '1.2rem', md: '1.5rem' },
             fontWeight: 300,
-            color: '#e4e0d8',
+            color: 'text.primary',
             mb: 0.25,
           }}
         >
           {summary.title}
         </Typography>
         <Typography
-          sx={{ fontFamily: 'var(--font-noto-sans-tc)', color: '#606068', fontSize: '0.875rem' }}
+          sx={{ fontFamily: 'var(--font-noto-sans-tc)', color: 'secondary.dark', fontSize: '0.875rem' }}
         >
           {summary.titleZh}
         </Typography>
@@ -735,7 +856,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
             sx={{
               fontFamily: 'var(--font-mono)',
               fontSize: '0.6rem',
-              color: '#2e2e34',
+              color: 'secondary.dark',
               letterSpacing: '0.1em',
               mb: 1,
             }}
@@ -749,7 +870,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
                 sx={{
                   px: 1.5,
                   py: 0.75,
-                  border: '1px solid #252528',
+                  border: '1px solid', borderColor: 'divider',
                   bgcolor: 'background.paper',
                   textAlign: 'center',
                   minWidth: 90,
@@ -758,7 +879,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
                 <Typography
                   sx={{
                     display: 'block',
-                    color: '#c4a96e',
+                    color: 'primary.main',
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.55rem',
                     letterSpacing: '0.06em',
@@ -770,7 +891,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
                 <Typography
                   sx={{
                     display: 'block',
-                    color: '#e4e0d8',
+                    color: 'text.primary',
                     fontFamily: 'var(--font-display)',
                     fontSize: '0.8rem',
                     fontWeight: 300,
@@ -782,7 +903,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
                 <Typography
                   sx={{
                     display: 'block',
-                    color: '#606068',
+                    color: 'secondary.dark',
                     fontFamily: 'var(--font-noto-sans-tc)',
                     fontSize: '0.65rem',
                   }}
@@ -795,23 +916,23 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
           </Box>
         </Box>
 
-        <Divider sx={{ mb: 2.5, borderColor: '#252528' }} />
+        <Divider sx={{ mb: 2.5, borderColor: 'divider' }} />
 
         {/* Holistic interpretation */}
         <Typography
           variant="body1"
-          sx={{ lineHeight: 1.8, mb: 2, color: '#e4e0d8', whiteSpace: 'pre-line' }}
+          sx={{ lineHeight: 1.8, mb: 2, color: 'text.primary', whiteSpace: 'pre-line' }}
         >
           {summary.summary}
         </Typography>
 
-        <Divider sx={{ my: 2, borderColor: '#1a1a1d' }} />
+        <Divider sx={{ my: 2, borderColor: 'divider' }} />
 
         <Typography
           variant="body1"
           sx={{
             fontFamily: 'var(--font-noto-sans-tc)',
-            color: '#888078',
+            color: 'text.secondary',
             lineHeight: 1.8,
             whiteSpace: 'pre-line',
           }}
@@ -827,7 +948,7 @@ export default function ReadingPage() {
   return (
     <Suspense fallback={
       <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
-        <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#606068', letterSpacing: '0.1em' }}>
+        <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'secondary.dark', letterSpacing: '0.1em' }}>
           LOADING...
         </Typography>
       </Container>

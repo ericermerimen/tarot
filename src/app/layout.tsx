@@ -1,15 +1,22 @@
 import type { Metadata } from 'next';
-import { Cinzel, Noto_Sans_TC } from 'next/font/google';
+import { Space_Mono, Noto_Sans_TC, Cormorant_Garamond } from 'next/font/google';
 import ThemeRegistry from '@/theme/ThemeRegistry';
 import Navigation from '@/components/Navigation';
 import ParticleBackground from '@/components/ParticleBackground';
 import './globals.css';
 
-const cinzel = Cinzel({
+const spaceMono = Space_Mono({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
+  weight: ['400', '700'],
   display: 'swap',
-  variable: '--font-cinzel',
+  variable: '--font-mono',
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  display: 'swap',
+  variable: '--font-display',
 });
 
 const notoSansTC = Noto_Sans_TC({
@@ -20,7 +27,7 @@ const notoSansTC = Noto_Sans_TC({
 });
 
 export const metadata: Metadata = {
-  title: '🐕 Mystical Dog Tarot | 神秘狗狗塔羅',
+  title: 'Mystical Dog Tarot | 神秘狗狗塔羅',
   description: 'Divine your future with cute dog-styled tarot cards. Experience mystical readings with adorable canine companions. 用可愛的狗狗塔羅牌占卜你的未來，體驗神秘的命運指引。',
   keywords: 'tarot, divination, fortune telling, dog tarot, 塔羅牌, 占卜, 算命, 狗狗塔羅',
   icons: {
@@ -30,7 +37,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${cinzel.variable} ${notoSansTC.variable}`}>
+    <html lang="en" className={`${spaceMono.variable} ${cormorantGaramond.variable} ${notoSansTC.variable}`}>
       <body>
         <ThemeRegistry>
           <ParticleBackground />

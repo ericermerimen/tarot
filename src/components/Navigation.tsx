@@ -6,37 +6,25 @@ import { usePathname } from 'next/navigation';
 import {
   AppBar,
   Toolbar,
-  Typography,
-  Button,
   IconButton,
   Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Box,
+  Typography,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import HomeIcon from '@mui/icons-material/Home';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import StyleIcon from '@mui/icons-material/Style';
-import CollectionsIcon from '@mui/icons-material/Collections';
-import BookIcon from '@mui/icons-material/Book';
 
 interface NavItem {
   label: string;
   labelZh: string;
   path: string;
-  icon: React.ReactNode;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Home', labelZh: '首頁', path: '/', icon: <HomeIcon /> },
-  { label: 'Daily Card', labelZh: '每日一牌', path: '/daily', icon: <AutoAwesomeIcon /> },
-  { label: 'Reading', labelZh: '占卜', path: '/reading', icon: <StyleIcon /> },
-  { label: 'Gallery', labelZh: '牌卡圖鑑', path: '/gallery', icon: <CollectionsIcon /> },
-  { label: 'Journal', labelZh: '占卜日記', path: '/journal', icon: <BookIcon /> },
+  { label: 'Home', labelZh: '首頁', path: '/' },
+  { label: 'Daily Card', labelZh: '每日一牌', path: '/daily' },
+  { label: 'Reading', labelZh: '占卜', path: '/reading' },
+  { label: 'Gallery', labelZh: '牌卡圖鑑', path: '/gallery' },
+  { label: 'Journal', labelZh: '占卜日記', path: '/journal' },
 ];
 
 export default function Navigation() {
@@ -55,61 +43,83 @@ export default function Navigation() {
       sx={{
         width: 280,
         height: '100%',
-        background: 'linear-gradient(180deg, #1a0a2e 0%, #0a0612 100%)',
+        backgroundColor: '#0d0d0f',
+        borderLeft: '1px solid #252528',
         pt: 2,
       }}
       role="presentation"
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
-      <Box sx={{ px: 3, pb: 3 }}>
-        <Typography
-          variant="h5"
+      <Box sx={{ px: 3, pb: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box
           sx={{
-            fontFamily: 'Cinzel',
-            fontWeight: 700,
-            background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            backgroundColor: '#c4a96e',
+            flexShrink: 0,
+          }}
+        />
+        <Typography
+          sx={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.75rem',
+            letterSpacing: '0.15em',
+            color: '#e4e0d8',
           }}
         >
-          🐕 Dog Tarot
+          DOG_TAROT
         </Typography>
       </Box>
-      <List>
-        {navItems.map((item) => (
-          <ListItem key={item.path} disablePadding>
-            <ListItemButton
+      <Box>
+        {navItems.map((item, index) => {
+          const isActive = pathname === item.path;
+          const idx = String(index + 1).padStart(2, '0');
+          return (
+            <Box
+              key={item.path}
               component={Link}
               href={item.path}
-              selected={pathname === item.path}
               sx={{
-                mx: 1,
-                borderRadius: 2,
-                '&.Mui-selected': {
-                  background: 'rgba(156, 124, 244, 0.2)',
-                  '&:hover': {
-                    background: 'rgba(156, 124, 244, 0.3)',
-                  },
-                },
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                px: 3,
+                py: 1.5,
+                borderBottom: '1px solid #1a1a1d',
+                textDecoration: 'none',
                 '&:hover': {
-                  background: 'rgba(156, 124, 244, 0.1)',
+                  backgroundColor: '#131316',
                 },
               }}
             >
-              <ListItemIcon sx={{ color: 'primary.main', minWidth: 40 }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                secondary={item.labelZh}
-                primaryTypographyProps={{ fontWeight: 500 }}
-                secondaryTypographyProps={{ fontSize: '0.75rem', color: 'text.secondary' }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.65rem',
+                  color: '#2e2e34',
+                  flexShrink: 0,
+                  userSelect: 'none',
+                }}
+              >
+                {idx}
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.1em',
+                  color: isActive ? '#c4a96e' : '#e4e0d8',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {item.label}
+              </Typography>
+            </Box>
+          );
+        })}
+      </Box>
     </Box>
   );
 
@@ -117,74 +127,109 @@ export default function Navigation() {
     <>
       <AppBar
         position="fixed"
+        elevation={0}
         sx={{
-          background: 'rgba(10, 6, 18, 0.85)',
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(156, 124, 244, 0.2)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
+          backgroundColor: '#0d0d0f',
+          borderBottom: '1px solid #252528',
+          boxShadow: 'none',
+          backgroundImage: 'none',
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <Typography
-              variant="h6"
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Box
               sx={{
-                fontFamily: 'Cinzel',
-                fontWeight: 700,
-                background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: '#c4a96e',
+                flexShrink: 0,
+              }}
+            />
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.75rem',
+                letterSpacing: '0.15em',
+                color: '#e4e0d8',
               }}
             >
-              🐕 Mystical Dog Tarot
+              DOG_TAROT
             </Typography>
           </Link>
 
           <IconButton
-            color="primary"
             aria-label="menu"
             onClick={toggleDrawer(true)}
             sx={{
-              color: 'primary.light',
+              color: '#606068',
               display: { xs: 'inline-flex', md: 'none' },
+              borderRadius: 0,
+              '&:hover': {
+                color: '#e4e0d8',
+                backgroundColor: 'transparent',
+              },
             }}
           >
             <MenuIcon />
           </IconButton>
 
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-            {navItems.map((item) => (
-              <Button
-                key={item.path}
-                component={Link}
-                href={item.path}
-                startIcon={item.icon}
-                sx={{
-                  color: pathname === item.path ? 'primary.main' : 'text.secondary',
-                  fontWeight: pathname === item.path ? 600 : 400,
-                  '&:hover': {
-                    color: 'primary.light',
-                    background: 'rgba(156, 124, 244, 0.1)',
-                  },
-                }}
-              >
-                {item.label}
-              </Button>
-            ))}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3 }}>
+            {navItems.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Box
+                  key={item.path}
+                  component={Link}
+                  href={item.path}
+                  sx={{
+                    textDecoration: 'none',
+                    position: 'relative',
+                    pb: 0.25,
+                    '&::after': isActive
+                      ? {
+                          content: '""',
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: '1px',
+                          backgroundColor: '#c4a96e',
+                        }
+                      : {},
+                    '&:hover .nav-label': {
+                      color: '#e4e0d8',
+                    },
+                  }}
+                >
+                  <Typography
+                    className="nav-label"
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.7rem',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      color: isActive ? '#e4e0d8' : '#606068',
+                      transition: 'color 0.15s',
+                    }}
+                  >
+                    {item.label}
+                  </Typography>
+                </Box>
+              );
+            })}
           </Box>
         </Toolbar>
       </AppBar>
 
       <Drawer
-        anchor="left"
+        anchor="right"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
         PaperProps={{
           sx: {
-            background: 'transparent',
+            backgroundColor: 'transparent',
+            boxShadow: 'none',
           },
         }}
       >

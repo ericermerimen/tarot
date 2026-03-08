@@ -11,6 +11,7 @@ import {
   Box,
   Typography,
 } from '@mui/material';
+import { useColorMode } from '@/theme/ColorModeContext';
 
 interface NavItem {
   label: string;
@@ -26,9 +27,53 @@ const navItems: NavItem[] = [
   { label: 'Journal', labelZh: '占卜日記', path: '/journal' },
 ];
 
+interface ThemeToggleProps {
+  isDark: boolean;
+  border: string;
+  textMuted: string;
+  onToggle: () => void;
+}
+
+function ThemeToggle({ isDark, border, textMuted, onToggle }: ThemeToggleProps) {
+  return (
+    <Box
+      component="button"
+      onClick={onToggle}
+      sx={{
+        fontFamily: 'var(--font-mono)',
+        fontSize: '0.6rem',
+        letterSpacing: '0.1em',
+        color: textMuted,
+        background: 'none',
+        border: `1px solid ${border}`,
+        cursor: 'pointer',
+        px: 1,
+        py: 0.5,
+        lineHeight: 1.4,
+        '&:hover': {
+          color: '#c4a96e',
+          borderColor: '#c4a96e',
+        },
+      }}
+    >
+      {isDark ? 'LIGHT' : 'DARK'}
+    </Box>
+  );
+}
+
 export default function Navigation() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pathname = usePathname();
+  const { mode, toggleMode } = useColorMode();
+
+  const isDark = mode === 'dark';
+  const bg = isDark ? '#0d0d0f' : '#f0ede8';
+  const border = isDark ? '#252528' : '#c8c5c0';
+  const textPrimary = isDark ? '#e4e0d8' : '#1a1816';
+  const textMuted = isDark ? '#606068' : '#888078';
+  const textDim = isDark ? '#2e2e34' : '#b0aa9e';
+  const rowBorder = isDark ? '#1a1a1d' : '#d8d5d0';
+  const hoverBg = isDark ? '#131316' : '#e8e5e0';
 
   const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (event.type === 'keydown' && ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')) {
@@ -42,34 +87,39 @@ export default function Navigation() {
       sx={{
         width: 280,
         height: '100%',
-        backgroundColor: '#0d0d0f',
-        borderLeft: '1px solid #252528',
+        backgroundColor: bg,
+        borderLeft: `1px solid ${border}`,
         pt: 2,
       }}
       role="presentation"
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
-      <Box sx={{ px: 3, pb: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <Box
-          sx={{
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            backgroundColor: '#c4a96e',
-            flexShrink: 0,
-          }}
-        />
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.75rem',
-            letterSpacing: '0.15em',
-            color: '#e4e0d8',
-          }}
-        >
-          DOG_TAROT
-        </Typography>
+      <Box sx={{ px: 3, pb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: '#c4a96e',
+              flexShrink: 0,
+            }}
+          />
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75rem',
+              letterSpacing: '0.15em',
+              color: textPrimary,
+            }}
+          >
+            DOG_TAROT
+          </Typography>
+        </Box>
+        <Box onClick={(e) => e.stopPropagation()}>
+          <ThemeToggle isDark={isDark} border={border} textMuted={textMuted} onToggle={toggleMode} />
+        </Box>
       </Box>
       <Box>
         {navItems.map((item, index) => {
@@ -86,10 +136,10 @@ export default function Navigation() {
                 gap: 2,
                 px: 3,
                 py: 1.5,
-                borderBottom: '1px solid #1a1a1d',
+                borderBottom: `1px solid ${rowBorder}`,
                 textDecoration: 'none',
                 '&:hover': {
-                  backgroundColor: '#131316',
+                  backgroundColor: hoverBg,
                 },
               }}
             >
@@ -97,7 +147,7 @@ export default function Navigation() {
                 sx={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.65rem',
-                  color: '#2e2e34',
+                  color: textDim,
                   flexShrink: 0,
                   userSelect: 'none',
                 }}
@@ -109,7 +159,7 @@ export default function Navigation() {
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.75rem',
                   letterSpacing: '0.1em',
-                  color: isActive ? '#c4a96e' : '#e4e0d8',
+                  color: isActive ? '#c4a96e' : textPrimary,
                   textTransform: 'uppercase',
                 }}
               >
@@ -128,8 +178,8 @@ export default function Navigation() {
         position="fixed"
         elevation={0}
         sx={{
-          backgroundColor: '#0d0d0f',
-          borderBottom: '1px solid #252528',
+          backgroundColor: bg,
+          borderBottom: `1px solid ${border}`,
           boxShadow: 'none',
           backgroundImage: 'none',
         }}
@@ -150,30 +200,14 @@ export default function Navigation() {
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.75rem',
                 letterSpacing: '0.15em',
-                color: '#e4e0d8',
+                color: textPrimary,
               }}
             >
               DOG_TAROT
             </Typography>
           </Link>
 
-          <IconButton
-            aria-label="menu"
-            onClick={toggleDrawer(true)}
-            sx={{
-              color: '#606068',
-              display: { xs: 'inline-flex', md: 'none' },
-              borderRadius: 0,
-              '&:hover': {
-                color: '#e4e0d8',
-                backgroundColor: 'transparent',
-              },
-            }}
-          >
-            ☰
-          </IconButton>
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3 }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
             {navItems.map((item) => {
               const isActive = pathname === item.path;
               return (
@@ -197,7 +231,7 @@ export default function Navigation() {
                         }
                       : {},
                     '&:hover .nav-label': {
-                      color: '#e4e0d8',
+                      color: textPrimary,
                     },
                   }}
                 >
@@ -208,7 +242,7 @@ export default function Navigation() {
                       fontSize: '0.7rem',
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',
-                      color: isActive ? '#e4e0d8' : '#606068',
+                      color: isActive ? textPrimary : textMuted,
                       transition: 'color 0.15s',
                     }}
                   >
@@ -217,7 +251,24 @@ export default function Navigation() {
                 </Box>
               );
             })}
+            <ThemeToggle isDark={isDark} border={border} textMuted={textMuted} onToggle={toggleMode} />
           </Box>
+
+          <IconButton
+            aria-label="menu"
+            onClick={toggleDrawer(true)}
+            sx={{
+              color: textMuted,
+              display: { xs: 'inline-flex', md: 'none' },
+              borderRadius: 0,
+              '&:hover': {
+                color: textPrimary,
+                backgroundColor: 'transparent',
+              },
+            }}
+          >
+            ☰
+          </IconButton>
         </Toolbar>
       </AppBar>
 

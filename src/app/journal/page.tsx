@@ -146,7 +146,7 @@ export default function Journal() {
               p: 6,
               textAlign: 'center',
               border: '1px solid #252528',
-              bgcolor: '#131316',
+              bgcolor: 'background.paper',
             }}
           >
             <Typography
@@ -218,7 +218,7 @@ export default function Journal() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         cursor: 'pointer',
-                        '&:hover': { bgcolor: '#131316' },
+                        '&:hover': { bgcolor: 'background.paper' },
                       }}
                       onClick={() => toggleExpand(index)}
                     >
@@ -321,7 +321,7 @@ export default function Journal() {
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <Box sx={{ borderTop: '1px solid #1a1a1d', bgcolor: '#131316' }}>
+                          <Box sx={{ borderTop: '1px solid #1a1a1d', bgcolor: 'background.paper' }}>
                             {reading.cards.map((cardData, cardIndex) => {
                               const card = tarotCards.find(c => c.id === cardData.cardId);
                               if (!card) return null;
@@ -400,7 +400,7 @@ export default function Journal() {
           onClose={() => setDeleteDialogOpen(false)}
           PaperProps={{
             sx: {
-              bgcolor: '#0d0d0f',
+              bgcolor: 'background.default',
               border: '1px solid #252528',
               borderRadius: 0,
               boxShadow: 'none',

@@ -8,11 +8,19 @@ html,
 body {
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* MUI CssBaseline sets body background from theme.palette.background.default */
+/* Sync html bg to prevent flash on load */
+html {
   background: #0d0d0f;
 }
 
+html[data-theme="light"] {
+  background: #f0ede8;
+}
+
 body {
-  color: #e4e0d8;
   font-family: var(--font-noto-sans-tc), 'Roboto', sans-serif;
 }
 

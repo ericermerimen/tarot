@@ -55,7 +55,7 @@ export default function Home() {
   const featuredCards = [tarotCards[0], tarotCards[17], tarotCards[19]];
 
   return (
-    <Box sx={{ minHeight: '100vh', pb: { xs: 4, md: 8 }, bgcolor: '#0d0d0f' }}>
+    <Box sx={{ minHeight: '100vh', pb: { xs: 4, md: 8 }, bgcolor: 'background.default' }}>
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
         {/* Hero */}
         <Box
@@ -289,7 +289,7 @@ export default function Home() {
                     textDecoration: 'none',
                     transition: 'background-color 0.15s ease',
                     '&:hover': {
-                      bgcolor: '#131316',
+                      bgcolor: 'background.paper',
                     },
                   }}
                 >

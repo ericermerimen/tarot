@@ -241,7 +241,7 @@ export default function DailyCard() {
                   mb: 3,
                   p: 2,
                   border: '1px solid #252528',
-                  bgcolor: '#131316',
+                  bgcolor: 'background.paper',
                 }}
               >
                 <Typography
@@ -291,7 +291,7 @@ export default function DailyCard() {
                         px: 1,
                         py: 0.25,
                         border: '1px solid #252528',
-                        bgcolor: '#131316',
+                        bgcolor: 'background.paper',
                       }}
                     >
                       <Typography
@@ -476,7 +476,7 @@ export default function DailyCard() {
                     mb: 3,
                     p: 2,
                     border: '1px solid #252528',
-                    bgcolor: '#131316',
+                    bgcolor: 'background.paper',
                     textAlign: 'center',
                   }}
                 >

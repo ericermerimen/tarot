@@ -453,7 +453,7 @@ function CelticCrossLayout({ cards, flippedCards, onCardClick, positions, positi
           gap: 0.5,
           border: '1px solid #252528',
           p: 1,
-          bgcolor: '#131316',
+          bgcolor: 'background.paper',
         }}
       >
         <Typography
@@ -497,9 +497,9 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
   const meaning = isReversed ? card.reversed : card.upright;
 
   return (
-    <Box sx={{ mt: 2, border: '1px solid #252528', bgcolor: '#0d0d0f' }}>
+    <Box sx={{ mt: 2, border: '1px solid #252528', bgcolor: 'background.default' }}>
       {/* Position header */}
-      <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #252528', bgcolor: '#131316' }}>
+      <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #252528', bgcolor: 'background.paper' }}>
         <Typography
           sx={{
             fontFamily: 'var(--font-mono)',
@@ -541,7 +541,7 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
         </Box>
 
         {/* Meaning */}
-        <Box sx={{ mb: 2, p: 2, border: '1px solid #252528', bgcolor: '#131316' }}>
+        <Box sx={{ mb: 2, p: 2, border: '1px solid #252528', bgcolor: 'background.paper' }}>
           <Typography
             sx={{
               fontFamily: 'var(--font-mono)',
@@ -589,7 +589,7 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
                   px: 1,
                   py: 0.25,
                   border: '1px solid #252528',
-                  bgcolor: '#131316',
+                  bgcolor: 'background.paper',
                 }}
               >
                 <Typography
@@ -707,9 +707,9 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
   if (!summary) return null;
 
   return (
-    <Box sx={{ mt: 3, border: '1px solid #252528', bgcolor: '#0d0d0f' }}>
+    <Box sx={{ mt: 3, border: '1px solid #252528', bgcolor: 'background.default' }}>
       {/* Summary header */}
-      <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #252528', bgcolor: '#131316' }}>
+      <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid #252528', bgcolor: 'background.paper' }}>
         <Typography
           sx={{
             fontFamily: 'var(--font-display)',
@@ -750,7 +750,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
                   px: 1.5,
                   py: 0.75,
                   border: '1px solid #252528',
-                  bgcolor: '#131316',
+                  bgcolor: 'background.paper',
                   textAlign: 'center',
                   minWidth: 90,
                 }}

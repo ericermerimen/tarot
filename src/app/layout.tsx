@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Space_Mono, Noto_Sans_TC, Cormorant_Garamond } from 'next/font/google';
+import { ColorModeProvider } from '@/theme/ColorModeContext';
 import ThemeRegistry from '@/theme/ThemeRegistry';
 import Navigation from '@/components/Navigation';
-import ParticleBackground from '@/components/ParticleBackground';
 import './globals.css';
 
 const spaceMono = Space_Mono({
@@ -39,13 +39,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${spaceMono.variable} ${cormorantGaramond.variable} ${notoSansTC.variable}`}>
       <body>
-        <ThemeRegistry>
-          <ParticleBackground />
-          <Navigation />
-          <main className="main-content">
-            {children}
-          </main>
-        </ThemeRegistry>
+        <ColorModeProvider>
+          <ThemeRegistry>
+            <Navigation />
+            <main className="main-content">
+              {children}
+            </main>
+          </ThemeRegistry>
+        </ColorModeProvider>
       </body>
     </html>
   );

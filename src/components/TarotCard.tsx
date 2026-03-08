@@ -67,6 +67,9 @@ export default function TarotCard({
         cursor: disabled ? 'default' : 'pointer',
         perspective: '1000px',
         touchAction: 'manipulation',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
       {...(onClick ? { onClick } : {})}
     >

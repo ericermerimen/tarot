@@ -130,7 +130,7 @@ export default function CardGallery() {
           fullWidth
           PaperProps={{
             sx: {
-              bgcolor: '#0d0d0f',
+              bgcolor: 'background.default',
               border: '1px solid #252528',
               borderRadius: 0,
               boxShadow: 'none',
@@ -287,7 +287,7 @@ export default function CardGallery() {
                             px: 1,
                             py: 0.25,
                             border: '1px solid #252528',
-                            bgcolor: '#131316',
+                            bgcolor: 'background.paper',
                           }}
                         >
                           <Typography
@@ -311,7 +311,7 @@ export default function CardGallery() {
                       mb: 3,
                       p: 2,
                       border: '1px solid #252528',
-                      bgcolor: '#131316',
+                      bgcolor: 'background.paper',
                     }}
                   >
                     <Typography
@@ -346,7 +346,7 @@ export default function CardGallery() {
                       mb: 3,
                       p: 2,
                       border: '1px solid #252528',
-                      bgcolor: '#131316',
+                      bgcolor: 'background.paper',
                     }}
                   >
                     <Typography

@@ -375,6 +375,56 @@ export default function Journal() {
                           transition={{ duration: 0.3 }}
                         >
                           <Box sx={{ borderTop: '1px solid', borderTopColor: 'divider', bgcolor: 'background.paper' }}>
+
+                            {/* Reading summary */}
+                            {reading.summary && (
+                              <Box
+                                sx={{
+                                  px: 2,
+                                  py: 2,
+                                  borderBottom: '1px solid',
+                                  borderBottomColor: 'divider',
+                                  bgcolor: 'background.default',
+                                }}
+                              >
+                                <Typography
+                                  sx={{
+                                    fontFamily: 'var(--font-mono)',
+                                    fontSize: '0.55rem',
+                                    color: 'primary.main',
+                                    letterSpacing: '0.12em',
+                                    mb: 1.5,
+                                  }}
+                                >
+                                  READING_RESULT · 占卜結果
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    color: 'text.primary',
+                                    lineHeight: 1.8,
+                                    fontSize: '0.82rem',
+                                    whiteSpace: 'pre-line',
+                                    mb: 1.5,
+                                  }}
+                                >
+                                  {reading.summary.text}
+                                </Typography>
+                                <Typography
+                                  sx={{
+                                    fontFamily: 'var(--font-noto-sans-tc)',
+                                    color: 'text.secondary',
+                                    lineHeight: 1.8,
+                                    fontSize: '0.8rem',
+                                    whiteSpace: 'pre-line',
+                                  }}
+                                >
+                                  {reading.summary.textZh}
+                                </Typography>
+                              </Box>
+                            )}
+
+                            {/* Per-card breakdown */}
                             {reading.cards.map((cardData, cardIndex) => {
                               const card = tarotCards.find(c => c.id === cardData.cardId);
                               if (!card) return null;
@@ -390,6 +440,7 @@ export default function Journal() {
                                     borderBottomColor: 'divider',
                                   }}
                                 >
+                                  {/* Position + orientation */}
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 0.5, flexWrap: 'wrap' }}>
                                     <Typography
                                       sx={{
@@ -400,6 +451,11 @@ export default function Journal() {
                                       }}
                                     >
                                       {'POS > '}{cardData.position.toUpperCase().replace(/\s+/g, '_')}
+                                      {cardData.positionZh && (
+                                        <Box component="span" sx={{ fontFamily: 'var(--font-noto-sans-tc)', ml: 0.75 }}>
+                                          {cardData.positionZh}
+                                        </Box>
+                                      )}
                                     </Typography>
                                     {cardData.isReversed && (
                                       <Typography
@@ -414,23 +470,69 @@ export default function Journal() {
                                       </Typography>
                                     )}
                                   </Box>
+
+                                  {/* Card name */}
                                   <Typography
                                     sx={{
                                       fontFamily: 'var(--font-mono)',
                                       fontSize: '0.75rem',
                                       color: 'text.primary',
                                       letterSpacing: '0.06em',
-                                      mb: 0.5,
+                                      mb: 0.75,
                                     }}
                                   >
                                     {card.name.toUpperCase()} · {card.nameZh}
                                   </Typography>
+
+                                  {/* Meaning EN + ZH */}
                                   <Typography
                                     variant="body2"
-                                    sx={{ color: 'text.secondary', lineHeight: 1.7, fontSize: '0.8rem' }}
+                                    sx={{ color: 'text.secondary', lineHeight: 1.7, fontSize: '0.8rem', mb: 0.5 }}
                                   >
                                     {meaning.meaning}
                                   </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontFamily: 'var(--font-noto-sans-tc)',
+                                      fontSize: '0.78rem',
+                                      color: 'text.secondary',
+                                      lineHeight: 1.7,
+                                      mb: 1,
+                                    }}
+                                  >
+                                    {meaning.meaningZh}
+                                  </Typography>
+
+                                  {/* Keywords */}
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {card.keywords.map((kw, ki) => (
+                                      <Box
+                                        key={ki}
+                                        sx={{
+                                          px: 0.75,
+                                          py: 0.2,
+                                          border: '1px solid',
+                                          borderColor: 'divider',
+                                        }}
+                                      >
+                                        <Typography
+                                          sx={{
+                                            fontFamily: 'var(--font-mono)',
+                                            fontSize: '0.55rem',
+                                            color: 'secondary.dark',
+                                            letterSpacing: '0.04em',
+                                          }}
+                                        >
+                                          {kw}
+                                          {card.keywordsZh?.[ki] && (
+                                            <Box component="span" sx={{ fontFamily: 'var(--font-noto-sans-tc)', ml: 0.5 }}>
+                                              {card.keywordsZh[ki]}
+                                            </Box>
+                                          )}
+                                        </Typography>
+                                      </Box>
+                                    ))}
+                                  </Box>
                                 </Box>
                               );
                             })}

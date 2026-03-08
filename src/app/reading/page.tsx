@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Box,
@@ -41,6 +41,7 @@ function ReadingContent() {
   const [selectedTag, setSelectedTag] = useState<IntentionTag>('general');
   const [intentionNote, setIntentionNote] = useState('');
   const [saved, setSaved] = useState(false);
+  const intentionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setCards(getRandomCards(currentSpread.count));
@@ -74,6 +75,21 @@ function ReadingContent() {
     startNewReading(newValue);
   };
 
+  const getReadingSummary = (): import('@/types/reading').ReadingSummary | undefined => {
+    if (selectedSpread === 'single' && cards.length > 0) {
+      const cardData = cards[0];
+      const meaning = cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
+      return { text: meaning.meaning, textZh: meaning.meaningZh };
+    }
+    const spreadSummary = generateReadingSummary(
+      cards, selectedSpread, currentSpread.positions, currentSpread.positionsZh
+    );
+    if (spreadSummary) {
+      return { text: spreadSummary.summary, textZh: spreadSummary.summaryZh };
+    }
+    return undefined;
+  };
+
   const confirmSave = (withIntention: boolean) => {
     const reading: ReadingRecord = {
       date: new Date().toISOString(),
@@ -84,6 +100,7 @@ function ReadingContent() {
         position: currentSpread.positions[i],
         positionZh: currentSpread.positionsZh[i],
       })),
+      summary: getReadingSummary(),
       ...(withIntention && {
         intention: {
           tag: selectedTag,
@@ -359,7 +376,12 @@ function ReadingContent() {
             <Button
               variant="outlined"
               startIcon={<SaveIcon />}
-              onClick={() => setShowIntentionPrompt(true)}
+              onClick={() => {
+                setShowIntentionPrompt(true);
+                setTimeout(() => {
+                  intentionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
+              }}
             >
               SAVE_TO_JOURNAL 保存到日記
             </Button>
@@ -375,6 +397,7 @@ function ReadingContent() {
         <AnimatePresence>
           {showIntentionPrompt && (
             <motion.div
+              ref={intentionRef}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
@@ -738,14 +761,14 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
   );
 }
 
-interface ReadingSummary {
+interface SpreadSummary {
   title: string;
   titleZh: string;
   summary: string;
   summaryZh: string;
 }
 
-function generateReadingSummary(cards: DrawnCard[], spreadType: string, positions: string[], positionsZh: string[]): ReadingSummary | null {
+function generateReadingSummary(cards: DrawnCard[], spreadType: string, positions: string[], positionsZh: string[]): SpreadSummary | null {
   const getMeaning = (cardData: DrawnCard): CardMeaning => {
     return cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
   };
@@ -830,7 +853,7 @@ interface ReadingSummaryPanelProps {
 }
 
 function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: ReadingSummaryPanelProps) {
-  const summary = generateReadingSummary(cards, spreadType, positions, positionsZh);
+  const summary: SpreadSummary | null = generateReadingSummary(cards, spreadType, positions, positionsZh);
   if (!summary) return null;
 
   return (

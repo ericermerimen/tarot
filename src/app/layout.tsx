@@ -3,6 +3,7 @@ import { Space_Mono, Noto_Sans_TC, Cormorant_Garamond } from 'next/font/google';
 import { ColorModeProvider } from '@/theme/ColorModeContext';
 import ThemeRegistry from '@/theme/ThemeRegistry';
 import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 import './globals.css';
 
 const spaceMono = Space_Mono({
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="main-content">
               {children}
             </main>
+            <Footer />
           </ThemeRegistry>
         </ColorModeProvider>
       </body>

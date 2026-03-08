@@ -14,12 +14,18 @@ export interface ReadingCardRecord {
   positionZh: string;
 }
 
+export interface ReadingSummary {
+  text: string;
+  textZh: string;
+}
+
 export interface ReadingRecord {
   date: string;
   spread: SpreadKey;
   cards: ReadingCardRecord[];
   intention?: ReadingIntention;
   reflection?: string;
+  summary?: ReadingSummary;
 }
 
 export interface DailyCardStorage {

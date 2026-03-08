@@ -89,7 +89,7 @@ export default function TarotCard({
             width: '100%',
             height: '100%',
             backfaceVisibility: 'hidden',
-            borderRadius: 0,
+            borderRadius: '12px',
             overflow: 'hidden',
             boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}
@@ -104,7 +104,7 @@ export default function TarotCard({
             height: '100%',
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
-            borderRadius: 0,
+            borderRadius: '12px',
             overflow: 'hidden',
             boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}

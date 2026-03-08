@@ -719,7 +719,7 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
         </Box>
 
         {/* Keywords */}
-        <Box>
+        <Box sx={{ mb: 2.5 }}>
           <Typography
             sx={{
               fontFamily: 'var(--font-mono)',
@@ -756,6 +756,41 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
             ))}
           </Box>
         </Box>
+
+        {/* Contextual sections */}
+        {[
+          { label: 'LOVE · 感情', labelZh: null, text: meaning.love, textZh: meaning.loveZh },
+          { label: 'CAREER · 事業', labelZh: null, text: meaning.career, textZh: meaning.careerZh },
+          ...(meaning.health ? [{ label: 'HEALTH · 健康', labelZh: null, text: meaning.health, textZh: meaning.healthZh }] : []),
+          ...(meaning.advice ? [{ label: 'ADVICE · 建議', labelZh: null, text: meaning.advice, textZh: meaning.adviceZh }] : []),
+        ].map((section, i, arr) => (
+          <Box key={section.label} sx={{ mb: i < arr.length - 1 ? 2 : 0, pb: i < arr.length - 1 ? 2 : 0, borderBottom: i < arr.length - 1 ? '1px solid' : 'none', borderBottomColor: 'divider' }}>
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.6rem',
+                color: 'secondary.dark',
+                letterSpacing: '0.08em',
+                mb: 1,
+              }}
+            >
+              {'>'} {section.label}
+            </Typography>
+            <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary', mb: 0.75 }}>
+              {section.text}
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-noto-sans-tc)',
+                color: 'text.secondary',
+                lineHeight: 1.8,
+                fontSize: '0.9rem',
+              }}
+            >
+              {section.textZh}
+            </Typography>
+          </Box>
+        ))}
       </Box>
     </Box>
   );
@@ -766,6 +801,119 @@ interface SpreadSummary {
   titleZh: string;
   summary: string;
   summaryZh: string;
+}
+
+function getPositionalInterpretation(
+  cardData: DrawnCard,
+  position: string,
+  spreadType: string
+): { text: string; textZh: string } {
+  const meaning = cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
+  const name = cardData.card.name;
+  const nameZh = cardData.card.nameZh;
+  const posLower = position.toLowerCase();
+
+  if (spreadType === 'love') {
+    const loveText = meaning.love;
+    const loveTextZh = meaning.loveZh;
+    const frames: Record<string, { en: string; zh: string }> = {
+      you: {
+        en: `${name} in the You position reflects the energy you're bringing to your relationship right now: ${loveText}`,
+        zh: `「你」位置的${nameZh}反映了你目前帶入關係的能量：${loveTextZh}`,
+      },
+      partner: {
+        en: `${name} in the Partner position shows the energy your partner (or potential love) carries: ${loveText}`,
+        zh: `「對方」位置的${nameZh}展示了你伴侶（或心儀對象）帶來的能量：${loveTextZh}`,
+      },
+      connection: {
+        en: `${name} in the Connection position reveals the nature of the bond between you: ${loveText}`,
+        zh: `「連結」位置的${nameZh}揭示了你們之間聯繫的本質：${loveTextZh}`,
+      },
+      challenge: {
+        en: `${name} in the Challenge position highlights what needs to be worked through together: ${loveText}`,
+        zh: `「挑戰」位置的${nameZh}指出了你們需要共同克服的事：${loveTextZh}`,
+      },
+      outcome: {
+        en: `${name} in the Outcome position reveals where your love story is heading: ${loveText}`,
+        zh: `「結果」位置的${nameZh}揭示了你的愛情故事走向：${loveTextZh}`,
+      },
+    };
+    const frame = frames[posLower];
+    if (frame) return { text: frame.en, textZh: frame.zh };
+    return { text: loveText, textZh: loveTextZh };
+  }
+
+  if (spreadType === 'threeCard') {
+    const frames: Record<string, { en: string; zh: string }> = {
+      past: {
+        en: `${name} in the Past position reveals the energy or experience that shaped where you are now: ${meaning.meaning}`,
+        zh: `「過去」位置的${nameZh}揭示了塑造你現在處境的能量或經歷：${meaning.meaningZh}`,
+      },
+      present: {
+        en: `${name} in the Present position reflects what you're actively navigating right now: ${meaning.meaning}`,
+        zh: `「現在」位置的${nameZh}反映了你當前正在經歷的能量：${meaning.meaningZh}`,
+      },
+      future: {
+        en: `${name} in the Future position indicates the energy moving toward you: ${meaning.meaning}`,
+        zh: `「未來」位置的${nameZh}指示了正向你走來的能量：${meaning.meaningZh}`,
+      },
+    };
+    const frame = frames[posLower];
+    if (frame) return { text: frame.en, textZh: frame.zh };
+    return { text: meaning.meaning, textZh: meaning.meaningZh };
+  }
+
+  if (spreadType === 'celticCross') {
+    const contextText = posLower === 'advice' && meaning.advice ? meaning.advice : meaning.meaning;
+    const contextTextZh = posLower === 'advice' && meaning.adviceZh ? meaning.adviceZh : meaning.meaningZh;
+    const frames: Record<string, { en: string; zh: string }> = {
+      present: {
+        en: `${name} at the center defines the heart of your current situation: ${contextText}`,
+        zh: `中心位置的${nameZh}定義了你當前處境的核心：${contextTextZh}`,
+      },
+      challenge: {
+        en: `${name} as the Crossing card shows the immediate challenge or opposing force you must face: ${contextText}`,
+        zh: `交叉牌位置的${nameZh}展示了你必須面對的直接挑戰或對立力量：${contextTextZh}`,
+      },
+      past: {
+        en: `${name} in the Past position shows the recent events or energies that led directly to this moment: ${contextText}`,
+        zh: `「過去」位置的${nameZh}展示了直接導致這一刻的近期事件或能量：${contextTextZh}`,
+      },
+      future: {
+        en: `${name} in the Future position points to what's coming in the near term: ${contextText}`,
+        zh: `「未來」位置的${nameZh}指向近期將要發生的事：${contextTextZh}`,
+      },
+      above: {
+        en: `${name} in the Above position reflects your conscious goals and highest aspirations around this question: ${contextText}`,
+        zh: `「目標」位置的${nameZh}反映了你圍繞這個問題的意識目標和最高願望：${contextTextZh}`,
+      },
+      below: {
+        en: `${name} in the Below position uncovers the subconscious patterns or hidden roots influencing your situation: ${contextText}`,
+        zh: `「潛意識」位置的${nameZh}揭示了影響你處境的潛意識模式或隱藏根源：${contextTextZh}`,
+      },
+      advice: {
+        en: `${name} in the Advice position offers guidance on how to move forward: ${contextText}`,
+        zh: `「建議」位置的${nameZh}提供了如何前進的指引：${contextTextZh}`,
+      },
+      external: {
+        en: `${name} in the External position shows the outside forces, people, or circumstances shaping your situation: ${contextText}`,
+        zh: `「外在影響」位置的${nameZh}展示了塑造你處境的外部力量、人物或環境：${contextTextZh}`,
+      },
+      'hopes/fears': {
+        en: `${name} in the Hopes/Fears position reveals what you're simultaneously hoping for and dreading — these often mirror each other: ${contextText}`,
+        zh: `「希望/恐懼」位置的${nameZh}揭示了你同時渴望和畏懼的事——這兩者往往互為鏡像：${contextTextZh}`,
+      },
+      outcome: {
+        en: `${name} in the Outcome position reveals the most likely result if the current energies continue on their path: ${contextText}`,
+        zh: `「結果」位置的${nameZh}揭示了如果當前能量持續下去的最可能結果：${contextTextZh}`,
+      },
+    };
+    const frame = frames[posLower];
+    if (frame) return { text: frame.en, textZh: frame.zh };
+    return { text: contextText, textZh: contextTextZh };
+  }
+
+  return { text: meaning.meaning, textZh: meaning.meaningZh };
 }
 
 function generateReadingSummary(cards: DrawnCard[], spreadType: string, positions: string[], positionsZh: string[]): SpreadSummary | null {
@@ -808,8 +956,8 @@ function generateReadingSummary(cards: DrawnCard[], spreadType: string, position
     return {
       title: 'Your Love Reading',
       titleZh: '你的愛情解讀',
-      summary: `In matters of the heart, ${getCardLabel(you)} represents your current energy — ${youM.meaning.toLowerCase()} Your partner or love interest carries the energy of ${getCardLabel(partner)}: ${partnerM.meaning.toLowerCase()} The connection between you is defined by ${getCardLabel(connection)}, suggesting ${connectionM.meaning.toLowerCase()} The challenge you face together, ${getCardLabel(challenge)}, points to ${challengeM.meaning.toLowerCase()} Ultimately, ${getCardLabel(outcome)} as the outcome reveals that ${outcomeM.meaning.toLowerCase()} Trust the wisdom of these cards as you navigate your heart's journey.`,
-      summaryZh: `在感情方面，${getCardLabelZh(you)}代表你當前的能量——${youM.meaningZh}你的伴侶或心儀對象攜帶著${getCardLabelZh(partner)}的能量：${partnerM.meaningZh}你們之間的連結由${getCardLabelZh(connection)}定義，暗示著${connectionM.meaningZh}你們共同面對的挑戰——${getCardLabelZh(challenge)}，指向${challengeM.meaningZh}最終，${getCardLabelZh(outcome)}作為結果揭示了${outcomeM.meaningZh}在你的感情旅程中，請相信這些牌的智慧。`,
+      summary: `In matters of the heart, ${getCardLabel(you)} in the You position reveals how you're showing up in love right now: ${youM.love} Your partner or love interest, represented by ${getCardLabel(partner)}, brings this energy: ${partnerM.love} The connection between you, shaped by ${getCardLabel(connection)}, speaks to the bond you share: ${connectionM.love} The challenge you face together, ${getCardLabel(challenge)}, points to: ${challengeM.love} Ultimately, ${getCardLabel(outcome)} as the outcome reveals where this love story is headed: ${outcomeM.love} Trust the wisdom of these cards as you navigate your heart's journey.`,
+      summaryZh: `在感情方面，「你」位置的${getCardLabelZh(you)}揭示了你目前在愛情中的狀態：${youM.loveZh}代表對方的${getCardLabelZh(partner)}帶來這樣的能量：${partnerM.loveZh}由${getCardLabelZh(connection)}塑造的連結訴說了你們共同的紐帶：${connectionM.loveZh}你們共同面對的挑戰——${getCardLabelZh(challenge)}，指向：${challengeM.loveZh}最終，${getCardLabelZh(outcome)}作為結果揭示了這段愛情故事的走向：${outcomeM.loveZh}在你的感情旅程中，請相信這些牌的智慧。`,
     };
   }
 
@@ -968,6 +1116,83 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
         >
           {summary.summaryZh}
         </Typography>
+
+        {/* Per-card position breakdown */}
+        <Box sx={{ mt: 3 }}>
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.6rem',
+              color: 'secondary.dark',
+              letterSpacing: '0.1em',
+              mb: 1.5,
+            }}
+          >
+            CARD_BREAKDOWN ————————
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {cards.map((cardData, index) => {
+              const interp = getPositionalInterpretation(cardData, positions[index], spreadType);
+              return (
+                <Box
+                  key={index}
+                  sx={{
+                    p: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.55rem',
+                        color: 'primary.main',
+                        letterSpacing: '0.08em',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {positions[index].toUpperCase()} · {positionsZh[index]}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '0.9rem',
+                        fontWeight: 300,
+                        color: 'text.secondary',
+                      }}
+                    >
+                      {cardData.card.name}{cardData.isReversed ? ' (Rev)' : ''}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-noto-sans-tc)',
+                        fontSize: '0.75rem',
+                        color: 'secondary.dark',
+                      }}
+                    >
+                      {cardData.card.nameZh}{cardData.isReversed ? ' (逆位)' : ''}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ lineHeight: 1.75, color: 'text.primary', mb: 0.75 }}>
+                    {interp.text}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-noto-sans-tc)',
+                      color: 'text.secondary',
+                      lineHeight: 1.75,
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    {interp.textZh}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

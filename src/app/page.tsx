@@ -7,17 +7,8 @@ import {
   Container,
   Typography,
   Button,
-  Grid,
-  Card,
-  CardContent,
-  CardActionArea,
 } from '@mui/material';
 import { motion } from 'motion/react';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import StyleIcon from '@mui/icons-material/Style';
-import SelfImprovementIcon from '@mui/icons-material/SelfImprovement';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import CollectionsIcon from '@mui/icons-material/Collections';
 import TarotCard from '@/components/TarotCard';
 import { tarotCards } from '@/data/tarotCards';
 
@@ -26,47 +17,37 @@ interface SpreadOption {
   title: string;
   titleZh: string;
   description: string;
-  descriptionZh: string;
-  icon: React.ReactNode;
-  color: string;
+  index: string;
 }
 
 const spreadOptions: SpreadOption[] = [
   {
     id: 'single',
-    title: 'Single Card',
+    title: 'SINGLE CARD',
     titleZh: '單牌占卜',
     description: 'Quick guidance',
-    descriptionZh: '快速指引',
-    icon: <AutoAwesomeIcon sx={{ fontSize: { xs: 32, sm: 40 } }} />,
-    color: '#9c7cf4',
+    index: '01',
   },
   {
     id: 'threeCard',
-    title: 'Three Card',
+    title: 'THREE CARD',
     titleZh: '三牌陣',
     description: 'Past · Present · Future',
-    descriptionZh: '過去·現在·未來',
-    icon: <StyleIcon sx={{ fontSize: { xs: 32, sm: 40 } }} />,
-    color: '#f4cf7c',
+    index: '02',
   },
   {
     id: 'love',
-    title: 'Love Reading',
+    title: 'LOVE READING',
     titleZh: '愛情占卜',
     description: 'Matters of the heart',
-    descriptionZh: '探索愛情',
-    icon: <FavoriteIcon sx={{ fontSize: { xs: 32, sm: 40 } }} />,
-    color: '#f47cc4',
+    index: '03',
   },
   {
     id: 'celticCross',
-    title: 'Celtic Cross',
+    title: 'CELTIC CROSS',
     titleZh: '凱爾特十字',
     description: 'Deep 10-card reading',
-    descriptionZh: '深度十牌占卜',
-    icon: <SelfImprovementIcon sx={{ fontSize: { xs: 32, sm: 40 } }} />,
-    color: '#7cb8f4',
+    index: '04',
   },
 ];
 
@@ -74,15 +55,16 @@ export default function Home() {
   const featuredCards = [tarotCards[0], tarotCards[17], tarotCards[19]];
 
   return (
-    <Box sx={{ minHeight: '100vh', pb: { xs: 4, md: 8 } }}>
+    <Box sx={{ minHeight: '100vh', pb: { xs: 4, md: 8 }, bgcolor: '#0d0d0f' }}>
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
+        {/* Hero */}
         <Box
           sx={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             textAlign: 'center',
-            pt: { xs: 2, sm: 4, md: 6 },
+            pt: { xs: 4, sm: 6, md: 8 },
             pb: { xs: 3, md: 5 },
           }}
         >
@@ -90,61 +72,92 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            style={{ width: '100%' }}
           >
+            {/* Status line */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 1,
+                mb: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  bgcolor: '#c4a96e',
+                  flexShrink: 0,
+                }}
+              />
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.12em',
+                  color: '#606068',
+                }}
+              >
+                ORACLE_SYS — INITIALIZED
+              </Typography>
+            </Box>
+
             <Typography
               variant="h1"
               sx={{
-                fontSize: { xs: '1.75rem', sm: '2.5rem', md: '3.5rem' },
-                fontWeight: 700,
-                fontFamily: 'Cinzel',
-                background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 50%, #f47cc4 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                mb: 1,
+                fontSize: { xs: '2.5rem', sm: '4rem', md: '6rem' },
+                fontWeight: 300,
+                fontFamily: 'var(--font-display)',
+                color: '#e4e0d8',
+                mb: 1.5,
+                lineHeight: 1.1,
               }}
             >
               Mystical Dog Tarot
             </Typography>
+
             <Typography
-              variant="h2"
               sx={{
-                fontSize: { xs: '1.1rem', sm: '1.5rem', md: '1.75rem' },
-                fontFamily: 'Noto Sans TC',
-                color: 'text.secondary',
-                mb: { xs: 2, md: 3 },
+                fontFamily: 'var(--font-noto-sans-tc)',
+                fontSize: { xs: '1rem', sm: '1.2rem' },
+                color: '#606068',
+                mb: 3,
               }}
             >
               神秘狗狗塔羅占卜
             </Typography>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            <Typography
-              variant="body1"
+            {/* Data readout */}
+            <Box
               sx={{
-                maxWidth: { xs: '100%', sm: 500 },
-                color: 'text.secondary',
-                mb: { xs: 2, md: 3 },
-                lineHeight: 1.7,
-                fontSize: { xs: '0.9rem', sm: '1rem' },
-                px: { xs: 1, sm: 0 },
+                display: 'inline-block',
+                border: '1px solid #252528',
+                px: { xs: 2, sm: 3 },
+                py: 1,
+                mb: 4,
               }}
             >
-              Let adorable canine companions guide you through the mysteries of tarot.
-              <br />
-              讓可愛的狗狗夥伴引導您探索塔羅的奧秘
-            </Typography>
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                  letterSpacing: '0.1em',
+                  color: '#888078',
+                }}
+              >
+                DECK · 22 / SPREADS · 04 / LANG · EN·ZH
+              </Typography>
+            </Box>
           </motion.div>
 
+          {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.3 }}
-            style={{ width: '100%' }}
           >
             <Box
               sx={{
@@ -153,7 +166,6 @@ export default function Home() {
                 gap: { xs: 1.5, sm: 2 },
                 justifyContent: 'center',
                 alignItems: 'center',
-                px: { xs: 2, sm: 0 },
               }}
             >
               <Button
@@ -161,41 +173,65 @@ export default function Home() {
                 href="/daily"
                 variant="contained"
                 size="large"
-                startIcon={<AutoAwesomeIcon />}
-                fullWidth
                 sx={{
-                  maxWidth: { xs: '100%', sm: 220 },
-                  py: { xs: 1.5, sm: 1.5 },
-                  fontSize: { xs: '0.95rem', sm: '1rem' },
+                  minWidth: 200,
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.1em',
                 }}
               >
-                Daily Card 每日一牌
+                DAILY CARD 每日一牌
               </Button>
               <Button
                 component={Link}
                 href="/reading"
                 variant="outlined"
                 size="large"
-                startIcon={<StyleIcon />}
-                fullWidth
                 sx={{
-                  maxWidth: { xs: '100%', sm: 220 },
-                  py: { xs: 1.5, sm: 1.5 },
-                  fontSize: { xs: '0.95rem', sm: '1rem' },
+                  minWidth: 200,
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.1em',
                 }}
               >
-                Start Reading 開始占卜
+                START READING 開始占卜
               </Button>
             </Box>
           </motion.div>
         </Box>
 
+        {/* Featured cards */}
         <Box sx={{ py: { xs: 3, md: 5 } }}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
+            {/* Section label */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                mb: 3,
+                px: { xs: 0, sm: 0 },
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.65rem',
+                  letterSpacing: '0.1em',
+                  color: '#2e2e34',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                FEATURED
+              </Typography>
+              <Box sx={{ flex: 1, height: '1px', bgcolor: '#1a1a1d' }} />
+            </Box>
+
             <Box
               sx={{
                 display: 'flex',
@@ -204,7 +240,6 @@ export default function Home() {
                 flexWrap: { xs: 'nowrap', md: 'wrap' },
                 overflowX: { xs: 'auto', md: 'visible' },
                 pb: { xs: 2, md: 0 },
-                px: { xs: 1, sm: 0 },
                 scrollSnapType: 'x mandatory',
                 '&::-webkit-scrollbar': { display: 'none' },
                 msOverflowStyle: 'none',
@@ -231,113 +266,104 @@ export default function Home() {
           </motion.div>
         </Box>
 
+        {/* Spread selection */}
         <Box sx={{ py: { xs: 2, md: 4 } }}>
-          <Typography
-            variant="h4"
-            align="center"
-            sx={{
-              fontFamily: 'Cinzel',
-              mb: 0.5,
-              color: 'primary.light',
-              fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' },
-            }}
-          >
-            Choose Your Reading
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            align="center"
-            sx={{
-              fontFamily: 'Noto Sans TC',
-              mb: { xs: 3, md: 4 },
-              color: 'text.secondary',
-              fontSize: { xs: '0.9rem', sm: '1rem' },
-            }}
-          >
-            選擇您的占卜方式
-          </Typography>
-
-          <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }} justifyContent="center">
+          <Box sx={{ borderTop: '1px solid #252528' }}>
             {spreadOptions.map((spread, index) => (
-              <Grid item xs={6} sm={6} md={3} key={spread.id}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
+              <motion.div
+                key={spread.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
+              >
+                <Box
+                  component={Link}
+                  href={`/reading?spread=${spread.id}`}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: { xs: 2, sm: 3 },
+                    px: { xs: 1, sm: 2 },
+                    py: { xs: 1.5, sm: 2 },
+                    borderBottom: '1px solid #1a1a1d',
+                    textDecoration: 'none',
+                    transition: 'background-color 0.15s ease',
+                    '&:hover': {
+                      bgcolor: '#131316',
+                    },
+                  }}
                 >
-                  <Card
+                  {/* Index */}
+                  <Typography
                     sx={{
-                      height: '100%',
-                      background: 'rgba(20, 10, 40, 0.7)',
-                      border: `1px solid ${spread.color}33`,
-                      borderRadius: { xs: 2, sm: 3 },
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        border: `1px solid ${spread.color}`,
-                        boxShadow: `0 0 20px ${spread.color}30`,
-                        transform: 'translateY(-3px)',
-                      },
-                      '&:active': {
-                        transform: 'scale(0.98)',
-                      },
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.7rem',
+                      color: '#2e2e34',
+                      letterSpacing: '0.05em',
+                      flexShrink: 0,
+                      minWidth: '3rem',
                     }}
                   >
-                    <CardActionArea
-                      component={Link}
-                      href={`/reading?spread=${spread.id}`}
+                    {spread.index} &gt;
+                  </Typography>
+
+                  {/* Name + Chinese */}
+                  <Box sx={{ flex: 1 }}>
+                    <Typography
                       sx={{
-                        height: '100%',
-                        p: { xs: 1.5, sm: 2 },
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                        letterSpacing: '0.08em',
+                        color: '#e4e0d8',
+                        mb: 0.25,
                       }}
                     >
-                      <CardContent sx={{ textAlign: 'center', p: { xs: '8px !important', sm: 2 } }}>
-                        <Box sx={{ color: spread.color, mb: { xs: 1, sm: 1.5 } }}>
-                          {spread.icon}
-                        </Box>
-                        <Typography
-                          variant="subtitle1"
-                          sx={{
-                            fontFamily: 'Cinzel',
-                            mb: 0.25,
-                            fontSize: { xs: '0.85rem', sm: '1rem' },
-                            fontWeight: 600,
-                          }}
-                        >
-                          {spread.title}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            fontFamily: 'Noto Sans TC',
-                            color: 'text.secondary',
-                            fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                            mb: 0.5,
-                          }}
-                        >
-                          {spread.titleZh}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            color: 'text.secondary',
-                            fontSize: { xs: '0.65rem', sm: '0.75rem' },
-                            display: { xs: 'none', sm: 'block' },
-                          }}
-                        >
-                          {spread.description}
-                        </Typography>
-                      </CardContent>
-                    </CardActionArea>
-                  </Card>
-                </motion.div>
-              </Grid>
+                      {spread.title}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: 'var(--font-noto-sans-tc)',
+                        fontSize: '0.7rem',
+                        color: '#606068',
+                      }}
+                    >
+                      {spread.titleZh}
+                    </Typography>
+                  </Box>
+
+                  {/* Description */}
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.65rem',
+                      color: '#3a3a3e',
+                      letterSpacing: '0.05em',
+                      display: { xs: 'none', sm: 'block' },
+                      flexShrink: 0,
+                    }}
+                  >
+                    {spread.description}
+                  </Typography>
+
+                  {/* Arrow */}
+                  <Typography
+                    sx={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.85rem',
+                      color: '#3a3a3e',
+                      flexShrink: 0,
+                      ml: { xs: 0, sm: 1 },
+                    }}
+                  >
+                    →
+                  </Typography>
+                </Box>
+              </motion.div>
             ))}
-          </Grid>
+          </Box>
         </Box>
 
+        {/* Gallery link */}
         <Box sx={{ py: { xs: 2, md: 4 }, textAlign: 'center' }}>
           <motion.div
             initial={{ opacity: 0 }}
@@ -348,33 +374,17 @@ export default function Home() {
               component={Link}
               href="/gallery"
               variant="text"
-              startIcon={<CollectionsIcon />}
               sx={{
-                color: 'text.secondary',
-                '&:hover': { color: 'primary.light' },
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.7rem',
+                letterSpacing: '0.1em',
+                color: '#606068',
+                '&:hover': { color: '#e4e0d8' },
               }}
             >
-              Browse All 22 Cards 瀏覽全部牌卡
+              BROWSE ALL 22 CARDS 瀏覽全部牌卡 →
             </Button>
           </motion.div>
-        </Box>
-
-        <Box sx={{ py: { xs: 2, md: 4 }, textAlign: 'center' }}>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{
-              display: 'block',
-              fontSize: { xs: '0.7rem', sm: '0.8rem' },
-              lineHeight: 1.6,
-            }}
-          >
-            🐕 22 Major Arcana · Cute Dogs · Bilingual
-            <br />
-            <span style={{ fontFamily: 'Noto Sans TC' }}>
-              22張大阿爾卡納 · 可愛狗狗 · 中英雙語
-            </span>
-          </Typography>
         </Box>
       </Container>
     </Box>

@@ -11,7 +11,6 @@ import {
   Box,
   Typography,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 
 interface NavItem {
   label: string;
@@ -171,7 +170,7 @@ export default function Navigation() {
               },
             }}
           >
-            <MenuIcon />
+            ☰
           </IconButton>
 
           <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3 }}>

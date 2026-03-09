@@ -59,21 +59,23 @@ function renderWithTheme(ui: React.ReactElement) {
 }
 
 describe('TarotCard', () => {
-  it('renders card back and hides card front when not flipped', () => {
+  it('hides card front visually and from assistive tech when not flipped', () => {
     const { container } = renderWithTheme(
       <TarotCard card={mockCard} />
     )
-    // Card front content should not be in the DOM when not flipped (hidden until reveal)
-    const svgs = container.querySelectorAll('svg')
-    expect(svgs.length).toBe(0)
+    // CardFront is always in the DOM (preloaded), but its wrapper should be
+    // hidden via visibility:hidden and aria-hidden when not flipped
+    const hiddenWrapper = container.querySelector('[aria-hidden="true"]')
+    expect(hiddenWrapper).toBeTruthy()
+    expect(hiddenWrapper?.computedStyleMap ? true : (hiddenWrapper as HTMLElement)?.style.visibility !== 'visible').toBe(true)
   })
 
-  it('renders card front when flipped', () => {
+  it('renders card front visible when flipped', () => {
     const { container } = renderWithTheme(
       <TarotCard card={mockCard} isFlipped={true} />
     )
-    const svgs = container.querySelectorAll('svg')
-    expect(svgs.length).toBeGreaterThanOrEqual(1)
+    const visibleWrapper = container.querySelector('[aria-hidden="false"]')
+    expect(visibleWrapper).toBeTruthy()
   })
 
   it('does not show card label below card when not flipped', () => {

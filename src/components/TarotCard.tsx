@@ -112,12 +112,16 @@ export default function TarotCard({
             boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}
         >
-          <CardFront
-            card={card}
-            isReversed={isReversed}
-            width={width}
-            height={height}
-          />
+          {isFlipped ? (
+            <CardFront
+              card={card}
+              isReversed={isReversed}
+              width={width}
+              height={height}
+            />
+          ) : (
+            <Box sx={{ width: '100%', height: '100%', bgcolor: '#1a1a2e' }} />
+          )}
         </Box>
       </Box>
 

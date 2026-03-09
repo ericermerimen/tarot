@@ -59,11 +59,19 @@ function renderWithTheme(ui: React.ReactElement) {
 }
 
 describe('TarotCard', () => {
-  it('renders both card front and back faces', () => {
+  it('renders card back and hides card front when not flipped', () => {
     const { container } = renderWithTheme(
       <TarotCard card={mockCard} />
     )
-    // Should contain two face containers (front + back) inside the 3D wrapper
+    // Card front content should not be in the DOM when not flipped (hidden until reveal)
+    const svgs = container.querySelectorAll('svg')
+    expect(svgs.length).toBe(0)
+  })
+
+  it('renders card front when flipped', () => {
+    const { container } = renderWithTheme(
+      <TarotCard card={mockCard} isFlipped={true} />
+    )
     const svgs = container.querySelectorAll('svg')
     expect(svgs.length).toBeGreaterThanOrEqual(1)
   })

@@ -70,13 +70,19 @@ function ReadingContent() {
     return () => { document.head.removeChild(style); };
   }, []);
 
-  // Load saved state once and share across initializers
+  // Load saved state once and share across initializers.
+  // Only restore if the saved spread matches the URL — when the user navigates
+  // from the homepage with a specific spread (e.g. ?spread=love), the URL
+  // should win over stale sessionStorage.
   const savedStateRef = useRef<ReadingState | null>(null);
   if (savedStateRef.current === null && typeof window !== 'undefined') {
     const stored = sessionStorage.getItem(READING_STATE_KEY);
     if (stored) {
+      const parsed: ReadingState = JSON.parse(stored);
       sessionStorage.removeItem(READING_STATE_KEY);
-      savedStateRef.current = JSON.parse(stored);
+      if (parsed.spread === initialSpread) {
+        savedStateRef.current = parsed;
+      }
     }
   }
 
@@ -204,10 +210,13 @@ function ReadingContent() {
     setIntentionNote('');
   };
 
-  const getCardLayout = (): Record<string, string | number> => {
+  const getCardLayout = (): Record<string, string | number | object> => {
     switch (selectedSpread) {
       case 'threeCard': return { gridTemplateColumns: 'repeat(3, 1fr)', maxWidth: 600 };
-      case 'love': return { gridTemplateColumns: 'repeat(5, 1fr)', maxWidth: 800 };
+      case 'love': return {
+        gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(5, 1fr)' },
+        maxWidth: { xs: 340, sm: 800 },
+      };
       case 'celticCross': return { display: 'block' };
       default: return { gridTemplateColumns: '1fr', maxWidth: 250 };
     }
@@ -430,11 +439,35 @@ interface CardMeaningPanelProps {
   t: ReturnType<typeof useTranslations>;
 }
 
+function getSingleCardIntro(cardName: string, isReversed: boolean, locale: Locale): string {
+  if (locale === 'zhTW') {
+    return isReversed
+      ? `${cardName}以逆位出現在你的面前，暗示著需要更深入的反思。以下是這張牌此刻要傳達給你的訊息。`
+      : `${cardName}出現在你的面前，為你帶來了清晰的指引。以下是這股能量如何在你生活的各個層面展開。`;
+  }
+  if (locale === 'ja') {
+    return isReversed
+      ? `${cardName}が逆位置で現れました。より深い内省が求められています。このカードが今あなたに伝えようとしているメッセージをお伝えします。`
+      : `${cardName}があなたの前に現れ、明確な導きをもたらしています。このエネルギーがあなたの人生のさまざまな側面でどう展開するかを見ていきましょう。`;
+  }
+  return isReversed
+    ? `${cardName} has appeared reversed, suggesting a need for deeper reflection. Here is what this card is trying to tell you right now.`
+    : `${cardName} has come forward to offer you guidance. Here is how this energy unfolds across different areas of your life.`;
+}
+
+function getLifeAreaIntro(locale: Locale): string {
+  if (locale === 'zhTW') return '讓我們來看看這股能量如何影響你生活的不同面向：';
+  if (locale === 'ja') return 'このエネルギーがあなたの生活のさまざまな面にどう影響するか見ていきましょう：';
+  return 'Here is how this energy touches different parts of your life:';
+}
+
 function CardMeaningPanel({ card, isReversed, position, locale, t }: CardMeaningPanelProps) {
   const meaning = isReversed ? card.reversed : card.upright;
   const lm = getMeaning(meaning, locale);
   const cardName = getCardName(card, locale);
   const keywords = getKeywords(card, locale);
+  const intro = getSingleCardIntro(cardName, isReversed, locale);
+  const lifeAreaIntro = getLifeAreaIntro(locale);
 
   return (
     <Box sx={{ mt: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
@@ -448,6 +481,9 @@ function CardMeaningPanel({ card, isReversed, position, locale, t }: CardMeaning
           <Typography sx={{ fontFamily: 'var(--font-display)', color: 'text.primary', fontWeight: 300, fontSize: { xs: '1.3rem', md: '1.6rem' }, mb: 0.25 }}>
             {cardName}
             {isReversed && <Box component="span" sx={{ color: 'secondary.dark', fontSize: '0.7em', ml: '0.5em' }}>{t('reversedLabel')}</Box>}
+          </Typography>
+          <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.secondary', mt: 1 }}>
+            {intro}
           </Typography>
         </Box>
         <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
@@ -472,6 +508,9 @@ function CardMeaningPanel({ card, isReversed, position, locale, t }: CardMeaning
             ))}
           </Box>
         </Box>
+        <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.secondary', mb: 2 }}>
+          {lifeAreaIntro}
+        </Typography>
         {[
           { label: t('love'), text: lm.love },
           { label: t('career'), text: lm.career },

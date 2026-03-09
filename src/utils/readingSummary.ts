@@ -62,19 +62,19 @@ export function getPositionalInterpretation(
   if (spreadType === 'threeCard') {
     const frames: Record<string, { en: string; zh: string; ja: string }> = {
       past: {
-        en: `${name} in the Past position reveals the energy or experience that shaped where you are now: ${meaning.meaning}`,
-        zh: `「過去」位置的${nameZh}揭示了塑造你現在處境的能量或經歷：${meaning.meaningZh}`,
-        ja: `「過去」の位置の${nameJa}は、今のあなたを形作ったエネルギーや経験を明らかにしています：${meaning.meaningJa}`,
+        en: `${name} appears in your Past, revealing the energy that shaped where you stand today. ${meaning.meaning} This foundation, whether you recognized it at the time or not, set the stage for everything unfolding now.`,
+        zh: `${nameZh}出現在你的「過去」，揭示了塑造你當前處境的能量。${meaning.meaningZh}無論你當時是否意識到，這段經歷為眼前發生的一切奠定了基礎。`,
+        ja: `${nameJa}が「過去」に現れ、今のあなたを形作ったエネルギーを明らかにしています。${meaning.meaningJa}当時気づいていたかどうかに関わらず、この基盤が今起きているすべてのことの舞台を整えました。`,
       },
       present: {
-        en: `${name} in the Present position reflects what you're actively navigating right now: ${meaning.meaning}`,
-        zh: `「現在」位置的${nameZh}反映了你當前正在經歷的能量：${meaning.meaningZh}`,
-        ja: `「現在」の位置の${nameJa}は、今まさにあなたが向き合っていることを映しています：${meaning.meaningJa}`,
+        en: `${name} sits at the center of your Present, reflecting the energy you're living through right now. ${meaning.meaning} This is the lens through which your current experiences are being shaped.`,
+        zh: `${nameZh}坐落於你的「現在」中心，反映了你此刻正在經歷的能量。${meaning.meaningZh}這是你當前經歷正在被塑造的透鏡。`,
+        ja: `${nameJa}が「現在」の中心に座し、今あなたが生きているエネルギーを映し出しています。${meaning.meaningJa}これが、あなたの現在の経験が形作られるレンズです。`,
       },
       future: {
-        en: `${name} in the Future position indicates the energy moving toward you: ${meaning.meaning}`,
-        zh: `「未來」位置的${nameZh}指示了正向你走來的能量：${meaning.meaningZh}`,
-        ja: `「未来」の位置の${nameJa}は、あなたに向かってくるエネルギーを示しています：${meaning.meaningJa}`,
+        en: `${name} emerges in your Future, pointing to the energy that is gathering ahead. ${meaning.meaning} While nothing is fixed, this card suggests the direction things are naturally moving.`,
+        zh: `${nameZh}出現在你的「未來」，指向正在前方聚集的能量。${meaning.meaningZh}雖然未來並非固定不變，但這張牌暗示了事物自然發展的方向。`,
+        ja: `${nameJa}が「未来」に現れ、前方に集まりつつあるエネルギーを指し示しています。${meaning.meaningJa}未来は固定されていませんが、このカードは物事が自然に向かう方向を示唆しています。`,
       },
     };
     const frame = frames[posLower];
@@ -564,17 +564,23 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
 
     const summaryParts: string[] = [
       THEME_OPENING_EN[theme],
-      `From your past, ${getCardLabel(past)} — ${pastM.meaning} — carried you into your present, where ${getCardLabel(present)} now reflects ${presentM.meaning} The path ahead opens through ${getCardLabel(future)}: ${futureM.meaning}`,
+      `Looking back, ${getCardLabel(past)} reveals the energy that shaped where you stand today — ${pastM.meaning}`,
+      `This has carried you into a present defined by ${getCardLabel(present)}. Right now, ${presentM.meaning}`,
+      `As you look ahead, ${getCardLabel(future)} opens the way forward: ${futureM.meaning}`,
     ];
 
     const summaryPartsZh: string[] = [
       THEME_OPENING_ZH[theme],
-      `從你的過去，${getCardLabelZh(past)}——${pastM.meaningZh}——將你帶入當下，在那裡${getCardLabelZh(present)}現在反映著${presentM.meaningZh}前方的道路通過${getCardLabelZh(future)}開啟：${futureM.meaningZh}`,
+      `回望過去，${getCardLabelZh(past)}揭示了塑造你當前處境的能量——${pastM.meaningZh}`,
+      `這段經歷將你帶入了由${getCardLabelZh(present)}所定義的當下。此刻，${presentM.meaningZh}`,
+      `展望未來，${getCardLabelZh(future)}為你開啟了前方的道路：${futureM.meaningZh}`,
     ];
 
     const summaryPartsJa: string[] = [
       THEME_OPENING_JA[theme],
-      `あなたの過去から、${getCardLabelJa(past)}——${pastM.meaningJa}——があなたを現在へと導きました。そこでは${getCardLabelJa(present)}が${presentM.meaningJa}を映し出しています。前方の道は${getCardLabelJa(future)}を通じて開かれます：${futureM.meaningJa}`,
+      `振り返ると、${getCardLabelJa(past)}が今のあなたを形作ったエネルギーを明らかにしています——${pastM.meaningJa}`,
+      `この経験があなたを${getCardLabelJa(present)}に象徴される現在へと導きました。今まさに、${presentM.meaningJa}`,
+      `前を見据えると、${getCardLabelJa(future)}が進むべき道を照らしています：${futureM.meaningJa}`,
     ];
 
     if (patternNote) {
@@ -616,15 +622,27 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const closing = buildClosingGuidance(outcome, theme, cards);
 
     const summaryParts = [
-      `In matters of the heart, ${getCardLabel(you)} reflects how you are showing up in love right now: ${youM.love} Your partner or love interest, represented by ${getCardLabel(partner)}, brings this energy: ${partnerM.love} The connection between you, shaped by ${getCardLabel(connection)}, reveals: ${connectionM.love} The challenge you face together through ${getCardLabel(challenge)}: ${challengeM.love} And the path ahead, carried by ${getCardLabel(outcome)}: ${outcomeM.love}`,
+      `In matters of the heart, ${getCardLabel(you)} reveals the energy you are bringing into love right now — ${youM.love}`,
+      `On the other side, ${getCardLabel(partner)} speaks to the energy your partner or love interest carries: ${partnerM.love}`,
+      `Between you, ${getCardLabel(connection)} illuminates the nature of your bond — ${connectionM.love}`,
+      `Yet every connection has its growing edges. ${getCardLabel(challenge)} highlights what needs attention: ${challengeM.love}`,
+      `Looking to where this story leads, ${getCardLabel(outcome)} points the way: ${outcomeM.love}`,
     ];
 
     const summaryPartsZh = [
-      `在感情方面，${getCardLabelZh(you)}反映了你目前在愛情中的狀態：${youM.loveZh}代表對方的${getCardLabelZh(partner)}帶來這樣的能量：${partnerM.loveZh}由${getCardLabelZh(connection)}塑造的連結揭示了：${connectionM.loveZh}你們共同面對的挑戰——${getCardLabelZh(challenge)}：${challengeM.loveZh}而前方的道路，由${getCardLabelZh(outcome)}承載：${outcomeM.loveZh}`,
+      `在感情方面，${getCardLabelZh(you)}揭示了你目前帶入愛情的能量——${youM.loveZh}`,
+      `而另一方面，${getCardLabelZh(partner)}訴說著你的伴侶或心儀對象所攜帶的能量：${partnerM.loveZh}`,
+      `在你們之間，${getCardLabelZh(connection)}照亮了你們連結的本質——${connectionM.loveZh}`,
+      `然而每段感情都有需要成長的地方。${getCardLabelZh(challenge)}指出了需要關注的部分：${challengeM.loveZh}`,
+      `展望這段故事的走向，${getCardLabelZh(outcome)}為你指引方向：${outcomeM.loveZh}`,
     ];
 
     const summaryPartsJa = [
-      `恋愛において、${getCardLabelJa(you)}は今あなたが愛にどう向き合っているかを映しています：${youM.loveJa}パートナーや気になる相手を表す${getCardLabelJa(partner)}は、このエネルギーをもたらします：${partnerM.loveJa}${getCardLabelJa(connection)}によって形作られた二人の繋がりは次のことを明らかにしています：${connectionM.loveJa}${getCardLabelJa(challenge)}を通じて二人が共に向き合う課題：${challengeM.loveJa}そして${getCardLabelJa(outcome)}が示す前方の道：${outcomeM.loveJa}`,
+      `恋愛において、${getCardLabelJa(you)}は今あなたが愛に持ち込んでいるエネルギーを明らかにしています——${youM.loveJa}`,
+      `一方で、${getCardLabelJa(partner)}はパートナーや気になる相手が持つエネルギーを語っています：${partnerM.loveJa}`,
+      `二人の間で、${getCardLabelJa(connection)}が絆の本質を照らし出しています——${connectionM.loveJa}`,
+      `しかし、どんな繋がりにも成長が必要な部分があります。${getCardLabelJa(challenge)}が注目すべき点を示しています：${challengeM.loveJa}`,
+      `この物語が向かう先を見据えると、${getCardLabelJa(outcome)}が道を示しています：${outcomeM.loveJa}`,
     ];
 
     if (patternNote) {
@@ -672,29 +690,29 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
 
     const narrativeEn = [
       THEME_OPENING_EN[theme],
-      `At the heart of your reading, ${getCardLabel(present)} defines your current situation — ${presentM.meaning.toLowerCase()} Crossing this is ${getCardLabel(challenge)}, representing the immediate force you must face: ${challengeM.meaning.toLowerCase()}`,
-      `Your foundation in the recent past, ${getCardLabel(past)}, speaks of ${pastM.meaning.toLowerCase()} The near future brings ${getCardLabel(future)}: ${futureM.meaning.toLowerCase()}`,
-      `Your highest aspirations are reflected by ${getCardLabel(above)} — ${aboveM.meaning.toLowerCase()} While deep in your subconscious, ${getCardLabel(below)} reveals ${belowM.meaning.toLowerCase()}`,
-      `For guidance, ${getCardLabel(advice)} advises: ${adviceM.advice ?? adviceM.meaning.toLowerCase()} External influences from ${getCardLabel(external)} suggest ${externalM.meaning.toLowerCase()}`,
-      `Your hopes and fears are embodied by ${getCardLabel(hopes)}: ${hopesM.meaning.toLowerCase()} The final outcome, ${getCardLabel(outcome)}, reveals ${outcomeM.meaning.toLowerCase()}`,
+      `At the heart of this reading, ${getCardLabel(present)} defines your current reality — ${presentM.meaning.toLowerCase()} Cutting across this is ${getCardLabel(challenge)}, the immediate tension you must navigate: ${challengeM.meaning.toLowerCase()}`,
+      `The roots of this moment lie in the recent past, where ${getCardLabel(past)} speaks of ${pastM.meaning.toLowerCase()} From here, the energy shifts toward ${getCardLabel(future)} in the near future: ${futureM.meaning.toLowerCase()}`,
+      `Above you, ${getCardLabel(above)} reflects your conscious aspirations — ${aboveM.meaning.toLowerCase()} Beneath the surface, ${getCardLabel(below)} uncovers deeper undercurrents: ${belowM.meaning.toLowerCase()}`,
+      `When it comes to guidance, ${getCardLabel(advice)} offers a clear directive: ${adviceM.advice ?? adviceM.meaning.toLowerCase()} Meanwhile, ${getCardLabel(external)} reveals the outside forces shaping your situation: ${externalM.meaning.toLowerCase()}`,
+      `Your inner hopes and fears converge in ${getCardLabel(hopes)}: ${hopesM.meaning.toLowerCase()} And the reading resolves into ${getCardLabel(outcome)} as the most likely outcome — ${outcomeM.meaning.toLowerCase()}`,
     ].join('\n\n');
 
     const narrativeZh = [
       THEME_OPENING_ZH[theme],
-      `在你的解讀核心，${getCardLabelZh(present)}定義了你的當前處境——${presentM.meaningZh}與之交叉的是${getCardLabelZh(challenge)}，代表你必須面對的直接力量：${challengeM.meaningZh}`,
-      `你近期過去的根基，${getCardLabelZh(past)}，訴說著${pastM.meaningZh}近期的未來帶來${getCardLabelZh(future)}：${futureM.meaningZh}`,
-      `你最高的願望由${getCardLabelZh(above)}反映——${aboveM.meaningZh}在你的潛意識深處，${getCardLabelZh(below)}揭示了${belowM.meaningZh}`,
-      `在指導方面，${getCardLabelZh(advice)}建議：${adviceM.adviceZh ?? adviceM.meaningZh}來自${getCardLabelZh(external)}的外部影響暗示${externalM.meaningZh}`,
-      `你的希望與恐懼由${getCardLabelZh(hopes)}體現：${hopesM.meaningZh}最終結果——${getCardLabelZh(outcome)}揭示了${outcomeM.meaningZh}`,
+      `在這次解讀的核心，${getCardLabelZh(present)}定義了你的當前處境——${presentM.meaningZh}與之交叉的是${getCardLabelZh(challenge)}，你需要面對的當下張力：${challengeM.meaningZh}`,
+      `這一刻的根源在於近期的過去，${getCardLabelZh(past)}訴說著${pastM.meaningZh}由此，能量轉向了近期未來的${getCardLabelZh(future)}：${futureM.meaningZh}`,
+      `在你之上，${getCardLabelZh(above)}反映了你意識層面的願望——${aboveM.meaningZh}在表面之下，${getCardLabelZh(below)}揭示了更深層的暗流：${belowM.meaningZh}`,
+      `在指引方面，${getCardLabelZh(advice)}給出了明確的方向：${adviceM.adviceZh ?? adviceM.meaningZh}同時，${getCardLabelZh(external)}揭示了影響你處境的外在力量：${externalM.meaningZh}`,
+      `你內心的希望與恐懼匯聚在${getCardLabelZh(hopes)}：${hopesM.meaningZh}而解讀最終指向${getCardLabelZh(outcome)}作為最可能的結果——${outcomeM.meaningZh}`,
     ].join('\n\n');
 
     const narrativeJa = [
       THEME_OPENING_JA[theme],
-      `あなたのリーディングの核心で、${getCardLabelJa(present)}が現在の状況を定義しています——${presentM.meaningJa}これに交差するのは${getCardLabelJa(challenge)}、あなたが向き合うべき直接的な力を表しています：${challengeM.meaningJa}`,
-      `近い過去の土台である${getCardLabelJa(past)}は、${pastM.meaningJa}を語っています。近い未来には${getCardLabelJa(future)}がもたらされます：${futureM.meaningJa}`,
-      `あなたの最も高い願望は${getCardLabelJa(above)}に映し出されています——${aboveM.meaningJa}潜在意識の深くでは、${getCardLabelJa(below)}が${belowM.meaningJa}を明らかにしています`,
-      `導きとして、${getCardLabelJa(advice)}は助言します：${adviceM.adviceJa ?? adviceM.meaningJa}${getCardLabelJa(external)}からの外的影響は${externalM.meaningJa}を示唆しています`,
-      `あなたの希望と恐れは${getCardLabelJa(hopes)}に体現されています：${hopesM.meaningJa}最終的な結果——${getCardLabelJa(outcome)}は${outcomeM.meaningJa}を明らかにしています`,
+      `このリーディングの核心で、${getCardLabelJa(present)}が現在の状況を映し出しています——${presentM.meaningJa}これに交差するのは${getCardLabelJa(challenge)}、今まさに向き合うべき緊張です：${challengeM.meaningJa}`,
+      `この瞬間の根は近い過去にあり、${getCardLabelJa(past)}が語りかけています：${pastM.meaningJa}ここから、エネルギーは近い未来の${getCardLabelJa(future)}へと移り変わります：${futureM.meaningJa}`,
+      `あなたの上方に、${getCardLabelJa(above)}が意識的な願望を映しています——${aboveM.meaningJa}その水面下では、${getCardLabelJa(below)}がより深い潮流を明らかにしています：${belowM.meaningJa}`,
+      `導きにおいて、${getCardLabelJa(advice)}は明確な指針を示しています：${adviceM.adviceJa ?? adviceM.meaningJa}一方で、${getCardLabelJa(external)}があなたの状況を形作る外的な力を明らかにしています：${externalM.meaningJa}`,
+      `あなたの希望と恐れは${getCardLabelJa(hopes)}に集約されています：${hopesM.meaningJa}そしてリーディングは${getCardLabelJa(outcome)}を最も可能性の高い結果として示しています——${outcomeM.meaningJa}`,
     ].join('\n\n');
 
     const finalParts = [narrativeEn];

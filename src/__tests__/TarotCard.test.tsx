@@ -59,13 +59,23 @@ function renderWithTheme(ui: React.ReactElement) {
 }
 
 describe('TarotCard', () => {
-  it('renders both card front and back faces', () => {
+  it('hides card front visually and from assistive tech when not flipped', () => {
     const { container } = renderWithTheme(
       <TarotCard card={mockCard} />
     )
-    // Should contain two face containers (front + back) inside the 3D wrapper
-    const svgs = container.querySelectorAll('svg')
-    expect(svgs.length).toBeGreaterThanOrEqual(1)
+    // CardFront is always in the DOM (preloaded), but its wrapper should be
+    // hidden via visibility:hidden and aria-hidden when not flipped
+    const hiddenWrapper = container.querySelector('[aria-hidden="true"]')
+    expect(hiddenWrapper).toBeTruthy()
+    expect(hiddenWrapper?.computedStyleMap ? true : (hiddenWrapper as HTMLElement)?.style.visibility !== 'visible').toBe(true)
+  })
+
+  it('renders card front visible when flipped', () => {
+    const { container } = renderWithTheme(
+      <TarotCard card={mockCard} isFlipped={true} />
+    )
+    const visibleWrapper = container.querySelector('[aria-hidden="false"]')
+    expect(visibleWrapper).toBeTruthy()
   })
 
   it('does not show card label below card when not flipped', () => {

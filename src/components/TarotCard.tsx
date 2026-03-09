@@ -112,12 +112,20 @@ export default function TarotCard({
             boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}
         >
-          <CardFront
-            card={card}
-            isReversed={isReversed}
-            width={width}
-            height={height}
-          />
+          {/* Always render CardFront so images/SVGs are preloaded and ready
+              when the flip animation plays. Use visibility + aria-hidden to
+              keep it hidden from screen readers and casual inspection. */}
+          <Box
+            sx={{ width: '100%', height: '100%', visibility: isFlipped ? 'visible' : 'hidden' }}
+            aria-hidden={!isFlipped}
+          >
+            <CardFront
+              card={card}
+              isReversed={isReversed}
+              width={width}
+              height={height}
+            />
+          </Box>
         </Box>
       </Box>
 

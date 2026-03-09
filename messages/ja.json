@@ -79,7 +79,21 @@
     "reversedLabel": "（逆位置）",
     "keywords": "キーワード",
     "cardBreakdown": "カード解析",
-    "cards": "カード"
+    "cards": "カード",
+    "copyReading": "占い結果をコピー",
+    "copied": "コピー済み ✓",
+    "keyTakeaway": "核心メッセージ",
+    "reflectOn": "振り返ってみましょう",
+    "goDeeper": "さらに深く",
+    "tryThreeCard": "スリーカードで過去・現在・未来を見てみましょう",
+    "tryLove": "恋愛スプレッドで心の問題を探りましょう",
+    "tryCelticCross": "ケルト十字で深い10枚リーディングを試しましょう",
+    "trySingle": "シングルカードでクイックガイダンスを",
+    "tryDaily": "今日の一枚を確認しましょう",
+    "viewJournal": "占い日記で過去の記録を振り返りましょう",
+    "love": "> 恋愛",
+    "advice": "> アドバイス",
+    "health": "> 健康"
   },
   "gallery": {
     "header": "カード一覧",

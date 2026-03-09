@@ -79,7 +79,21 @@
     "reversedLabel": "(Reversed)",
     "keywords": "KEYWORDS",
     "cardBreakdown": "CARD_BREAKDOWN",
-    "cards": "CARDS"
+    "cards": "CARDS",
+    "copyReading": "COPY_READING",
+    "copied": "COPIED ✓",
+    "keyTakeaway": "KEY_TAKEAWAY",
+    "reflectOn": "REFLECT_ON_THIS",
+    "goDeeper": "GO_DEEPER",
+    "tryThreeCard": "Try a Three Card spread for past, present & future",
+    "tryLove": "Explore a Love spread for matters of the heart",
+    "tryCelticCross": "Try the Celtic Cross for a deep 10-card reading",
+    "trySingle": "Draw a Single Card for quick guidance",
+    "tryDaily": "Visit your Daily Card for today's guidance",
+    "viewJournal": "Review your past readings in the Journal",
+    "love": "> LOVE",
+    "advice": "> ADVICE",
+    "health": "> HEALTH"
   },
   "gallery": {
     "header": "CARD_GALLERY",

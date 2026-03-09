@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Box,
@@ -14,13 +14,16 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SaveIcon from '@mui/icons-material/Save';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCards, spreadTypes, tarotCards } from '@/data/tarotCards';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import type { Locale } from '@/i18n/routing';
-import { getCardName, getKeywords, getMeaning, getSpreadName, getSpreadDescription, getPositions, selectLocaleText } from '@/utils/localeCards';
-import { generateReadingSummary, getPositionalInterpretation } from '@/utils/readingSummary';
+import { getCardName, getKeywords, getMeaning, getSpreadName, getSpreadDescription, getPositions, selectLocaleText, getReflectionQuestions } from '@/utils/localeCards';
+import { generateReadingSummary, getPositionalInterpretation, detectTheme, buildClosingGuidance } from '@/utils/readingSummary';
 import type { TarotCardData, DrawnCard, SpreadKey } from '@/types/tarot';
 import type { SpreadSummary } from '@/utils/readingSummary';
 import type { ReadingRecord, IntentionTag } from '@/types/reading';
@@ -55,6 +58,61 @@ function hydrateCards(saved: { cardId: number; isReversed: boolean }[]): DrawnCa
     const card = tarotCards.find(c => c.id === cardId);
     return card ? { card, isReversed } : null;
   }).filter(Boolean) as DrawnCard[];
+}
+
+function getKeyTakeaway(cards: DrawnCard[], spreadType: SpreadKey, locale: Locale): string {
+  // For single card, use the advice field if available, otherwise the meaning
+  if (spreadType === 'single' && cards.length > 0) {
+    const meaning = cards[0].isReversed ? cards[0].card.reversed : cards[0].card.upright;
+    const advice = selectLocaleText(locale, meaning.advice || '', meaning.adviceZh || '', meaning.adviceJa || '');
+    const mainMeaning = selectLocaleText(locale, meaning.meaning, meaning.meaningZh, meaning.meaningJa);
+    return advice || mainMeaning;
+  }
+  // For multi-card, use the closing guidance (theme-based action)
+  const outcomeCard = cards[cards.length - 1];
+  const theme = detectTheme(cards);
+  const closing = buildClosingGuidance(outcomeCard, theme, cards);
+  return selectLocaleText(locale, closing.en, closing.zh, closing.ja);
+}
+
+function getReadingReflections(cards: DrawnCard[], locale: Locale): string[] {
+  const questions: string[] = [];
+  for (const drawn of cards) {
+    const cardQuestions = getReflectionQuestions(drawn.card, locale);
+    if (cardQuestions && cardQuestions.length > 0) {
+      // Pick one question per card (based on card id for consistency)
+      questions.push(cardQuestions[drawn.card.id % cardQuestions.length]);
+    }
+    if (questions.length >= 3) break;
+  }
+  return questions;
+}
+
+function buildCopyText(
+  cards: DrawnCard[],
+  spreadType: SpreadKey,
+  positions: string[],
+  locale: Locale,
+): string {
+  const spreadName = getSpreadName(spreadTypes[spreadType], locale);
+  const date = new Date().toLocaleDateString(locale === 'zhTW' ? 'zh-TW' : locale === 'ja' ? 'ja-JP' : 'en-US');
+  const lines: string[] = [`${spreadName} — ${date}`, ''];
+
+  cards.forEach((drawn, i) => {
+    const name = getCardName(drawn.card, locale);
+    const rev = drawn.isReversed ? (locale === 'zhTW' ? '（逆位）' : locale === 'ja' ? '（逆位置）' : ' (Reversed)') : '';
+    const meaning = drawn.isReversed ? drawn.card.reversed : drawn.card.upright;
+    const lm = getMeaning(meaning, locale);
+    lines.push(`${positions[i]}: ${name}${rev}`);
+    lines.push(`  ${lm.meaning}`);
+    lines.push('');
+  });
+
+  const takeaway = getKeyTakeaway(cards, spreadType, locale);
+  const takeawayLabel = locale === 'zhTW' ? '核心訊息' : locale === 'ja' ? '核心メッセージ' : 'Key Takeaway';
+  lines.push(`${takeawayLabel}: ${takeaway.replace(/\*\*/g, '')}`);
+
+  return lines.join('\n');
 }
 
 function ReadingContent() {
@@ -126,6 +184,7 @@ function ReadingContent() {
   const [selectedTag, setSelectedTag] = useState<IntentionTag>('general');
   const [intentionNote, setIntentionNote] = useState('');
   const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
   const intentionRef = useRef<HTMLDivElement>(null);
 
   // Save reading state to sessionStorage whenever it changes (for language switch persistence)
@@ -150,6 +209,26 @@ function ReadingContent() {
     setReadingComplete(false);
     setSaved(false);
   };
+
+  const handleCopyReading = useCallback(async () => {
+    const positionsList = getPositions(currentSpread, locale);
+    const text = buildCopyText(cards, selectedSpread, positionsList, locale);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [cards, selectedSpread, currentSpread, locale]);
 
   const handleCardClick = (index: number) => {
     if (flippedCards.includes(index)) {
@@ -331,13 +410,18 @@ function ReadingContent() {
         )}
 
         {/* Actions */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4 }}>
-          <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => { startNewReading(); setSaved(false); setShowIntentionPrompt(false); }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, flexWrap: 'wrap' }}>
+          <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => { startNewReading(); setSaved(false); setCopied(false); setShowIntentionPrompt(false); }}>
             {t('newReading')}
           </Button>
           {readingComplete && !saved && (
             <Button variant="outlined" startIcon={<SaveIcon />} onClick={() => { setShowIntentionPrompt(true); setTimeout(() => { intentionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); }}>
               {t('saveToJournal')}
+            </Button>
+          )}
+          {readingComplete && (
+            <Button variant="outlined" startIcon={<ContentCopyIcon />} onClick={handleCopyReading}>
+              {copied ? t('copied') : t('copyReading')}
             </Button>
           )}
           {saved && (
@@ -346,6 +430,95 @@ function ReadingContent() {
             </Typography>
           )}
         </Box>
+
+        {/* Key Takeaway + Reflection + Go Deeper — shown after reading completes */}
+        <AnimatePresence>
+          {readingComplete && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
+              {/* Key Takeaway */}
+              <Box sx={{ mt: 4, p: 2.5, border: '1px solid', borderColor: 'primary.dark', bgcolor: 'background.paper', textAlign: 'center' }}>
+                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'primary.main', letterSpacing: '0.12em', mb: 1.5 }}>
+                  {t('keyTakeaway')} ————————
+                </Typography>
+                <Typography variant="body1" sx={{ color: 'text.primary', fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: { xs: '1rem', md: '1.15rem' }, lineHeight: 1.8, fontStyle: 'italic' }}>
+                  {renderBoldText(getKeyTakeaway(cards, selectedSpread, locale))}
+                </Typography>
+              </Box>
+
+              {/* Reflection Prompts */}
+              {(() => {
+                const reflections = getReadingReflections(cards, locale);
+                if (reflections.length === 0) return null;
+                return (
+                  <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider' }}>
+                    <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 2 }}>
+                      {t('reflectOn')} ————————
+                    </Typography>
+                    {reflections.map((q, i) => (
+                      <Box key={i} sx={{ mb: 1.5, pl: 1.5, borderLeft: '2px solid', borderLeftColor: 'primary.dark' }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+                          {q}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                );
+              })()}
+
+              {/* Go Deeper */}
+              <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider' }}>
+                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 2 }}>
+                  {t('goDeeper')} ————————
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {selectedSpread !== 'threeCard' && (
+                    <Box component="button" onClick={() => { setSelectedSpread('threeCard'); startNewReading('threeCard'); }}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', textAlign: 'left', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
+                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
+                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
+                        {t('tryThreeCard')}
+                      </Typography>
+                    </Box>
+                  )}
+                  {selectedSpread !== 'love' && (
+                    <Box component="button" onClick={() => { setSelectedSpread('love'); startNewReading('love'); }}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', textAlign: 'left', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
+                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
+                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
+                        {t('tryLove')}
+                      </Typography>
+                    </Box>
+                  )}
+                  {selectedSpread !== 'celticCross' && (
+                    <Box component="button" onClick={() => { setSelectedSpread('celticCross'); startNewReading('celticCross'); }}
+                      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', textAlign: 'left', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
+                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
+                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
+                        {t('tryCelticCross')}
+                      </Typography>
+                    </Box>
+                  )}
+                  <Link href={`/${locale}/daily`} style={{ textDecoration: 'none' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
+                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
+                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
+                        {t('tryDaily')}
+                      </Typography>
+                    </Box>
+                  </Link>
+                  <Link href={`/${locale}/journal`} style={{ textDecoration: 'none' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
+                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
+                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
+                        {t('viewJournal')}
+                      </Typography>
+                    </Box>
+                  </Link>
+                </Box>
+              </Box>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Intention prompt */}
         <AnimatePresence>

@@ -265,6 +265,68 @@ export function detectPatterns(cards: DrawnCard[]): PatternResult {
   return { reversalRatio, patternNote };
 }
 
+interface PairInsight {
+  en: string;
+  zh: string;
+}
+
+// Keys are always `${smallerId}-${largerId}` to be order-independent.
+const ICONIC_PAIRS: Record<string, PairInsight> = {
+  '16-17': { // Tower + Star
+    en: 'Disruption and hope appear side by side — what breaks open here makes space for something truer.',
+    zh: '動盪與希望並肩出現——此處的破裂為更真實的事物騰出了空間。',
+  },
+  '6-15': { // Lovers + Devil
+    en: 'Bondage and choice face each other — this reading hinges on what you are willing to release.',
+    zh: '束縛與選擇相對而立——這次解讀的關鍵在於你願意放下什麼。',
+  },
+  '13-21': { // Death + World
+    en: 'An ending and a completion appear together — a full cycle closes, and wholeness is within reach.',
+    zh: '結束與圓滿同時出現——一個完整的循環結束，圓滿就在眼前。',
+  },
+  '2-18': { // High Priestess + Moon
+    en: 'Two cards of hidden truth align — what you seek is already known to you beneath the surface.',
+    zh: '兩張隱藏真相的牌相互呼應——你所尋找的，在內心深處早已知曉。',
+  },
+  '0-10': { // Fool + Wheel of Fortune
+    en: 'A leap of faith meets a turning cycle — timing and trust are everything here.',
+    zh: '信念的躍進遇上輪迴的轉動——時機與信任在此至關重要。',
+  },
+  '20-21': { // Judgment + World
+    en: 'Awakening and completion in the same breath — you stand at the threshold of something fully realized.',
+    zh: '覺醒與圓滿同時出現——你站在某件完全實現之事的門檻上。',
+  },
+  '13-17': { // Death + Star
+    en: 'Transformation followed by renewal — what is released here becomes the fertile ground for hope.',
+    zh: '轉化之後是更新——此處釋放的事物成為希望的沃土。',
+  },
+  '15-16': { // Devil + Tower
+    en: 'Shadow and disruption collide — what has been suppressed is now breaking through, whether invited or not.',
+    zh: '陰影與動盪碰撞——被壓抑的事物正在破土而出，無論你是否準備好。',
+  },
+  '19-21': { // Sun + World
+    en: 'Radiant joy and wholeness together — this is the reading of someone arriving at where they were always heading.',
+    zh: '燦爛的喜悅與圓滿同在——這是一個人抵達他們一直前往之處的解讀。',
+  },
+  '7-8': { // Chariot + Strength
+    en: 'Outer drive meets inner courage — lasting progress here requires both force of will and compassion.',
+    zh: '外在驅動力遇上內在勇氣——持久的進步需要意志力與慈悲心並行。',
+  },
+  '9-18': { // Hermit + Moon
+    en: 'Deep solitude and the unconscious — a powerful call to sit with what is unresolved rather than push forward.',
+    zh: '深度獨處與潛意識——強烈呼喚你靜坐於未解決的事物中，而非急於前進。',
+  },
+  '0-16': { // Fool + Tower
+    en: 'Reckless beginnings meet sudden upheaval — the ground shifts beneath an unprepared leap.',
+    zh: '魯莽的開始遇上突然的動盪——未準備好的躍進下，腳下的地面正在動搖。',
+  },
+};
+
+export function detectIconicPair(a: DrawnCard, b: DrawnCard): PairInsight | null {
+  const key = `${Math.min(a.card.id, b.card.id)}-${Math.max(a.card.id, b.card.id)}`;
+  return ICONIC_PAIRS[key] ?? null;
+}
+
 export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey): SpreadSummary | null {
   const getMeaning = (cardData: DrawnCard): CardMeaning => {
     return cardData.isReversed ? cardData.card.reversed : cardData.card.upright;

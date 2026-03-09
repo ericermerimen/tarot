@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateReadingSummary, detectTheme, detectPatterns } from '@/utils/readingSummary';
+import { generateReadingSummary, detectTheme, detectPatterns, detectIconicPair } from '@/utils/readingSummary';
 import { tarotCards } from '@/data/tarotCards';
 import type { DrawnCard } from '@/types/tarot';
 
@@ -106,5 +106,36 @@ describe('detectPatterns', () => {
     const note = detectPatterns(cards).patternNote;
     expect(note).not.toBeNull();
     expect(note!.en.toLowerCase()).toContain('inward');
+  });
+});
+
+describe('detectIconicPair', () => {
+  it('returns insight for Tower + Star pair', () => {
+    const result = detectIconicPair(makeCard(16), makeCard(17));
+    expect(result).not.toBeNull();
+    expect(result!.en).toContain('breaks open');
+    expect(result!.zh.length).toBeGreaterThan(0);
+  });
+
+  it('returns the same insight regardless of card order', () => {
+    const ab = detectIconicPair(makeCard(16), makeCard(17));
+    const ba = detectIconicPair(makeCard(17), makeCard(16));
+    expect(ab).toEqual(ba);
+  });
+
+  it('returns null for non-iconic pair', () => {
+    const result = detectIconicPair(makeCard(0), makeCard(4));
+    expect(result).toBeNull();
+  });
+
+  it('returns insight for Devil + Lovers pair', () => {
+    const result = detectIconicPair(makeCard(15), makeCard(6));
+    expect(result).not.toBeNull();
+    expect(result!.en.toLowerCase()).toContain('release');
+  });
+
+  it('returns insight for Death + World pair', () => {
+    const result = detectIconicPair(makeCard(13), makeCard(21));
+    expect(result).not.toBeNull();
   });
 });

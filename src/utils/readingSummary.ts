@@ -188,15 +188,17 @@ const KEYWORD_THEME_MAP: Record<string, ThemeBucket> = {
   'authority': 'achievement',
   'structure': 'achievement',
   'stability': 'achievement',
-  'control': 'achievement',
   'determination': 'achievement',
   'success': 'achievement',
-  'positivity': 'achievement',
-  'vitality': 'achievement',
-  'joy': 'achievement',
-  'integration': 'achievement',
   'accomplishment': 'achievement',
-  'free will': 'achievement',
+  // moved to growth — these are too generic and bias toward achievement
+  'positivity': 'growth',
+  'vitality': 'growth',
+  'joy': 'growth',
+  'integration': 'growth',
+  // moved to innerJourney
+  'control': 'innerJourney',
+  'free will': 'innerJourney',
   // love & connection
   'love': 'loveConnection',
   'harmony': 'loveConnection',
@@ -329,24 +331,80 @@ export function detectIconicPair(a: DrawnCard, b: DrawnCard): PairInsight | null
   return ICONIC_PAIRS[key] ?? null;
 }
 
-const THEME_ACTION_EN: Record<ThemeBucket, string> = {
-  transformation: 'embrace what is shifting and release what no longer serves',
-  innerJourney: 'turn inward and trust what you already know beneath the surface',
-  struggle: 'face what is difficult with honesty rather than avoidance',
-  growth: 'nurture what is emerging and give it room to expand',
-  achievement: 'step fully into your capability and see what you have already built',
-  loveConnection: 'open your heart and invest genuinely in your connections',
-  guidance: 'seek clarity and align your actions with your deeper values',
+const THEME_ACTION_EN: Record<ThemeBucket, string[]> = {
+  transformation: [
+    'embrace what is shifting and release what no longer serves',
+    'let the old form dissolve — something truer is taking shape',
+    'stop resisting the change that is already happening',
+  ],
+  innerJourney: [
+    'turn inward and trust what you already know beneath the surface',
+    'sit with the questions you have been avoiding — the answers live there',
+    'slow down enough to hear what your deeper self has been trying to say',
+  ],
+  struggle: [
+    'face what is difficult with honesty rather than avoidance',
+    'name the tension clearly — it loses power when it is seen',
+    'resist the urge to escape; the way through is the way forward',
+  ],
+  growth: [
+    'nurture what is emerging and give it room to expand',
+    'trust the pace of what is growing — not everything blooms on demand',
+    'tend to the small signs of progress; they are the roots of something larger',
+  ],
+  achievement: [
+    'step fully into your capability and see what you have already built',
+    'claim the momentum you have earned — hesitation is the only thing in the way',
+    'act from the place of someone who already knows they can do this',
+  ],
+  loveConnection: [
+    'open your heart and invest genuinely in your connections',
+    'be present with the people who matter — that alone changes everything',
+    'let yourself be known; real connection requires that risk',
+  ],
+  guidance: [
+    'seek clarity and align your actions with your deeper values',
+    'ask what you actually believe, then act from that place',
+    'let your values be the compass, not just the comfort',
+  ],
 };
 
-const THEME_ACTION_ZH: Record<ThemeBucket, string> = {
-  transformation: '擁抱正在轉變的事物，釋放不再服務於你的一切',
-  innerJourney: '向內轉，相信你在表面之下早已知曉的一切',
-  struggle: '以誠實而非迴避的態度面對困難',
-  growth: '滋養正在萌發的事物，給予它成長的空間',
-  achievement: '充分展現你的能力，看見你已經建立的一切',
-  loveConnection: '敞開你的心，真誠地投入你的連結',
-  guidance: '尋求清晰，讓你的行動與更深層的價值觀一致',
+const THEME_ACTION_ZH: Record<ThemeBucket, string[]> = {
+  transformation: [
+    '擁抱正在轉變的事物，釋放不再服務於你的一切',
+    '讓舊有的形式消解——更真實的事物正在成形',
+    '停止抗拒那已經在發生的改變',
+  ],
+  innerJourney: [
+    '向內轉，相信你在表面之下早已知曉的一切',
+    '靜坐於你一直在迴避的問題中——答案就住在那裡',
+    '放慢腳步，聆聽你內心深處一直想說的話',
+  ],
+  struggle: [
+    '以誠實而非迴避的態度面對困難',
+    '清晰地命名這份張力——被看見後，它便失去力量',
+    '抗拒逃避的衝動；穿越其中，才是前進之路',
+  ],
+  growth: [
+    '滋養正在萌發的事物，給予它成長的空間',
+    '信任成長的節奏——並非一切都按需開花',
+    '照料那些細小的進步跡象；它們是更大事物的根基',
+  ],
+  achievement: [
+    '充分展現你的能力，看見你已經建立的一切',
+    '承接你已經贏得的動力——猶豫是唯一的障礙',
+    '以一個已知自己能做到的人的姿態行動',
+  ],
+  loveConnection: [
+    '敞開你的心，真誠地投入你的連結',
+    '與那些重要的人同在——光是這一點，就能改變一切',
+    '讓自己被認識；真實的連結需要這份冒險',
+  ],
+  guidance: [
+    '尋求清晰，讓你的行動與更深層的價值觀一致',
+    '問問自己真正相信什麼，然後從那個地方行動',
+    '讓你的價值觀成為指南針，而不只是安慰',
+  ],
 };
 
 const THEME_OPENING_EN: Record<ThemeBucket, string> = {
@@ -369,12 +427,16 @@ const THEME_OPENING_ZH: Record<ThemeBucket, string> = {
   guidance: '牌指向清晰——呼喚審視與重新校準。',
 };
 
-export function buildClosingGuidance(outcomeCard: DrawnCard, theme: ThemeBucket): { en: string; zh: string } {
+export function buildClosingGuidance(outcomeCard: DrawnCard, theme: ThemeBucket, cards: DrawnCard[] = []): { en: string; zh: string } {
   const label = `**${outcomeCard.card.name}${outcomeCard.isReversed ? ' (Reversed)' : ''}**`;
   const labelZh = `**${outcomeCard.card.nameZh}${outcomeCard.isReversed ? ' (逆位)' : ''}**`;
+  const seed = cards.reduce((sum, c) => sum + c.card.id + (c.isReversed ? 100 : 0), outcomeCard.card.id);
+  const actionsEn = THEME_ACTION_EN[theme];
+  const actionsZh = THEME_ACTION_ZH[theme];
+  const idx = seed % actionsEn.length;
   return {
-    en: `${label} closes this reading with an invitation to ${THEME_ACTION_EN[theme]}.`,
-    zh: `${labelZh}以邀請結束這次解讀：${THEME_ACTION_ZH[theme]}。`,
+    en: `${label} closes this reading with an invitation to ${actionsEn[idx]}.`,
+    zh: `${labelZh}以邀請結束這次解讀：${actionsZh[idx]}。`,
   };
 }
 
@@ -402,7 +464,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const theme = detectTheme(cards);
     const { patternNote } = detectPatterns(cards);
     const pairInsight = detectIconicPair(past, present) ?? detectIconicPair(present, future);
-    const closing = buildClosingGuidance(future, theme);
+    const closing = buildClosingGuidance(future, theme, cards);
 
     const summaryParts: string[] = [
       THEME_OPENING_EN[theme],
@@ -445,7 +507,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const theme = detectTheme(cards);
     const { patternNote } = detectPatterns(cards);
     const pairInsight = detectIconicPair(you, partner) ?? detectIconicPair(challenge, outcome);
-    const closing = buildClosingGuidance(outcome, theme);
+    const closing = buildClosingGuidance(outcome, theme, cards);
 
     const summaryParts = [
       `In matters of the heart, ${getCardLabel(you)} reflects how you are showing up in love right now: ${youM.love} Your partner or love interest, represented by ${getCardLabel(partner)}, brings this energy: ${partnerM.love} The connection between you, shaped by ${getCardLabel(connection)}, reveals: ${connectionM.love} The challenge you face together through ${getCardLabel(challenge)}: ${challengeM.love} And the path ahead, carried by ${getCardLabel(outcome)}: ${outcomeM.love}`,
@@ -491,7 +553,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const theme = detectTheme(cards);
     const { patternNote } = detectPatterns(cards);
     const pairInsight = detectIconicPair(present, challenge) ?? detectIconicPair(hopes, outcome);
-    const closing = buildClosingGuidance(outcome, theme);
+    const closing = buildClosingGuidance(outcome, theme, cards);
 
     const narrativeEn = [
       THEME_OPENING_EN[theme],

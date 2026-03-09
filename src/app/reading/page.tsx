@@ -56,6 +56,7 @@ function ReadingContent() {
     setFlippedCards([]);
     setShowMeaning(null);
     setReadingComplete(false);
+    setSaved(false);
   };
 
   const handleCardClick = (index: number) => {

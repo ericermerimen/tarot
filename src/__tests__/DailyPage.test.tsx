@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { ThemeProvider, createTheme } from '@mui/material'
+import { NextIntlClientProvider } from 'next-intl'
 import type { DailyCardStorage } from '@/types/reading'
-import { tarotCards } from '@/data/tarotCards'
 
 // Mock motion/react to avoid animation issues in jsdom
 vi.mock('motion/react', () => ({
@@ -29,15 +29,39 @@ function filterDomProps(props: Record<string, unknown>) {
   return domProps
 }
 
-import DailyCard from '@/app/daily/page'
+import DailyCard from '@/app/[locale]/daily/page'
 
 const theme = createTheme({ palette: { mode: 'dark' } })
 
+const messages = {
+  daily: {
+    header: 'DAILY_READING',
+    tapToReveal: 'TAP_TO_REVEAL',
+    tapToRevealSub: 'Tap to reveal today\'s guidance',
+    drawNew: 'DRAW NEW CARD',
+    upright: '> UPRIGHT',
+    reversed: '> REVERSED',
+    reversedLabel: '(Reversed)',
+    keywords: 'KEYWORDS',
+    advice: '> ADVICE',
+    love: '> LOVE',
+    career: '> CAREER',
+    health: '> HEALTH',
+    reflection: 'REFLECTION',
+    affirmation: '> AFFIRMATION',
+    element: 'ELEMENT',
+    zodiac: 'ZODIAC',
+    num: 'NUM',
+  },
+}
+
 function renderPage() {
   return render(
-    <ThemeProvider theme={theme}>
-      <DailyCard />
-    </ThemeProvider>
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <ThemeProvider theme={theme}>
+        <DailyCard />
+      </ThemeProvider>
+    </NextIntlClientProvider>
   )
 }
 
@@ -63,14 +87,13 @@ describe('Daily Card Page', () => {
   it('restores a stored card if the date matches today', () => {
     const storage: DailyCardStorage = {
       date: new Date().toDateString(),
-      cardId: 17, // The Star
+      cardId: 17,
       isReversed: false,
     }
     localStorage.setItem('dailyCard', JSON.stringify(storage))
 
     renderPage()
 
-    // Should not overwrite with a new card
     const restored: DailyCardStorage = JSON.parse(localStorage.getItem('dailyCard')!)
     expect(restored.cardId).toBe(17)
   })
@@ -88,21 +111,18 @@ describe('Daily Card Page', () => {
 
     renderPage()
 
-    // Should have generated a new card for today
     const restored: DailyCardStorage = JSON.parse(localStorage.getItem('dailyCard')!)
     expect(restored.date).toBe(new Date().toDateString())
   })
 
-  it('renders the page title in both languages', () => {
+  it('renders the page header', () => {
     renderPage()
-    // Page uses a monospace terminal label for the section header
     const titles = screen.getAllByText(/DAILY_READING/)
     expect(titles.length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders a tap-to-reveal prompt before flipping', () => {
     renderPage()
-    // Prompt uses monospace terminal style: TAP_TO_REVEAL
     const prompts = screen.getAllByText(/TAP_TO_REVEAL/)
     expect(prompts.length).toBeGreaterThanOrEqual(1)
   })

@@ -198,3 +198,27 @@ describe('generateReadingSummary — threeCard enhanced', () => {
     expect(result!.summary.length).toBeGreaterThan(100);
   });
 });
+
+describe('generateReadingSummary — love enhanced', () => {
+  const positions = ['You', 'Partner', 'Connection', 'Challenge', 'Outcome'];
+  const positionsZh = ['你', '對方', '連結', '挑戰', '結果'];
+
+  it('uses love meanings not general meanings', () => {
+    const cards = [makeCard(6), makeCard(3), makeCard(2), makeCard(15), makeCard(17)];
+    const result = generateReadingSummary(cards, 'love');
+    expect(result!.summary.toLowerCase()).toMatch(/heart|love|relationship/);
+  });
+
+  it('summaryZh contains Chinese card names', () => {
+    const cards = [makeCard(6), makeCard(3), makeCard(2), makeCard(15), makeCard(17)];
+    const result = generateReadingSummary(cards, 'love');
+    expect(result!.summaryZh).toContain('戀人');
+  });
+
+  it('includes iconic pair callout for Lovers+Devil at You+Partner positions', () => {
+    // Lovers (6) at You, Devil (15) at Partner — iconic pair 6-15
+    const cards = [makeCard(6), makeCard(15), makeCard(2), makeCard(7), makeCard(17)];
+    const result = generateReadingSummary(cards, 'love');
+    expect(result!.summary).toContain('release');
+  });
+});

@@ -441,11 +441,37 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const challengeM = getMeaning(challenge);
     const outcomeM = getMeaning(outcome);
 
+    const theme = detectTheme(cards);
+    const { patternNote } = detectPatterns(cards);
+    const pairInsight = detectIconicPair(you, partner) ?? detectIconicPair(challenge, outcome);
+    const closing = buildClosingGuidance(outcome, theme);
+
+    const summaryParts = [
+      `In matters of the heart, ${getCardLabel(you)} reflects how you are showing up in love right now: ${youM.love} Your partner or love interest, represented by ${getCardLabel(partner)}, brings this energy: ${partnerM.love} The connection between you, shaped by ${getCardLabel(connection)}, reveals: ${connectionM.love} The challenge you face together through ${getCardLabel(challenge)}: ${challengeM.love} And the path ahead, carried by ${getCardLabel(outcome)}: ${outcomeM.love}`,
+    ];
+
+    const summaryPartsZh = [
+      `在感情方面，${getCardLabelZh(you)}反映了你目前在愛情中的狀態：${youM.loveZh}代表對方的${getCardLabelZh(partner)}帶來這樣的能量：${partnerM.loveZh}由${getCardLabelZh(connection)}塑造的連結揭示了：${connectionM.loveZh}你們共同面對的挑戰——${getCardLabelZh(challenge)}：${challengeM.loveZh}而前方的道路，由${getCardLabelZh(outcome)}承載：${outcomeM.loveZh}`,
+    ];
+
+    if (patternNote) {
+      summaryParts.push(patternNote.en);
+      summaryPartsZh.push(patternNote.zh);
+    }
+
+    if (pairInsight) {
+      summaryParts.push(pairInsight.en);
+      summaryPartsZh.push(pairInsight.zh);
+    }
+
+    summaryParts.push(closing.en);
+    summaryPartsZh.push(closing.zh);
+
     return {
       title: 'Your Love Reading',
       titleZh: '你的愛情解讀',
-      summary: `In matters of the heart, ${getCardLabel(you)} in the You position reveals how you're showing up in love right now: ${youM.love} Your partner or love interest, represented by ${getCardLabel(partner)}, brings this energy: ${partnerM.love} The connection between you, shaped by ${getCardLabel(connection)}, speaks to the bond you share: ${connectionM.love} The challenge you face together, ${getCardLabel(challenge)}, points to: ${challengeM.love} Ultimately, ${getCardLabel(outcome)} as the outcome reveals where this love story is headed: ${outcomeM.love} Trust the wisdom of these cards as you navigate your heart's journey.`,
-      summaryZh: `在感情方面，「你」位置的${getCardLabelZh(you)}揭示了你目前在愛情中的狀態：${youM.loveZh}代表對方的${getCardLabelZh(partner)}帶來這樣的能量：${partnerM.loveZh}由${getCardLabelZh(connection)}塑造的連結訴說了你們共同的紐帶：${connectionM.loveZh}你們共同面對的挑戰——${getCardLabelZh(challenge)}，指向：${challengeM.loveZh}最終，${getCardLabelZh(outcome)}作為結果揭示了這段愛情故事的走向：${outcomeM.loveZh}在你的感情旅程中，請相信這些牌的智慧。`,
+      summary: summaryParts.join(' '),
+      summaryZh: summaryPartsZh.join(' '),
     };
   }
 

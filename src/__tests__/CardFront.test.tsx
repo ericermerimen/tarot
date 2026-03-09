@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { NextIntlClientProvider } from 'next-intl'
 import CardFront, { toRomanNumeral } from '@/components/CardFront'
 import type { TarotCardData } from '@/types/tarot'
 
@@ -7,29 +8,38 @@ const mockCard: TarotCardData = {
   id: 0,
   name: 'The Fool',
   nameZh: '愚者',
+  nameJa: '愚者',
   dogBreed: 'Golden Retriever',
   dogBreedZh: '黃金獵犬',
+  dogBreedJa: 'ゴールデンレトリバー',
   element: 'Air',
   zodiac: 'Uranus',
   colors: ['#FFD700', '#87CEEB', '#FFFFFF'],
   keywords: ['beginnings', 'innocence', 'spontaneity'],
   keywordsZh: ['新開始', '純真', '自發性'],
+  keywordsJa: ['始まり', '無邪気', '自発性'],
   numerology: 0,
   upright: {
     meaning: 'New beginnings',
     meaningZh: '新的開始',
+    meaningJa: '新たな始まり',
     love: 'Open heart',
     loveZh: '敞開心扉',
+    loveJa: 'オープンな心',
     career: 'Fresh start',
     careerZh: '新起點',
+    careerJa: '新たなスタート',
   },
   reversed: {
     meaning: 'Recklessness',
     meaningZh: '魯莽',
+    meaningJa: '無謀',
     love: 'Fear',
     loveZh: '害怕',
+    loveJa: '恐れ',
     career: 'Poor planning',
     careerZh: '計劃不周',
+    careerJa: '計画不足',
   },
 }
 
@@ -52,32 +62,34 @@ describe('toRomanNumeral', () => {
   })
 })
 
+function renderWithIntl(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={{}}>
+      {ui}
+    </NextIntlClientProvider>
+  )
+}
+
 describe('CardFront', () => {
   it('renders card name in uppercase', () => {
-    render(<CardFront card={mockCard} isReversed={false} width={180} height={300} />)
+    renderWithIntl(<CardFront card={mockCard} isReversed={false} width={180} height={300} />)
     expect(screen.getByText('THE FOOL')).toBeInTheDocument()
   })
 
-  it('renders Chinese card name', () => {
-    render(<CardFront card={mockCard} isReversed={false} width={180} height={300} />)
-    const matches = screen.getAllByText('愚者')
-    expect(matches.length).toBeGreaterThanOrEqual(1)
-  })
-
   it('renders roman numeral for card id', () => {
-    render(<CardFront card={mockCard} isReversed={false} width={180} height={300} />)
+    renderWithIntl(<CardFront card={mockCard} isReversed={false} width={180} height={300} />)
     const matches = screen.getAllByText('0')
     expect(matches.length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders keywords', () => {
-    render(<CardFront card={mockCard} isReversed={false} width={180} height={300} />)
-    const matches = screen.getAllByText('新開始 · 純真')
-    expect(matches.length).toBeGreaterThanOrEqual(1)
+    renderWithIntl(<CardFront card={mockCard} isReversed={false} width={180} height={300} />)
+    const keywords = screen.getAllByText(/beginnings/)
+    expect(keywords.length).toBeGreaterThanOrEqual(1)
   })
 
   it('applies rotation when reversed', () => {
-    const { container } = render(
+    const { container } = renderWithIntl(
       <CardFront card={mockCard} isReversed={true} width={180} height={300} />
     )
     const wrapper = container.firstElementChild as HTMLElement
@@ -85,7 +97,7 @@ describe('CardFront', () => {
   })
 
   it('does not rotate when upright', () => {
-    const { container } = render(
+    const { container } = renderWithIntl(
       <CardFront card={mockCard} isReversed={false} width={180} height={300} />
     )
     const wrapper = container.firstElementChild as HTMLElement
@@ -95,7 +107,7 @@ describe('CardFront', () => {
   it('renders with different card ids (illustration lookup)', () => {
     for (const id of [0, 5, 10, 15, 21]) {
       const card = { ...mockCard, id, name: `Card ${id}`, nameZh: `牌${id}` }
-      const { container } = render(
+      const { container } = renderWithIntl(
         <CardFront card={card} isReversed={false} width={180} height={300} />
       )
       expect(container.firstElementChild).toBeTruthy()

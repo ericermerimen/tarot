@@ -18,7 +18,8 @@ import { useTranslations } from 'next-intl';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCards, spreadTypes, tarotCards } from '@/data/tarotCards';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
-import { getCardName, getKeywords, getMeaning, getSpreadName, getSpreadDescription, getPositions } from '@/utils/localeCards';
+import type { Locale } from '@/i18n/routing';
+import { getCardName, getKeywords, getMeaning, getSpreadName, getSpreadDescription, getPositions, selectLocaleText } from '@/utils/localeCards';
 import { generateReadingSummary, getPositionalInterpretation } from '@/utils/readingSummary';
 import type { TarotCardData, DrawnCard, SpreadKey } from '@/types/tarot';
 import type { SpreadSummary } from '@/utils/readingSummary';
@@ -69,52 +70,42 @@ function ReadingContent() {
     return () => { document.head.removeChild(style); };
   }, []);
 
-  // Try to restore state from sessionStorage (persisted during language switch)
+  // Load saved state once and share across initializers
+  const savedStateRef = useRef<ReadingState | null>(null);
+  if (savedStateRef.current === null && typeof window !== 'undefined') {
+    const stored = sessionStorage.getItem(READING_STATE_KEY);
+    if (stored) {
+      sessionStorage.removeItem(READING_STATE_KEY);
+      savedStateRef.current = JSON.parse(stored);
+    }
+  }
+
   const [selectedSpread, setSelectedSpread] = useState<SpreadKey>(() => {
-    const saved = loadAndClearReadingState();
-    if (saved) return saved.spread;
-    return initialSpread;
+    return savedStateRef.current?.spread || initialSpread;
   });
 
   const [cards, setCards] = useState<DrawnCard[]>(() => {
-    // Check sessionStorage for restored state
-    if (typeof window !== 'undefined') {
-      const stored = sessionStorage.getItem(READING_STATE_KEY);
-      if (stored) {
-        const saved: ReadingState = JSON.parse(stored);
-        sessionStorage.removeItem(READING_STATE_KEY);
-        return hydrateCards(saved.cards);
-      }
+    if (savedStateRef.current) {
+      return hydrateCards(savedStateRef.current.cards);
     }
     return [];
   });
 
   const [flippedCards, setFlippedCards] = useState<number[]>(() => {
-    // Already consumed above, but check for initial state
-    return [];
+    return savedStateRef.current?.flippedCards || [];
   });
 
   const restoredRef = useRef(false);
 
-  // Handle restoration and initial card draw
+  // Handle initial card draw if no saved state
   useEffect(() => {
     if (restoredRef.current) return;
     restoredRef.current = true;
 
-    if (typeof window !== 'undefined') {
-      const stored = sessionStorage.getItem(READING_STATE_KEY);
-      if (stored) {
-        const saved: ReadingState = JSON.parse(stored);
-        sessionStorage.removeItem(READING_STATE_KEY);
-        const hydrated = hydrateCards(saved.cards);
-        if (hydrated.length > 0) {
-          setSelectedSpread(saved.spread);
-          setCards(hydrated);
-          setFlippedCards(saved.flippedCards);
-          setReadingComplete(saved.readingComplete);
-          return;
-        }
-      }
+    if (savedStateRef.current) {
+      // State was already restored via useState initializers; just set readingComplete
+      setReadingComplete(savedStateRef.current.readingComplete);
+      return;
     }
 
     const currentSpreadDef = spreadTypes[initialSpread] || spreadTypes.single;
@@ -176,11 +167,11 @@ function ReadingContent() {
       const cardData = cards[0];
       const meaning = cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
       const lm = getMeaning(meaning, locale);
-      return { text: lm.meaning, textZh: meaning.meaningZh };
+      return { text: lm.meaning, textZh: meaning.meaningZh, textJa: meaning.meaningJa };
     }
     const spreadSummary = generateReadingSummary(cards, selectedSpread);
     if (spreadSummary) {
-      return { text: spreadSummary.summary, textZh: spreadSummary.summaryZh };
+      return { text: spreadSummary.summary, textZh: spreadSummary.summaryZh, textJa: spreadSummary.summaryJa };
     }
     return undefined;
   };
@@ -435,15 +426,15 @@ interface CardMeaningPanelProps {
   card: TarotCardData;
   isReversed: boolean;
   position: string;
-  locale: string;
+  locale: Locale;
   t: ReturnType<typeof useTranslations>;
 }
 
 function CardMeaningPanel({ card, isReversed, position, locale, t }: CardMeaningPanelProps) {
   const meaning = isReversed ? card.reversed : card.upright;
-  const lm = getMeaning(meaning, locale as any);
-  const cardName = getCardName(card, locale as any);
-  const keywords = getKeywords(card, locale as any);
+  const lm = getMeaning(meaning, locale);
+  const cardName = getCardName(card, locale);
+  const keywords = getKeywords(card, locale);
 
   return (
     <Box sx={{ mt: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
@@ -512,7 +503,7 @@ interface ReadingSummaryPanelProps {
   cards: DrawnCard[];
   spreadType: SpreadKey;
   positions: string[];
-  locale: string;
+  locale: Locale;
   t: ReturnType<typeof useTranslations>;
 }
 
@@ -524,7 +515,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, locale, t }: Readin
     <Box sx={{ mt: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }}>
       <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderBottomColor: 'divider', bgcolor: 'background.paper' }}>
         <Typography sx={{ fontFamily: 'var(--font-display)', fontSize: { xs: '1.2rem', md: '1.5rem' }, fontWeight: 300, color: 'text.primary' }}>
-          {locale === 'zhTW' ? summary.titleZh : summary.title}
+          {selectLocaleText(locale, summary.title, summary.titleZh, summary.titleJa)}
         </Typography>
       </Box>
       <Box sx={{ p: { xs: 2, md: 3 } }}>
@@ -539,7 +530,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, locale, t }: Readin
                   {positions[index]?.toUpperCase()}
                 </Typography>
                 <Typography sx={{ display: 'block', color: 'text.primary', fontFamily: 'var(--font-display)', fontSize: '0.8rem', fontWeight: 300 }}>
-                  {getCardName(cardData.card, locale as any)}{cardData.isReversed ? ` (${t('reversedLabel')})` : ''}
+                  {getCardName(cardData.card, locale)}{cardData.isReversed ? ` (${t('reversedLabel')})` : ''}
                 </Typography>
               </Box>
             ))}
@@ -547,11 +538,11 @@ function ReadingSummaryPanel({ cards, spreadType, positions, locale, t }: Readin
         </Box>
         <Divider sx={{ mb: 2.5, borderColor: 'divider' }} />
         <Typography variant="body1" sx={{ lineHeight: 1.8, mb: 2, color: 'text.primary', whiteSpace: 'pre-line' }}>
-          {renderBoldText(locale === 'zhTW' ? summary.summaryZh : summary.summary)}
+          {renderBoldText(selectLocaleText(locale, summary.summary, summary.summaryZh, summary.summaryJa))}
         </Typography>
         <Box sx={{ borderTop: '1px solid', borderColor: 'primary.dark', pt: 2, mb: 2 }}>
           <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'primary.light', fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: '1rem' }}>
-            {renderBoldText(locale === 'zhTW' ? summary.closingZh : summary.closing)}
+            {renderBoldText(selectLocaleText(locale, summary.closing, summary.closingZh, summary.closingJa))}
           </Typography>
         </Box>
         <Box sx={{ mt: 3 }}>
@@ -568,11 +559,11 @@ function ReadingSummaryPanel({ cards, spreadType, positions, locale, t }: Readin
                       {positions[index]?.toUpperCase()}
                     </Typography>
                     <Typography sx={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', fontWeight: 300, color: 'text.secondary' }}>
-                      {getCardName(cardData.card, locale as any)}{cardData.isReversed ? ` (${t('reversedLabel')})` : ''}
+                      {getCardName(cardData.card, locale)}{cardData.isReversed ? ` (${t('reversedLabel')})` : ''}
                     </Typography>
                   </Box>
                   <Typography variant="body2" sx={{ lineHeight: 1.75, color: 'text.primary' }}>
-                    {locale === 'zhTW' ? interp.textZh : interp.text}
+                    {selectLocaleText(locale, interp.text, interp.textZh, interp.textJa)}
                   </Typography>
                 </Box>
               );

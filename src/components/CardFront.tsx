@@ -4,6 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import CardShaderCanvas from './shaders/CardShaderCanvas';
 import { DogIllustrations, GenericDog } from './cards';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
+import { getCardName, getKeywords } from '@/utils/localeCards';
 import type { TarotCardData } from '@/types/tarot';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -24,7 +26,11 @@ interface CardFrontProps {
 }
 
 export default function CardFront({ card, isReversed, width, height }: CardFrontProps) {
+  const locale = useCurrentLocale();
   if (!card) return null;
+
+  const localizedName = getCardName(card, locale);
+  const localizedKeywords = getKeywords(card, locale);
 
   // Unique SVG filter IDs per card to avoid cross-card conflicts
   const goldId   = `cfGold-${card.id}`;
@@ -114,7 +120,7 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
             </g>
           ))}
 
-          {/* Card name (Chinese) — complements the EN name baked into the image */}
+          {/* Card name (localized) — complements the EN name baked into the image */}
           <text
             x="90" y="276"
             textAnchor="middle"
@@ -123,10 +129,10 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
             fill="#d4b8f0"
             filter={`url(#${shadowId})`}
           >
-            {card.nameZh}
+            {localizedName}
           </text>
 
-          {/* Keywords (Chinese) */}
+          {/* Keywords (localized) */}
           <text
             x="90" y="291"
             textAnchor="middle"
@@ -135,7 +141,7 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
             fill="#c8b8e0"
             opacity="0.9"
           >
-            {card.keywordsZh.slice(0, 2).join(' · ')}
+            {localizedKeywords.slice(0, 2).join(' · ')}
           </text>
         </svg>
       </div>
@@ -265,7 +271,7 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
           {card.name.toUpperCase()}
         </text>
 
-        {/* Card name (Chinese) */}
+        {/* Card name (localized) */}
         <text
           x="90" y="260"
           textAnchor="middle"
@@ -274,10 +280,10 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
           fill="#d4b8f0"
           filter={`url(#${shadowId})`}
         >
-          {card.nameZh}
+          {localizedName}
         </text>
 
-        {/* Keywords */}
+        {/* Keywords (localized) */}
         <text
           x="90" y="276"
           textAnchor="middle"
@@ -286,7 +292,7 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
           fill="#c8b8e0"
           opacity="0.9"
         >
-          {card.keywordsZh.slice(0, 2).join(' · ')}
+          {localizedKeywords.slice(0, 2).join(' · ')}
         </text>
 
         {/* Bottom accent dots */}

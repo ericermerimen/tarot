@@ -5,6 +5,8 @@ export interface SpreadSummary {
   titleZh: string;
   summary: string;
   summaryZh: string;
+  closing: string;
+  closingZh: string;
 }
 
 export function getPositionalInterpretation(
@@ -422,14 +424,13 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
       summaryPartsZh.push(pairInsight.zh);
     }
 
-    summaryParts.push(closing.en);
-    summaryPartsZh.push(closing.zh);
-
     return {
       title: 'Your Timeline Reading',
       titleZh: '你的時間線解讀',
-      summary: summaryParts.join(' '),
-      summaryZh: summaryPartsZh.join(' '),
+      summary: summaryParts.join('\n\n'),
+      summaryZh: summaryPartsZh.join('\n\n'),
+      closing: closing.en,
+      closingZh: closing.zh,
     };
   }
 
@@ -464,14 +465,13 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
       summaryPartsZh.push(pairInsight.zh);
     }
 
-    summaryParts.push(closing.en);
-    summaryPartsZh.push(closing.zh);
-
     return {
       title: 'Your Love Reading',
       titleZh: '你的愛情解讀',
-      summary: summaryParts.join(' '),
-      summaryZh: summaryPartsZh.join(' '),
+      summary: summaryParts.join('\n\n'),
+      summaryZh: summaryPartsZh.join('\n\n'),
+      closing: closing.en,
+      closingZh: closing.zh,
     };
   }
 
@@ -500,7 +500,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
       `Your highest aspirations are reflected by ${getCardLabel(above)} — ${aboveM.meaning.toLowerCase()} While deep in your subconscious, ${getCardLabel(below)} reveals ${belowM.meaning.toLowerCase()}`,
       `For guidance, ${getCardLabel(advice)} advises: ${adviceM.advice ?? adviceM.meaning.toLowerCase()} External influences from ${getCardLabel(external)} suggest ${externalM.meaning.toLowerCase()}`,
       `Your hopes and fears are embodied by ${getCardLabel(hopes)}: ${hopesM.meaning.toLowerCase()} The final outcome, ${getCardLabel(outcome)}, reveals ${outcomeM.meaning.toLowerCase()}`,
-    ].join(' ');
+    ].join('\n\n');
 
     const narrativeZh = [
       THEME_OPENING_ZH[theme],
@@ -509,7 +509,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
       `你最高的願望由${getCardLabelZh(above)}反映——${aboveM.meaningZh}在你的潛意識深處，${getCardLabelZh(below)}揭示了${belowM.meaningZh}`,
       `在指導方面，${getCardLabelZh(advice)}建議：${adviceM.adviceZh ?? adviceM.meaningZh}來自${getCardLabelZh(external)}的外部影響暗示${externalM.meaningZh}`,
       `你的希望與恐懼由${getCardLabelZh(hopes)}體現：${hopesM.meaningZh}最終結果——${getCardLabelZh(outcome)}揭示了${outcomeM.meaningZh}`,
-    ].join(' ');
+    ].join('\n\n');
 
     const finalParts = [narrativeEn];
     const finalPartsZh = [narrativeZh];
@@ -524,14 +524,13 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
       finalPartsZh.push(pairInsight.zh);
     }
 
-    finalParts.push(closing.en);
-    finalPartsZh.push(closing.zh);
-
     return {
       title: 'Your Celtic Cross Reading',
       titleZh: '你的凱爾特十字解讀',
-      summary: finalParts.join(' '),
-      summaryZh: finalPartsZh.join(' '),
+      summary: finalParts.join('\n\n'),
+      summaryZh: finalPartsZh.join('\n\n'),
+      closing: closing.en,
+      closingZh: closing.zh,
     };
   }
 

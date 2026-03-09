@@ -913,6 +913,29 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
           {renderBoldText(summary.summary)}
         </Typography>
 
+        {/* Closing guidance — the actionable takeaway */}
+        <Box
+          sx={{
+            borderTop: '1px solid',
+            borderColor: 'primary.dark',
+            pt: 2,
+            mb: 2,
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{
+              lineHeight: 1.8,
+              color: 'primary.light',
+              fontFamily: 'var(--font-display)',
+              fontWeight: 400,
+              fontSize: '1rem',
+            }}
+          >
+            {renderBoldText(summary.closing)}
+          </Typography>
+        </Box>
+
         <Divider sx={{ my: 2, borderColor: 'divider' }} />
 
         <Typography
@@ -926,6 +949,28 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
         >
           {renderBoldText(summary.summaryZh)}
         </Typography>
+
+        {/* Closing guidance ZH */}
+        <Box
+          sx={{
+            borderTop: '1px solid',
+            borderColor: 'primary.dark',
+            pt: 2,
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{
+              fontFamily: 'var(--font-noto-sans-tc)',
+              lineHeight: 1.8,
+              color: 'primary.light',
+              fontWeight: 500,
+              fontSize: '1rem',
+            }}
+          >
+            {renderBoldText(summary.closingZh)}
+          </Typography>
+        </Box>
 
         {/* Per-card position breakdown */}
         <Box sx={{ mt: 3 }}>

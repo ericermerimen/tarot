@@ -199,6 +199,40 @@ describe('generateReadingSummary — threeCard enhanced', () => {
   });
 });
 
+describe('generateReadingSummary — celticCross enhanced', () => {
+  const positions = ['Present', 'Challenge', 'Past', 'Future', 'Above', 'Below', 'Advice', 'External', 'Hopes/Fears', 'Outcome'];
+  const positionsZh = ['現在', '挑戰', '過去', '未來', '目標', '潛意識', '建議', '外在影響', '希望/恐懼', '結果'];
+
+  it('contains key card names in summary', () => {
+    const cards = Array.from({ length: 10 }, (_, i) => makeCard(i));
+    const result = generateReadingSummary(cards, 'celticCross');
+    expect(result!.summary).toContain('The Fool');
+    expect(result!.summary).toContain('The Magician');
+  });
+
+  it('summaryZh contains Chinese card names', () => {
+    const cards = Array.from({ length: 10 }, (_, i) => makeCard(i));
+    const result = generateReadingSummary(cards, 'celticCross');
+    expect(result!.summaryZh).toContain('愚者');
+  });
+
+  it('includes pattern note when majority reversed', () => {
+    const cards = Array.from({ length: 10 }, (_, i) => makeCard(i, i < 6)); // 6 of 10 reversed
+    const result = generateReadingSummary(cards, 'celticCross');
+    expect(result!.summary).toContain('inward');
+  });
+
+  it('includes iconic pair callout for Moon+High Priestess at Present+Challenge', () => {
+    // Moon (18) at present, High Priestess (2) at challenge — iconic pair 2-18
+    const cards = [
+      makeCard(18), makeCard(2), makeCard(0), makeCard(1),
+      makeCard(3), makeCard(4), makeCard(5), makeCard(6), makeCard(7), makeCard(8)
+    ];
+    const result = generateReadingSummary(cards, 'celticCross');
+    expect(result!.summary).toContain('already known');
+  });
+});
+
 describe('generateReadingSummary — love enhanced', () => {
   const positions = ['You', 'Partner', 'Connection', 'Challenge', 'Outcome'];
   const positionsZh = ['你', '對方', '連結', '挑戰', '結果'];

@@ -488,19 +488,70 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const hopesM = getMeaning(hopes);
     const outcomeM = getMeaning(outcome);
 
+    const theme = detectTheme(cards);
+    const { patternNote } = detectPatterns(cards);
+    const pairInsight = detectIconicPair(present, challenge) ?? detectIconicPair(hopes, outcome);
+    const closing = buildClosingGuidance(outcome, theme);
+
+    const THEME_OPENING_EN: Record<ThemeBucket, string> = {
+      transformation: 'This reading is marked by transformation — change is not coming, it is already here.',
+      innerJourney: 'The cards are pulling inward, asking you to examine what lies beneath the surface.',
+      struggle: 'There is friction running through this reading — forces in tension that demand honest attention.',
+      growth: 'An energy of expansion and possibility runs through your cards.',
+      achievement: 'The cards reflect a moment of momentum — capability meeting opportunity.',
+      loveConnection: 'Connection is the thread that binds this reading.',
+      guidance: 'The cards point toward clarity — a call to examine and realign.',
+    };
+
+    const THEME_OPENING_ZH: Record<ThemeBucket, string> = {
+      transformation: '這次解讀以轉變為標誌——變化不是即將到來，它已經在這裡了。',
+      innerJourney: '牌正在向內引導，要求你審視表面之下的一切。',
+      struggle: '這次解讀中貫穿著摩擦——緊張的力量需要誠實的關注。',
+      growth: '你的牌中流淌著擴展與可能性的能量。',
+      achievement: '牌反映了一個動力時刻——能力與機會的相遇。',
+      loveConnection: '連結是貫穿這次解讀的主線。',
+      guidance: '牌指向清晰——呼喚審視與重新校準。',
+    };
+
+    const narrativeEn = [
+      THEME_OPENING_EN[theme],
+      `At the heart of your reading, ${getCardLabel(present)} defines your current situation — ${presentM.meaning.toLowerCase()} Crossing this is ${getCardLabel(challenge)}, representing the immediate force you must face: ${challengeM.meaning.toLowerCase()}`,
+      `Your foundation in the recent past, ${getCardLabel(past)}, speaks of ${pastM.meaning.toLowerCase()} The near future brings ${getCardLabel(future)}: ${futureM.meaning.toLowerCase()}`,
+      `Your highest aspirations are reflected by ${getCardLabel(above)} — ${aboveM.meaning.toLowerCase()} While deep in your subconscious, ${getCardLabel(below)} reveals ${belowM.meaning.toLowerCase()}`,
+      `For guidance, ${getCardLabel(advice)} advises: ${adviceM.advice ?? adviceM.meaning.toLowerCase()} External influences from ${getCardLabel(external)} suggest ${externalM.meaning.toLowerCase()}`,
+      `Your hopes and fears are embodied by ${getCardLabel(hopes)}: ${hopesM.meaning.toLowerCase()} The final outcome, ${getCardLabel(outcome)}, reveals ${outcomeM.meaning.toLowerCase()}`,
+    ].join(' ');
+
+    const narrativeZh = [
+      THEME_OPENING_ZH[theme],
+      `在你的解讀核心，${getCardLabelZh(present)}定義了你的當前處境——${presentM.meaningZh}與之交叉的是${getCardLabelZh(challenge)}，代表你必須面對的直接力量：${challengeM.meaningZh}`,
+      `你近期過去的根基，${getCardLabelZh(past)}，訴說著${pastM.meaningZh}近期的未來帶來${getCardLabelZh(future)}：${futureM.meaningZh}`,
+      `你最高的願望由${getCardLabelZh(above)}反映——${aboveM.meaningZh}在你的潛意識深處，${getCardLabelZh(below)}揭示了${belowM.meaningZh}`,
+      `在指導方面，${getCardLabelZh(advice)}建議：${adviceM.adviceZh ?? adviceM.meaningZh}來自${getCardLabelZh(external)}的外部影響暗示${externalM.meaningZh}`,
+      `你的希望與恐懼由${getCardLabelZh(hopes)}體現：${hopesM.meaningZh}最終結果——${getCardLabelZh(outcome)}揭示了${outcomeM.meaningZh}`,
+    ].join(' ');
+
+    const finalParts = [narrativeEn];
+    const finalPartsZh = [narrativeZh];
+
+    if (patternNote) {
+      finalParts.push(patternNote.en);
+      finalPartsZh.push(patternNote.zh);
+    }
+
+    if (pairInsight) {
+      finalParts.push(pairInsight.en);
+      finalPartsZh.push(pairInsight.zh);
+    }
+
+    finalParts.push(closing.en);
+    finalPartsZh.push(closing.zh);
+
     return {
       title: 'Your Celtic Cross Reading',
       titleZh: '你的凱爾特十字解讀',
-      summary: `At the heart of your reading, ${getCardLabel(present)} defines your current situation — ${presentM.meaning.toLowerCase()} Crossing this is ${getCardLabel(challenge)}, representing the challenge you must face: ${challengeM.meaning.toLowerCase()} Your foundation in the past, ${getCardLabel(past)}, tells of ${pastM.meaning.toLowerCase()} The near future brings ${getCardLabel(future)}: ${futureM.meaning.toLowerCase()}
-
-Your highest aspirations are reflected by ${getCardLabel(above)} — ${aboveM.meaning.toLowerCase()} While deep in your subconscious, ${getCardLabel(below)} reveals ${belowM.meaning.toLowerCase()} For guidance, ${getCardLabel(advice)} advises that ${adviceM.meaning.toLowerCase()} External influences from ${getCardLabel(external)} suggest ${externalM.meaning.toLowerCase()}
-
-Your hopes and fears are embodied by ${getCardLabel(hopes)}: ${hopesM.meaning.toLowerCase()} The final outcome, ${getCardLabel(outcome)}, reveals ${outcomeM.meaning.toLowerCase()} Take these insights as a compass for your journey ahead.`,
-      summaryZh: `在你的解讀核心，${getCardLabelZh(present)}定義了你的當前處境——${presentM.meaningZh}與之交叉的是${getCardLabelZh(challenge)}，代表你必須面對的挑戰：${challengeM.meaningZh}你過去的根基——${getCardLabelZh(past)}，訴說著${pastM.meaningZh}近期的未來帶來${getCardLabelZh(future)}：${futureM.meaningZh}
-
-你最高的願望由${getCardLabelZh(above)}反映——${aboveM.meaningZh}在你的潛意識深處，${getCardLabelZh(below)}揭示了${belowM.meaningZh}在指導方面，${getCardLabelZh(advice)}建議${adviceM.meaningZh}來自${getCardLabelZh(external)}的外部影響暗示${externalM.meaningZh}
-
-你的希望與恐懼由${getCardLabelZh(hopes)}體現：${hopesM.meaningZh}最終結果——${getCardLabelZh(outcome)}揭示了${outcomeM.meaningZh}將這些洞見作為你前路的指南針。`,
+      summary: finalParts.join(' '),
+      summaryZh: finalPartsZh.join(' '),
     };
   }
 

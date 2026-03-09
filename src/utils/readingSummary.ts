@@ -1,4 +1,4 @@
-import type { DrawnCard, CardMeaning } from '@/types/tarot';
+import type { DrawnCard, CardMeaning, SpreadKey } from '@/types/tarot';
 
 export interface SpreadSummary {
   title: string;
@@ -10,7 +10,7 @@ export interface SpreadSummary {
 export function getPositionalInterpretation(
   cardData: DrawnCard,
   position: string,
-  spreadType: string
+  spreadType: SpreadKey
 ): { text: string; textZh: string } {
   const meaning = cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
   const name = cardData.card.name;
@@ -120,7 +120,7 @@ export function getPositionalInterpretation(
   return { text: meaning.meaning, textZh: meaning.meaningZh };
 }
 
-export function generateReadingSummary(cards: DrawnCard[], spreadType: string, positions: string[], positionsZh: string[]): SpreadSummary | null {
+export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey): SpreadSummary | null {
   const getMeaning = (cardData: DrawnCard): CardMeaning => {
     return cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
   };
@@ -145,7 +145,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: string, p
       title: 'Your Timeline Reading',
       titleZh: '你的時間線解讀',
       summary: `Your past, shaped by ${getCardLabel(past)}, speaks of ${pastM.meaning.toLowerCase()} This energy has led you to your present moment, where ${getCardLabel(present)} reveals that ${presentM.meaning.toLowerCase()} Looking ahead, ${getCardLabel(future)} illuminates your path forward: ${futureM.meaning.toLowerCase()} The journey from ${past.card.keywords[0]} through ${present.card.keywords[0]} toward ${future.card.keywords[0]} suggests a meaningful progression unfolding in your life.`,
-      summaryZh: `你的過去由${getCardLabelZh(past)}塑造，暗示著${pastM.meaningZh}這股能量引領你來到當下，${getCardLabelZh(present)}揭示了${presentM.meaningZh}展望未來，${getCardLabelZh(future)}照亮了你前進的道路：${futureM.meaningZh}從「${past.card.keywordsZh?.[0] || past.card.keywords[0]}」經過「${present.card.keywordsZh?.[0] || present.card.keywords[0]}」走向「${future.card.keywordsZh?.[0] || future.card.keywords[0]}」，暗示著你生命中正在展開一段有意義的進程。`,
+      summaryZh: `你的過去由${getCardLabelZh(past)}塑造，暗示著${pastM.meaningZh}這股能量引領你來到當下，${getCardLabelZh(present)}揭示了${presentM.meaningZh}展望未來，${getCardLabelZh(future)}照亮了你前進的道路：${futureM.meaningZh}從「${past.card.keywordsZh[0] || past.card.keywords[0]}」經過「${present.card.keywordsZh[0] || present.card.keywords[0]}」走向「${future.card.keywordsZh[0] || future.card.keywords[0]}」，暗示著你生命中正在展開一段有意義的進程。`,
     };
   }
 

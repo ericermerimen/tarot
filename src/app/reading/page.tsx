@@ -83,9 +83,7 @@ function ReadingContent() {
       const meaning = cardData.isReversed ? cardData.card.reversed : cardData.card.upright;
       return { text: meaning.meaning, textZh: meaning.meaningZh };
     }
-    const spreadSummary = generateReadingSummary(
-      cards, selectedSpread, currentSpread.positions, currentSpread.positionsZh
-    );
+    const spreadSummary = generateReadingSummary(cards, selectedSpread);
     if (spreadSummary) {
       return { text: spreadSummary.summary, textZh: spreadSummary.summaryZh };
     }
@@ -800,13 +798,13 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
 
 interface ReadingSummaryPanelProps {
   cards: DrawnCard[];
-  spreadType: string;
+  spreadType: SpreadKey;
   positions: string[];
   positionsZh: string[];
 }
 
 function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: ReadingSummaryPanelProps) {
-  const summary: SpreadSummary | null = generateReadingSummary(cards, spreadType, positions, positionsZh);
+  const summary: SpreadSummary | null = generateReadingSummary(cards, spreadType);
   if (!summary) return null;
 
   return (

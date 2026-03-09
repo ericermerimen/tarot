@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateReadingSummary, detectTheme, detectPatterns, detectIconicPair } from '@/utils/readingSummary';
+import { generateReadingSummary, detectTheme, detectPatterns, detectIconicPair, buildClosingGuidance } from '@/utils/readingSummary';
 import { tarotCards } from '@/data/tarotCards';
 import type { DrawnCard } from '@/types/tarot';
 
@@ -137,5 +137,26 @@ describe('detectIconicPair', () => {
   it('returns insight for Death + World pair', () => {
     const result = detectIconicPair(makeCard(13), makeCard(21));
     expect(result).not.toBeNull();
+  });
+});
+
+describe('buildClosingGuidance', () => {
+  it('returns bilingual closing for transformation theme', () => {
+    const result = buildClosingGuidance(makeCard(17), 'transformation'); // The Star
+    expect(result.en).toContain('The Star');
+    expect(result.en.toLowerCase()).toContain('release');
+    expect(result.zh).toContain('星星');
+  });
+
+  it('returns bilingual closing for achievement theme', () => {
+    const result = buildClosingGuidance(makeCard(21), 'achievement'); // The World
+    expect(result.en).toContain('The World');
+    expect(result.zh.length).toBeGreaterThan(0);
+  });
+
+  it('works for a reversed outcome card', () => {
+    const result = buildClosingGuidance(makeCard(16, true), 'struggle'); // Tower reversed
+    expect(result.en).toContain('The Tower (Reversed)');
+    expect(result.zh).toContain('逆位');
   });
 });

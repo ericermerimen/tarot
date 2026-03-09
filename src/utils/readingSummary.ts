@@ -327,6 +327,35 @@ export function detectIconicPair(a: DrawnCard, b: DrawnCard): PairInsight | null
   return ICONIC_PAIRS[key] ?? null;
 }
 
+const THEME_ACTION_EN: Record<ThemeBucket, string> = {
+  transformation: 'embrace what is shifting and release what no longer serves',
+  innerJourney: 'turn inward and trust what you already know beneath the surface',
+  struggle: 'face what is difficult with honesty rather than avoidance',
+  growth: 'nurture what is emerging and give it room to expand',
+  achievement: 'step fully into your capability and see what you have already built',
+  loveConnection: 'open your heart and invest genuinely in your connections',
+  guidance: 'seek clarity and align your actions with your deeper values',
+};
+
+const THEME_ACTION_ZH: Record<ThemeBucket, string> = {
+  transformation: '擁抱正在轉變的事物，釋放不再服務於你的一切',
+  innerJourney: '向內轉，相信你在表面之下早已知曉的一切',
+  struggle: '以誠實而非迴避的態度面對困難',
+  growth: '滋養正在萌發的事物，給予它成長的空間',
+  achievement: '充分展現你的能力，看見你已經建立的一切',
+  loveConnection: '敞開你的心，真誠地投入你的連結',
+  guidance: '尋求清晰，讓你的行動與更深層的價值觀一致',
+};
+
+export function buildClosingGuidance(outcomeCard: DrawnCard, theme: ThemeBucket): { en: string; zh: string } {
+  const label = outcomeCard.card.name + (outcomeCard.isReversed ? ' (Reversed)' : '');
+  const labelZh = outcomeCard.card.nameZh + (outcomeCard.isReversed ? ' (逆位)' : '');
+  return {
+    en: `${label} closes this reading with an invitation to ${THEME_ACTION_EN[theme]}.`,
+    zh: `${labelZh}以邀請結束這次解讀：${THEME_ACTION_ZH[theme]}。`,
+  };
+}
+
 export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey): SpreadSummary | null {
   const getMeaning = (cardData: DrawnCard): CardMeaning => {
     return cardData.isReversed ? cardData.card.reversed : cardData.card.upright;

@@ -335,7 +335,7 @@ const THEME_ACTION_EN: Record<ThemeBucket, string[]> = {
   transformation: [
     'embrace what is shifting and release what no longer serves',
     'let the old form dissolve — something truer is taking shape',
-    'stop resisting the change that is already happening',
+    'release your grip on what was, and stop resisting the change that is already happening',
   ],
   innerJourney: [
     'turn inward and trust what you already know beneath the surface',
@@ -373,7 +373,7 @@ const THEME_ACTION_ZH: Record<ThemeBucket, string[]> = {
   transformation: [
     '擁抱正在轉變的事物，釋放不再服務於你的一切',
     '讓舊有的形式消解——更真實的事物正在成形',
-    '停止抗拒那已經在發生的改變',
+    '放開對舊有事物的執念，停止抗拒那已經在發生的改變',
   ],
   innerJourney: [
     '向內轉，相信你在表面之下早已知曉的一切',

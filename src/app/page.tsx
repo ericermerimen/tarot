@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import {
   Box,
   Container,
   Typography,
   Button,
+  Skeleton,
 } from '@mui/material';
 import { motion } from 'motion/react';
 import TarotCard from '@/components/TarotCard';
@@ -55,12 +56,11 @@ function pickRandomCards(count: number) {
   return [...tarotCards].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
-export default function Home() {
-  const [featuredCards, setFeaturedCards] = useState(() => [tarotCards[0], tarotCards[10], tarotCards[21]]);
+const subscribe = () => () => {};
 
-  useEffect(() => {
-    setFeaturedCards(pickRandomCards(3));
-  }, []);
+export default function Home() {
+  const isClient = useSyncExternalStore(subscribe, () => true, () => false);
+  const [randomCards] = useState(() => pickRandomCards(3));
 
   return (
     <Box sx={{ minHeight: '100vh', pb: { xs: 4, md: 8 }, bgcolor: 'background.default' }}>
@@ -254,22 +254,36 @@ export default function Home() {
                 scrollbarWidth: 'none',
               }}
             >
-              {featuredCards.map((card, index) => (
-                <motion.div
-                  key={card.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 + index * 0.15 }}
-                  style={{ flexShrink: 0, scrollSnapAlign: 'center' }}
-                >
-                  <TarotCard
-                    card={card}
-                    isFlipped={true}
-                    size="small"
-                    disabled
-                  />
-                </motion.div>
-              ))}
+              {!isClient
+                ? [0, 1, 2].map((i) => (
+                    <Box key={i} sx={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Skeleton
+                        variant="rounded"
+                        width={120}
+                        height={200}
+                        sx={{ borderRadius: '12px', bgcolor: 'rgba(255,255,255,0.06)' }}
+                      />
+                      <Skeleton width={70} height={16} sx={{ mt: 1.5, bgcolor: 'rgba(255,255,255,0.06)' }} />
+                      <Skeleton width={50} height={14} sx={{ mt: 0.5, bgcolor: 'rgba(255,255,255,0.04)' }} />
+                    </Box>
+                  ))
+                : randomCards.map((card, index) => (
+                    <motion.div
+                      key={card.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.5 + index * 0.15 }}
+                      style={{ flexShrink: 0, scrollSnapAlign: 'center' }}
+                    >
+                      <TarotCard
+                        card={card}
+                        isFlipped={true}
+                        size="small"
+                        disabled
+                      />
+                    </motion.div>
+                  ))
+              }
             </Box>
           </motion.div>
         </Box>

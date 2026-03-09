@@ -80,6 +80,13 @@
     "keywords": "關鍵詞",
     "cardBreakdown": "牌卡解析",
     "cards": "牌卡",
+    "intentPhaseTitle": "設定你的意圖",
+    "intentPhaseDesc": "深呼吸。在牌被抽出之前，將你的心念集中在你所尋求的事物上。什麼問題或生活領域正在呼喚你去探索？",
+    "intentNotePlaceholder": "你的問題是什麼？（選填）",
+    "drawCards": "抽牌",
+    "yourQuestion": "你的問題",
+    "dailyCardEcho": "你的每日牌 {cardName} 在「{position}」位置再次出現",
+    "affirmation": "> 肯定語",
     "copyReading": "複製占卜結果",
     "copied": "已複製 ✓",
     "keyTakeaway": "核心訊息",
@@ -91,9 +98,9 @@
     "trySingle": "抽取單牌，獲得快速指引",
     "tryDaily": "查看你的每日一牌",
     "viewJournal": "在日記中回顧過去的占卜記錄",
-    "love": "> 感情",
-    "advice": "> 建議",
-    "health": "> 健康"
+    "sectionLove": "感情",
+    "sectionAdvice": "建議",
+    "sectionHealth": "健康"
   },
   "gallery": {
     "header": "牌卡圖鑑",

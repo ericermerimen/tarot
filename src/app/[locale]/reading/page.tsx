@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import { motion, AnimatePresence } from 'motion/react';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import SaveIcon from '@mui/icons-material/Save';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import { useTranslations } from 'next-intl';
@@ -22,11 +21,12 @@ import TarotCard from '@/components/TarotCard';
 import { getRandomCards, spreadTypes, tarotCards } from '@/data/tarotCards';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import type { Locale } from '@/i18n/routing';
-import { getCardName, getKeywords, getMeaning, getSpreadName, getSpreadDescription, getPositions, selectLocaleText, getReflectionQuestions } from '@/utils/localeCards';
+import { getCardName, getKeywords, getMeaning, getSpreadName, getSpreadDescription, getPositions, selectLocaleText, getReflectionQuestions, getAffirmation } from '@/utils/localeCards';
 import { generateReadingSummary, getPositionalInterpretation, detectTheme, buildClosingGuidance } from '@/utils/readingSummary';
 import type { TarotCardData, DrawnCard, SpreadKey } from '@/types/tarot';
 import type { SpreadSummary } from '@/utils/readingSummary';
 import type { ReadingRecord, IntentionTag } from '@/types/reading';
+import type { DailyCardStorage } from '@/types/reading';
 
 const READING_STATE_KEY = 'tarotReadingState';
 
@@ -35,6 +35,8 @@ interface ReadingState {
   cards: { cardId: number; isReversed: boolean }[];
   flippedCards: number[];
   readingComplete: boolean;
+  intentionTag?: IntentionTag;
+  intentionNote?: string;
 }
 
 function saveReadingState(state: ReadingState) {
@@ -61,14 +63,12 @@ function hydrateCards(saved: { cardId: number; isReversed: boolean }[]): DrawnCa
 }
 
 function getKeyTakeaway(cards: DrawnCard[], spreadType: SpreadKey, locale: Locale): string {
-  // For single card, use the advice field if available, otherwise the meaning
   if (spreadType === 'single' && cards.length > 0) {
     const meaning = cards[0].isReversed ? cards[0].card.reversed : cards[0].card.upright;
     const advice = selectLocaleText(locale, meaning.advice || '', meaning.adviceZh || '', meaning.adviceJa || '');
     const mainMeaning = selectLocaleText(locale, meaning.meaning, meaning.meaningZh, meaning.meaningJa);
     return advice || mainMeaning;
   }
-  // For multi-card, use the closing guidance (theme-based action)
   const outcomeCard = cards[cards.length - 1];
   const theme = detectTheme(cards);
   const closing = buildClosingGuidance(outcomeCard, theme, cards);
@@ -80,12 +80,26 @@ function getReadingReflections(cards: DrawnCard[], locale: Locale): string[] {
   for (const drawn of cards) {
     const cardQuestions = getReflectionQuestions(drawn.card, locale);
     if (cardQuestions && cardQuestions.length > 0) {
-      // Pick one question per card (based on card id for consistency)
       questions.push(cardQuestions[drawn.card.id % cardQuestions.length]);
     }
     if (questions.length >= 3) break;
   }
   return questions;
+}
+
+function getReadingAffirmation(cards: DrawnCard[], locale: Locale): string | undefined {
+  // Pick affirmation from the last card (outcome/future/guidance card)
+  const outcomeCard = cards[cards.length - 1];
+  return getAffirmation(outcomeCard.card, locale);
+}
+
+function getDailyCardFromStorage(): { cardId: number; isReversed: boolean } | null {
+  if (typeof window === 'undefined') return null;
+  const stored = localStorage.getItem('dailyCard');
+  if (!stored) return null;
+  const data: DailyCardStorage = JSON.parse(stored);
+  if (data.date !== new Date().toDateString()) return null;
+  return { cardId: data.cardId, isReversed: data.isReversed };
 }
 
 function buildCopyText(
@@ -115,6 +129,33 @@ function buildCopyText(
   return lines.join('\n');
 }
 
+// Position descriptions help users understand what each position means BEFORE they flip
+function getPositionDescription(position: string, spreadType: SpreadKey, locale: Locale): string {
+  const posLower = position.toLowerCase();
+  const descs: Record<string, { en: string; zh: string; ja: string }> = {
+    // threeCard
+    past: { en: 'The energy that shaped your journey here', zh: '塑造你旅程的能量', ja: 'あなたの旅路を形作ったエネルギー' },
+    present: { en: 'The energy you are living through right now', zh: '你此刻正在經歷的能量', ja: '今あなたが生きているエネルギー' },
+    future: { en: 'The energy gathering ahead of you', zh: '在你前方聚集的能量', ja: 'あなたの前方に集まるエネルギー' },
+    // love
+    you: { en: 'Your energy in this connection', zh: '你在這段連結中的能量', ja: 'この繋がりにおけるあなたのエネルギー' },
+    partner: { en: 'Your partner or love interest\'s energy', zh: '你伴侶或心儀對象的能量', ja: 'パートナーや気になる人のエネルギー' },
+    connection: { en: 'The bond between you', zh: '你們之間的紐帶', ja: '二人の間の絆' },
+    challenge: { en: 'What needs to be worked through', zh: '需要克服的事', ja: '乗り越えるべきこと' },
+    outcome: { en: 'Where this path is leading', zh: '這條路通往何方', ja: 'この道が向かう先' },
+    // celticCross
+    above: { en: 'Your conscious goals and aspirations', zh: '你意識層面的目標和願望', ja: 'あなたの意識的な目標と願望' },
+    below: { en: 'Hidden patterns beneath the surface', zh: '表面之下隱藏的模式', ja: '表面の下に隠されたパターン' },
+    advice: { en: 'Guidance on how to move forward', zh: '如何前進的指引', ja: '前に進むための導き' },
+    external: { en: 'Outside forces shaping your situation', zh: '影響你處境的外在力量', ja: 'あなたの状況を形作る外的な力' },
+    'hopes/fears': { en: 'What you hope for and fear equally', zh: '你同時渴望和畏懼的事', ja: 'あなたが同時に望み恐れていること' },
+    guidance: { en: 'The message for your path', zh: '給你道路的訊息', ja: 'あなたの道へのメッセージ' },
+  };
+  const desc = descs[posLower];
+  if (!desc) return '';
+  return selectLocaleText(locale, desc.en, desc.zh, desc.ja);
+}
+
 function ReadingContent() {
   const searchParams = useSearchParams();
   const initialSpread = (searchParams.get('spread') || 'single') as SpreadKey;
@@ -128,10 +169,6 @@ function ReadingContent() {
     return () => { document.head.removeChild(style); };
   }, []);
 
-  // Load saved state once and share across initializers.
-  // Only restore if the saved spread matches the URL — when the user navigates
-  // from the homepage with a specific spread (e.g. ?spread=love), the URL
-  // should win over stale sessionStorage.
   const savedStateRef = useRef<ReadingState | null>(null);
   if (savedStateRef.current === null && typeof window !== 'undefined') {
     const stored = sessionStorage.getItem(READING_STATE_KEY);
@@ -161,33 +198,41 @@ function ReadingContent() {
 
   const restoredRef = useRef(false);
 
-  // Handle initial card draw if no saved state
+  // --- Intention state (now PRE-reading) ---
+  const [showIntentionPhase, setShowIntentionPhase] = useState(() => {
+    // If restoring saved state, skip intention phase
+    if (savedStateRef.current) return false;
+    return true; // Show intention phase by default for new readings
+  });
+  const [selectedTag, setSelectedTag] = useState<IntentionTag>(() => {
+    return savedStateRef.current?.intentionTag || 'general';
+  });
+  const [intentionNote, setIntentionNote] = useState(() => {
+    return savedStateRef.current?.intentionNote || '';
+  });
+  const [cardsDealt, setCardsDealt] = useState(() => {
+    return savedStateRef.current ? true : false;
+  });
+
+  const currentSpread = spreadTypes[selectedSpread] || spreadTypes.single;
+  const [showMeaning, setShowMeaning] = useState<number | null>(null);
+  const [readingComplete, setReadingComplete] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   useEffect(() => {
     if (restoredRef.current) return;
     restoredRef.current = true;
 
     if (savedStateRef.current) {
-      // State was already restored via useState initializers; just set readingComplete
       setReadingComplete(savedStateRef.current.readingComplete);
       return;
     }
 
-    const currentSpreadDef = spreadTypes[initialSpread] || spreadTypes.single;
-    setCards(getRandomCards(currentSpreadDef.count));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Don't auto-draw cards — wait for intention phase to complete
   }, []);
 
-  const currentSpread = spreadTypes[selectedSpread] || spreadTypes.single;
-  const [showMeaning, setShowMeaning] = useState<number | null>(null);
-  const [readingComplete, setReadingComplete] = useState(false);
-  const [showIntentionPrompt, setShowIntentionPrompt] = useState(false);
-  const [selectedTag, setSelectedTag] = useState<IntentionTag>('general');
-  const [intentionNote, setIntentionNote] = useState('');
-  const [saved, setSaved] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const intentionRef = useRef<HTMLDivElement>(null);
-
-  // Save reading state to sessionStorage whenever it changes (for language switch persistence)
+  // Save reading state to sessionStorage whenever it changes
   useEffect(() => {
     if (cards.length > 0) {
       const state: ReadingState = {
@@ -195,19 +240,65 @@ function ReadingContent() {
         cards: cards.map(c => ({ cardId: c.card.id, isReversed: c.isReversed })),
         flippedCards,
         readingComplete,
+        intentionTag: selectedTag,
+        intentionNote: intentionNote || undefined,
       };
       saveReadingState(state);
     }
-  }, [cards, flippedCards, readingComplete, selectedSpread]);
+  }, [cards, flippedCards, readingComplete, selectedSpread, selectedTag, intentionNote]);
 
-  const startNewReading = (spread?: SpreadKey) => {
-    const target = spread ? (spreadTypes[spread] || spreadTypes.single) : currentSpread;
-    const newCards = getRandomCards(target.count);
+  // Auto-save to journal when reading completes
+  useEffect(() => {
+    if (!readingComplete || saved || cards.length === 0) return;
+    const reading: ReadingRecord = {
+      date: new Date().toISOString(),
+      spread: selectedSpread,
+      cards: cards.map((c, i) => ({
+        cardId: c.card.id,
+        isReversed: c.isReversed,
+        position: (spreadTypes[selectedSpread] || spreadTypes.single).positions[i],
+        positionZh: (spreadTypes[selectedSpread] || spreadTypes.single).positionsZh[i],
+      })),
+      summary: getReadingSummary(),
+      intention: {
+        tag: selectedTag,
+        note: intentionNote.trim() || undefined,
+      },
+    };
+    const history: ReadingRecord[] = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    history.unshift(reading);
+    localStorage.setItem('tarotHistory', JSON.stringify(history.slice(0, 50)));
+    setSaved(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readingComplete]);
+
+  // Draw cards and start the reading (after intention is set)
+  const drawCards = () => {
+    const spreadDef = spreadTypes[selectedSpread] || spreadTypes.single;
+    const newCards = getRandomCards(spreadDef.count);
     setCards(newCards);
     setFlippedCards([]);
     setShowMeaning(null);
     setReadingComplete(false);
     setSaved(false);
+    setCopied(false);
+    setShowIntentionPhase(false);
+    setCardsDealt(true);
+  };
+
+  const startNewReading = (spread?: SpreadKey) => {
+    if (spread) {
+      setSelectedSpread(spread);
+    }
+    setShowIntentionPhase(true);
+    setCardsDealt(false);
+    setCards([]);
+    setFlippedCards([]);
+    setShowMeaning(null);
+    setReadingComplete(false);
+    setSaved(false);
+    setCopied(false);
+    setIntentionNote('');
   };
 
   const handleCopyReading = useCallback(async () => {
@@ -218,7 +309,6 @@ function ReadingContent() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback for older browsers
       const textarea = document.createElement('textarea');
       textarea.value = text;
       document.body.appendChild(textarea);
@@ -261,34 +351,6 @@ function ReadingContent() {
     return undefined;
   };
 
-  const confirmSave = (withIntention: boolean) => {
-    const positions = getPositions(currentSpread, locale);
-    const reading: ReadingRecord = {
-      date: new Date().toISOString(),
-      spread: selectedSpread,
-      cards: cards.map((c, i) => ({
-        cardId: c.card.id,
-        isReversed: c.isReversed,
-        position: currentSpread.positions[i],
-        positionZh: currentSpread.positionsZh[i],
-      })),
-      summary: getReadingSummary(),
-      ...(withIntention && {
-        intention: {
-          tag: selectedTag,
-          note: intentionNote.trim() || undefined,
-        },
-      }),
-    };
-
-    const history: ReadingRecord[] = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
-    history.unshift(reading);
-    localStorage.setItem('tarotHistory', JSON.stringify(history.slice(0, 50)));
-    setShowIntentionPrompt(false);
-    setSaved(true);
-    setIntentionNote('');
-  };
-
   const getCardLayout = (): Record<string, string | number | object> => {
     switch (selectedSpread) {
       case 'threeCard': return { gridTemplateColumns: 'repeat(3, 1fr)', maxWidth: 600 };
@@ -303,15 +365,15 @@ function ReadingContent() {
 
   const positions = getPositions(currentSpread, locale);
 
-  if (cards.length === 0) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
-        <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'secondary.dark', letterSpacing: '0.1em' }}>
-          {t('loading')}
-        </Typography>
-      </Container>
-    );
-  }
+  // Check if today's daily card appears in this spread
+  const dailyCardMatch = (() => {
+    if (!cardsDealt || cards.length === 0) return null;
+    const daily = getDailyCardFromStorage();
+    if (!daily) return null;
+    const matchIndex = cards.findIndex(c => c.card.id === daily.cardId);
+    if (matchIndex === -1) return null;
+    return { index: matchIndex, position: positions[matchIndex] };
+  })();
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>
@@ -358,203 +420,350 @@ function ReadingContent() {
           <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.06em' }}>
             {getSpreadDescription(currentSpread, locale)}
           </Typography>
-          {!readingComplete && (
-            <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.08em', mt: 1 }}>
-              {t('tapEachCard')}
-            </Typography>
-          )}
         </Box>
 
-        {/* Cards Display */}
-        {selectedSpread === 'celticCross' ? (
-          <CelticCrossLayout
-            cards={cards}
-            flippedCards={flippedCards}
-            onCardClick={handleCardClick}
-            positions={positions}
-            t={t}
-          />
-        ) : (
-          <Box sx={{ display: 'grid', ...getCardLayout(), gap: 3, justifyContent: 'center', mx: 'auto', mb: 4 }}>
-            {cards.map((cardData, index) => (
-              <Box key={index} sx={{ textAlign: 'center' }}>
-                <Typography sx={{ display: 'block', mb: 0.5, color: flippedCards.includes(index) ? 'primary.main' : 'secondary.dark', fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.08em' }}>
-                  {positions[index]?.toUpperCase()}
-                </Typography>
-                <TarotCard card={cardData.card} isReversed={cardData.isReversed} isFlipped={flippedCards.includes(index)} onClick={() => handleCardClick(index)} size="small" />
-              </Box>
-            ))}
-          </Box>
-        )}
+        {/* ============================================ */}
+        {/* PRE-READING: Intention Setting Ritual        */}
+        {/* ============================================ */}
+        <AnimatePresence mode="wait">
+          {showIntentionPhase && (
+            <motion.div
+              key="intention-phase"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Box sx={{ maxWidth: 500, mx: 'auto', textAlign: 'center' }}>
+                <Box sx={{ mb: 3, p: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                  <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'primary.main', letterSpacing: '0.12em', mb: 2 }}>
+                    {t('intentPhaseTitle')} ————————
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.8, mb: 3 }}>
+                    {t('intentPhaseDesc')}
+                  </Typography>
 
-        {/* Single card meaning */}
-        {selectedSpread === 'single' && (
-          <AnimatePresence>
-            {showMeaning !== null && cards[showMeaning] && (
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.4 }}>
-                <CardMeaningPanel card={cards[showMeaning].card} isReversed={cards[showMeaning].isReversed} position={positions[showMeaning]} locale={locale} t={t} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
-
-        {/* Multi-card summary */}
-        {selectedSpread !== 'single' && (
-          <AnimatePresence>
-            {readingComplete && (
-              <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.6 }}>
-                <ReadingSummaryPanel cards={cards} spreadType={selectedSpread} positions={positions} locale={locale} t={t} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
-
-        {/* Actions */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, flexWrap: 'wrap' }}>
-          <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => { startNewReading(); setSaved(false); setCopied(false); setShowIntentionPrompt(false); }}>
-            {t('newReading')}
-          </Button>
-          {readingComplete && !saved && (
-            <Button variant="outlined" startIcon={<SaveIcon />} onClick={() => { setShowIntentionPrompt(true); setTimeout(() => { intentionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); }}>
-              {t('saveToJournal')}
-            </Button>
-          )}
-          {readingComplete && (
-            <Button variant="outlined" startIcon={<ContentCopyIcon />} onClick={handleCopyReading}>
-              {copied ? t('copied') : t('copyReading')}
-            </Button>
-          )}
-          {saved && (
-            <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'primary.main', letterSpacing: '0.08em', alignSelf: 'center' }}>
-              {t('saved')}
-            </Typography>
-          )}
-        </Box>
-
-        {/* Key Takeaway + Reflection + Go Deeper — shown after reading completes */}
-        <AnimatePresence>
-          {readingComplete && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
-              {/* Key Takeaway */}
-              <Box sx={{ mt: 4, p: 2.5, border: '1px solid', borderColor: 'primary.dark', bgcolor: 'background.paper', textAlign: 'center' }}>
-                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'primary.main', letterSpacing: '0.12em', mb: 1.5 }}>
-                  {t('keyTakeaway')} ————————
-                </Typography>
-                <Typography variant="body1" sx={{ color: 'text.primary', fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: { xs: '1rem', md: '1.15rem' }, lineHeight: 1.8, fontStyle: 'italic' }}>
-                  {renderBoldText(getKeyTakeaway(cards, selectedSpread, locale))}
-                </Typography>
-              </Box>
-
-              {/* Reflection Prompts */}
-              {(() => {
-                const reflections = getReadingReflections(cards, locale);
-                if (reflections.length === 0) return null;
-                return (
-                  <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider' }}>
-                    <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 2 }}>
-                      {t('reflectOn')} ————————
-                    </Typography>
-                    {reflections.map((q, i) => (
-                      <Box key={i} sx={{ mb: 1.5, pl: 1.5, borderLeft: '2px solid', borderLeftColor: 'primary.dark' }}>
-                        <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
-                          {q}
-                        </Typography>
-                      </Box>
-                    ))}
+                  {/* Intention Tags */}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2, justifyContent: 'center' }}>
+                    {(['general', 'career', 'loveCat', 'self', 'finance', 'health'] as const).map((tag) => {
+                      const intentionTag = tag === 'loveCat' ? 'love' : tag;
+                      return (
+                        <Box key={tag} component="button" onClick={() => setSelectedTag(intentionTag as IntentionTag)}
+                          sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.08em', px: 1.25, py: 0.5, border: '1px solid', borderColor: selectedTag === intentionTag ? 'primary.main' : 'divider', color: selectedTag === intentionTag ? 'primary.main' : 'secondary.dark', bgcolor: 'transparent', cursor: 'pointer', transition: 'all 0.2s', '&:hover': { borderColor: 'primary.main', color: 'primary.main' } }}>
+                          {t(tag)}
+                        </Box>
+                      );
+                    })}
                   </Box>
-                );
-              })()}
 
-              {/* Go Deeper */}
-              <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider' }}>
-                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 2 }}>
-                  {t('goDeeper')} ————————
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {selectedSpread !== 'threeCard' && (
-                    <Box component="button" onClick={() => { setSelectedSpread('threeCard'); startNewReading('threeCard'); }}
-                      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', textAlign: 'left', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
-                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
-                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
-                        {t('tryThreeCard')}
-                      </Typography>
-                    </Box>
-                  )}
-                  {selectedSpread !== 'love' && (
-                    <Box component="button" onClick={() => { setSelectedSpread('love'); startNewReading('love'); }}
-                      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', textAlign: 'left', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
-                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
-                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
-                        {t('tryLove')}
-                      </Typography>
-                    </Box>
-                  )}
-                  {selectedSpread !== 'celticCross' && (
-                    <Box component="button" onClick={() => { setSelectedSpread('celticCross'); startNewReading('celticCross'); }}
-                      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', textAlign: 'left', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
-                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
-                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
-                        {t('tryCelticCross')}
-                      </Typography>
-                    </Box>
-                  )}
-                  <Link href={`/${locale}/daily`} style={{ textDecoration: 'none' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
-                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
-                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
-                        {t('tryDaily')}
-                      </Typography>
-                    </Box>
-                  </Link>
-                  <Link href={`/${locale}/journal`} style={{ textDecoration: 'none' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
-                      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
-                      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
-                        {t('viewJournal')}
-                      </Typography>
-                    </Box>
-                  </Link>
+                  {/* Intention Note */}
+                  <Box component="input"
+                    placeholder={t('intentNotePlaceholder')}
+                    value={intentionNote}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIntentionNote(e.target.value)}
+                    sx={{ width: '100%', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'text.primary', bgcolor: 'background.default', border: '1px solid', borderColor: 'divider', p: 1.5, mb: 3, outline: 'none', textAlign: 'center', '&:focus': { borderColor: 'primary.main' }, '&::placeholder': { color: 'secondary.dark' } }}
+                  />
+
+                  {/* Draw Cards Button */}
+                  <Button
+                    onClick={drawCards}
+                    sx={{
+                      fontFamily: 'var(--font-mono)', fontSize: '0.7rem', letterSpacing: '0.1em',
+                      px: 4, py: 1.5, borderRadius: 0,
+                      bgcolor: 'primary.main', color: 'background.default', boxShadow: 'none',
+                      '&:hover': { bgcolor: 'primary.dark', boxShadow: 'none' },
+                    }}
+                  >
+                    {t('drawCards')}
+                  </Button>
                 </Box>
               </Box>
             </motion.div>
           )}
-        </AnimatePresence>
 
-        {/* Intention prompt */}
-        <AnimatePresence>
-          {showIntentionPrompt && (
-            <motion.div ref={intentionRef} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.25 }}>
-              <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 2 }}>
-                  {t('intentPrompt')}
+          {/* ============================================ */}
+          {/* READING PHASE: Cards + Meanings              */}
+          {/* ============================================ */}
+          {cardsDealt && cards.length > 0 && (
+            <motion.div
+              key="reading-phase"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* User's intention displayed as context */}
+              {intentionNote && (
+                <Box sx={{ mb: 3, p: 1.5, border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+                  <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 0.5 }}>
+                    {t('yourQuestion')}
+                  </Typography>
+                  <Typography sx={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', fontWeight: 300, color: 'text.primary', fontStyle: 'italic' }}>
+                    &ldquo;{intentionNote}&rdquo;
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Tap instruction */}
+              {!readingComplete && (
+                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.08em', mb: 2, textAlign: 'center' }}>
+                  {t('tapEachCard')}
                 </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2 }}>
-                  {(['general', 'career', 'loveCat', 'self', 'finance', 'health'] as const).map((tag) => {
-                    const intentionTag = tag === 'loveCat' ? 'love' : tag;
-                    return (
-                      <Box key={tag} component="button" onClick={() => setSelectedTag(intentionTag as IntentionTag)}
-                        sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.08em', px: 1.25, py: 0.5, border: '1px solid', borderColor: selectedTag === intentionTag ? 'primary.main' : 'divider', color: selectedTag === intentionTag ? 'primary.main' : 'secondary.dark', bgcolor: 'transparent', cursor: 'pointer', '&:hover': { borderColor: 'primary.main', color: 'primary.main' } }}>
-                        {t(tag)}
-                      </Box>
-                    );
-                  })}
+              )}
+
+              {/* Daily card echo */}
+              {dailyCardMatch && flippedCards.includes(dailyCardMatch.index) && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                  <Box sx={{ mb: 2, p: 1.5, border: '1px solid', borderColor: 'primary.dark', textAlign: 'center', bgcolor: 'background.paper' }}>
+                    <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', color: 'primary.main', letterSpacing: '0.08em' }}>
+                      {t('dailyCardEcho', { position: dailyCardMatch.position, cardName: getCardName(cards[dailyCardMatch.index].card, locale) })}
+                    </Typography>
+                  </Box>
+                </motion.div>
+              )}
+
+              {/* Cards Display */}
+              {selectedSpread === 'celticCross' ? (
+                <CelticCrossLayout
+                  cards={cards}
+                  flippedCards={flippedCards}
+                  onCardClick={handleCardClick}
+                  positions={positions}
+                  t={t}
+                />
+              ) : (
+                <Box sx={{ display: 'grid', ...getCardLayout(), gap: 3, justifyContent: 'center', mx: 'auto', mb: 4 }}>
+                  {cards.map((cardData, index) => (
+                    <Box key={index} sx={{ textAlign: 'center' }}>
+                      <Typography sx={{ display: 'block', mb: 0.5, color: flippedCards.includes(index) ? 'primary.main' : 'secondary.dark', fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.08em' }}>
+                        {positions[index]?.toUpperCase()}
+                      </Typography>
+                      <TarotCard card={cardData.card} isReversed={cardData.isReversed} isFlipped={flippedCards.includes(index)} onClick={() => handleCardClick(index)} size="small" />
+                      {/* Position description hint (before flip) */}
+                      {!flippedCards.includes(index) && selectedSpread !== 'single' && (
+                        <Typography sx={{ mt: 0.5, fontFamily: 'var(--font-mono)', fontSize: '0.5rem', color: 'secondary.dark', letterSpacing: '0.04em', maxWidth: 120, mx: 'auto' }}>
+                          {getPositionDescription(positions[index], selectedSpread, locale)}
+                        </Typography>
+                      )}
+                    </Box>
+                  ))}
                 </Box>
-                <Box component="input" placeholder={t('optionalContext')} value={intentionNote} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIntentionNote(e.target.value)}
-                  sx={{ width: '100%', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'text.primary', bgcolor: 'background.default', border: '1px solid', borderColor: 'divider', p: 1, mb: 2, outline: 'none', '&:focus': { borderColor: 'primary.main' }, '&::placeholder': { color: 'secondary.dark' } }} />
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button onClick={() => confirmSave(true)} sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.08em', borderRadius: 0, bgcolor: 'primary.main', color: 'background.default', boxShadow: 'none', '&:hover': { bgcolor: 'primary.dark', boxShadow: 'none' } }}>
-                    {t('confirmSave')}
+              )}
+
+              {/* Per-card meaning reveal (multi-card, shown inline as each card is flipped) */}
+              {selectedSpread !== 'single' && !readingComplete && (
+                <AnimatePresence>
+                  {showMeaning !== null && cards[showMeaning] && flippedCards.includes(showMeaning) && (
+                    <motion.div
+                      key={`card-reveal-${showMeaning}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <CardRevealSnippet
+                        card={cards[showMeaning].card}
+                        isReversed={cards[showMeaning].isReversed}
+                        position={positions[showMeaning]}
+                        spreadType={selectedSpread}
+                        locale={locale}
+                        t={t}
+                        cardNumber={flippedCards.length}
+                        totalCards={currentSpread.count}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* Single card full meaning */}
+              {selectedSpread === 'single' && (
+                <AnimatePresence>
+                  {showMeaning !== null && cards[showMeaning] && (
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.4 }}>
+                      <CardMeaningPanel card={cards[showMeaning].card} isReversed={cards[showMeaning].isReversed} position={positions[showMeaning]} locale={locale} t={t} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* Multi-card full summary (after all flipped) */}
+              {selectedSpread !== 'single' && (
+                <AnimatePresence>
+                  {readingComplete && (
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} transition={{ duration: 0.6 }}>
+                      <ReadingSummaryPanel cards={cards} spreadType={selectedSpread} positions={positions} locale={locale} t={t} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+
+              {/* ============================================ */}
+              {/* POST-READING: Engagement                     */}
+              {/* ============================================ */}
+
+              {/* Actions */}
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4, flexWrap: 'wrap' }}>
+                <Button variant="outlined" startIcon={<RefreshIcon />} onClick={() => startNewReading()}>
+                  {t('newReading')}
+                </Button>
+                {readingComplete && saved && (
+                  <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'primary.main', letterSpacing: '0.08em', alignSelf: 'center' }}>
+                    {t('saved')}
+                  </Typography>
+                )}
+                {readingComplete && (
+                  <Button variant="outlined" startIcon={<ContentCopyIcon />} onClick={handleCopyReading}>
+                    {copied ? t('copied') : t('copyReading')}
                   </Button>
-                  <Button onClick={() => confirmSave(false)} sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', letterSpacing: '0.08em', borderRadius: 0, border: '1px solid', borderColor: 'divider', color: 'secondary.dark', '&:hover': { borderColor: 'text.secondary', color: 'text.secondary' } }}>
-                    {t('skip')}
-                  </Button>
-                </Box>
+                )}
               </Box>
+
+              {/* Key Takeaway + Affirmation + Reflection + Go Deeper */}
+              <AnimatePresence>
+                {readingComplete && (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
+                    {/* Key Takeaway */}
+                    <Box sx={{ mt: 4, p: 2.5, border: '1px solid', borderColor: 'primary.dark', bgcolor: 'background.paper', textAlign: 'center' }}>
+                      <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'primary.main', letterSpacing: '0.12em', mb: 1.5 }}>
+                        {t('keyTakeaway')} ————————
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: 'text.primary', fontFamily: 'var(--font-display)', fontWeight: 300, fontSize: { xs: '1rem', md: '1.15rem' }, lineHeight: 1.8, fontStyle: 'italic' }}>
+                        {renderBoldText(getKeyTakeaway(cards, selectedSpread, locale))}
+                      </Typography>
+                    </Box>
+
+                    {/* Affirmation */}
+                    {(() => {
+                      const affirmation = getReadingAffirmation(cards, locale);
+                      if (!affirmation) return null;
+                      return (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+                          <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', textAlign: 'center' }}>
+                            <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 1 }}>
+                              {t('affirmation')}
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: 'text.primary', fontStyle: 'italic', lineHeight: 1.8, fontFamily: 'var(--font-display)', fontWeight: 300 }}>
+                              &ldquo;{affirmation}&rdquo;
+                            </Typography>
+                          </Box>
+                        </motion.div>
+                      );
+                    })()}
+
+                    {/* Reflection Prompts */}
+                    {(() => {
+                      const reflections = getReadingReflections(cards, locale);
+                      if (reflections.length === 0) return null;
+                      return (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                          <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider' }}>
+                            <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 2 }}>
+                              {t('reflectOn')} ————————
+                            </Typography>
+                            {reflections.map((q, i) => (
+                              <Box key={i} sx={{ mb: 1.5, pl: 1.5, borderLeft: '2px solid', borderLeftColor: 'primary.dark' }}>
+                                <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+                                  {q}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Box>
+                        </motion.div>
+                      );
+                    })()}
+
+                    {/* Go Deeper */}
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}>
+                      <Box sx={{ mt: 3, p: 2.5, border: '1px solid', borderColor: 'divider' }}>
+                        <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 2 }}>
+                          {t('goDeeper')} ————————
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {selectedSpread !== 'threeCard' && (
+                            <GoDeepLink onClick={() => startNewReading('threeCard')} label={t('tryThreeCard')} />
+                          )}
+                          {selectedSpread !== 'love' && (
+                            <GoDeepLink onClick={() => startNewReading('love')} label={t('tryLove')} />
+                          )}
+                          {selectedSpread !== 'celticCross' && (
+                            <GoDeepLink onClick={() => startNewReading('celticCross')} label={t('tryCelticCross')} />
+                          )}
+                          <Link href={`/${locale}/daily`} style={{ textDecoration: 'none' }}>
+                            <GoDeepLinkBox label={t('tryDaily')} />
+                          </Link>
+                          <Link href={`/${locale}/journal`} style={{ textDecoration: 'none' }}>
+                            <GoDeepLinkBox label={t('viewJournal')} />
+                          </Link>
+                        </Box>
+                      </Box>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
     </Container>
+  );
+}
+
+// Small component for per-card reveal during multi-card flipping
+function CardRevealSnippet({
+  card, isReversed, position, spreadType, locale, t, cardNumber, totalCards,
+}: {
+  card: TarotCardData; isReversed: boolean; position: string; spreadType: SpreadKey;
+  locale: Locale; t: ReturnType<typeof useTranslations>; cardNumber: number; totalCards: number;
+}) {
+  const cardName = getCardName(card, locale);
+  const meaning = isReversed ? card.reversed : card.upright;
+  const lm = getMeaning(meaning, locale);
+
+  return (
+    <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', maxWidth: 600, mx: 'auto' }}>
+      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+          <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', color: 'primary.main', letterSpacing: '0.08em' }}>
+            {position?.toUpperCase()}
+          </Typography>
+          <Typography sx={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', fontWeight: 300, color: 'text.primary' }}>
+            {cardName}
+            {isReversed && <Box component="span" sx={{ color: 'secondary.dark', fontSize: '0.75em', ml: 0.5 }}>{t('reversedLabel')}</Box>}
+          </Typography>
+        </Box>
+        <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.5rem', color: 'secondary.dark' }}>
+          {cardNumber}/{totalCards}
+        </Typography>
+      </Box>
+      <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.secondary' }}>
+        {lm.meaning}
+      </Typography>
+    </Box>
+  );
+}
+
+// Reusable go-deeper link components
+function GoDeepLink({ onClick, label }: { onClick: () => void; label: string }) {
+  return (
+    <Box component="button" onClick={onClick}
+      sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', textAlign: 'left', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
+      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
+      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
+        {label}
+      </Typography>
+    </Box>
+  );
+}
+
+function GoDeepLinkBox({ label }: { label: string }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: '1px solid', borderColor: 'divider', bgcolor: 'transparent', cursor: 'pointer', '&:hover': { borderColor: 'primary.main', '& .go-deeper-text': { color: 'primary.main' } } }}>
+      <AutoStoriesIcon sx={{ fontSize: 16, color: 'secondary.dark' }} />
+      <Typography className="go-deeper-text" sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.04em' }}>
+        {label}
+      </Typography>
+    </Box>
   );
 }
 
@@ -650,55 +859,67 @@ function CardMeaningPanel({ card, isReversed, position, locale, t }: CardMeaning
         </Typography>
       </Box>
       <Box sx={{ p: { xs: 2, md: 3 } }}>
-        <Box sx={{ mb: 2, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
-          <Typography sx={{ fontFamily: 'var(--font-display)', color: 'text.primary', fontWeight: 300, fontSize: { xs: '1.3rem', md: '1.6rem' }, mb: 0.25 }}>
-            {cardName}
-            {isReversed && <Box component="span" sx={{ color: 'secondary.dark', fontSize: '0.7em', ml: '0.5em' }}>{t('reversedLabel')}</Box>}
-          </Typography>
-          <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.secondary', mt: 1 }}>
-            {intro}
-          </Typography>
-        </Box>
-        <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-          <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'secondary.dark', letterSpacing: '0.08em', mb: 1.5 }}>
-            {isReversed ? t('reversed') : t('upright')}
-          </Typography>
-          <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary' }}>
-            {lm.meaning}
-          </Typography>
-        </Box>
-        <Box sx={{ mb: 2.5 }}>
-          <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 1 }}>
-            {t('keywords')} ————————
-          </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {keywords.map((keyword, i) => (
-              <Box key={i} sx={{ px: 1, py: 0.25, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.05em' }}>
-                  {keyword}
-                </Typography>
-              </Box>
-            ))}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+          <Box sx={{ mb: 2, pb: 2, borderBottom: '1px solid', borderBottomColor: 'divider' }}>
+            <Typography sx={{ fontFamily: 'var(--font-display)', color: 'text.primary', fontWeight: 300, fontSize: { xs: '1.3rem', md: '1.6rem' }, mb: 0.25 }}>
+              {cardName}
+              {isReversed && <Box component="span" sx={{ color: 'secondary.dark', fontSize: '0.7em', ml: '0.5em' }}>{t('reversedLabel')}</Box>}
+            </Typography>
+            <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.secondary', mt: 1 }}>
+              {intro}
+            </Typography>
           </Box>
-        </Box>
-        <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.secondary', mb: 2 }}>
-          {lifeAreaIntro}
-        </Typography>
-        {[
-          { label: t('love'), text: lm.love },
-          { label: t('career'), text: lm.career },
-          ...(lm.health ? [{ label: t('health'), text: lm.health }] : []),
-          ...(lm.advice ? [{ label: t('advice'), text: lm.advice }] : []),
-        ].map((section, i, arr) => (
-          <Box key={section.label} sx={{ mb: i < arr.length - 1 ? 2 : 0, pb: i < arr.length - 1 ? 2 : 0, borderBottom: i < arr.length - 1 ? '1px solid' : 'none', borderBottomColor: 'divider' }}>
-            <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.08em', mb: 1 }}>
-              {'>'} {section.label}
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}>
+          <Box sx={{ mb: 2, p: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+            <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'secondary.dark', letterSpacing: '0.08em', mb: 1.5 }}>
+              {isReversed ? t('reversed') : t('upright')}
             </Typography>
             <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary' }}>
-              {section.text}
+              {lm.meaning}
             </Typography>
           </Box>
-        ))}
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.4 }}>
+          <Box sx={{ mb: 2.5 }}>
+            <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 1 }}>
+              {t('keywords')} ————————
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {keywords.map((keyword, i) => (
+                <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + i * 0.05 }}>
+                  <Box sx={{ px: 1, py: 0.25, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+                    <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'text.secondary', letterSpacing: '0.05em' }}>
+                      {keyword}
+                    </Typography>
+                  </Box>
+                </motion.div>
+              ))}
+            </Box>
+          </Box>
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.4 }}>
+          <Typography variant="body2" sx={{ lineHeight: 1.7, color: 'text.secondary', mb: 2 }}>
+            {lifeAreaIntro}
+          </Typography>
+          {[
+            { label: t('sectionLove'), text: lm.love },
+            { label: t('career'), text: lm.career },
+            ...(lm.health ? [{ label: t('sectionHealth'), text: lm.health }] : []),
+            ...(lm.advice ? [{ label: t('sectionAdvice'), text: lm.advice }] : []),
+          ].map((section, i, arr) => (
+            <motion.div key={section.label} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 + i * 0.15 }}>
+              <Box sx={{ mb: i < arr.length - 1 ? 2 : 0, pb: i < arr.length - 1 ? 2 : 0, borderBottom: i < arr.length - 1 ? '1px solid' : 'none', borderBottomColor: 'divider' }}>
+                <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'secondary.dark', letterSpacing: '0.08em', mb: 1 }}>
+                  {'>'} {section.label}
+                </Typography>
+                <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.primary' }}>
+                  {section.text}
+                </Typography>
+              </Box>
+            </motion.div>
+          ))}
+        </motion.div>
       </Box>
     </Box>
   );

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateReadingSummary, detectTheme } from '@/utils/readingSummary';
+import { generateReadingSummary, detectTheme, detectPatterns } from '@/utils/readingSummary';
 import { tarotCards } from '@/data/tarotCards';
 import type { DrawnCard } from '@/types/tarot';
 
@@ -69,5 +69,42 @@ describe('detectTheme', () => {
   it('works with a single card', () => {
     const result = detectTheme([makeCard(16)]); // Tower: upheaval, chaos, revelation, disruption
     expect(['transformation', 'struggle']).toContain(result);
+  });
+});
+
+describe('detectPatterns', () => {
+  it('returns reversalRatio of 0 when no cards reversed', () => {
+    const cards = [makeCard(0, false), makeCard(1, false), makeCard(2, false)];
+    expect(detectPatterns(cards).reversalRatio).toBe(0);
+  });
+
+  it('returns reversalRatio of 1 when all cards reversed', () => {
+    const cards = [makeCard(0, true), makeCard(1, true), makeCard(2, true)];
+    expect(detectPatterns(cards).reversalRatio).toBe(1);
+  });
+
+  it('returns correct ratio for mixed reversals', () => {
+    const cards = [makeCard(0, true), makeCard(1, false), makeCard(2, true), makeCard(3, false)];
+    expect(detectPatterns(cards).reversalRatio).toBe(0.5);
+  });
+
+  it('returns patternNote null when reversalRatio is ordinary (between 0 and 0.5 exclusive)', () => {
+    const cards = [makeCard(0, true), makeCard(1), makeCard(2), makeCard(3), makeCard(4)];
+    expect(detectPatterns(cards).patternNote).toBeNull();
+  });
+
+  it('returns patternNote for all-upright reading', () => {
+    const cards = [makeCard(0), makeCard(1), makeCard(2)];
+    const note = detectPatterns(cards).patternNote;
+    expect(note).not.toBeNull();
+    expect(note!.en).toContain('upright');
+    expect(note!.zh.length).toBeGreaterThan(0);
+  });
+
+  it('returns patternNote for majority-reversed reading (>=50%)', () => {
+    const cards = [makeCard(0, true), makeCard(1, true), makeCard(2, true), makeCard(3, false)];
+    const note = detectPatterns(cards).patternNote;
+    expect(note).not.toBeNull();
+    expect(note!.en.toLowerCase()).toContain('inward');
   });
 });

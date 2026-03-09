@@ -234,6 +234,37 @@ export function detectTheme(cards: DrawnCard[]): ThemeBucket {
     .reduce((best, curr) => curr[1] > best[1] ? curr : best, ['transformation', 0] as [ThemeBucket, number])[0];
 }
 
+interface PatternObservation {
+  en: string;
+  zh: string;
+}
+
+export interface PatternResult {
+  reversalRatio: number;
+  patternNote: PatternObservation | null;
+}
+
+export function detectPatterns(cards: DrawnCard[]): PatternResult {
+  const reversedCount = cards.filter(c => c.isReversed).length;
+  const reversalRatio = reversedCount / cards.length;
+
+  let patternNote: PatternObservation | null = null;
+
+  if (reversalRatio === 0) {
+    patternNote = {
+      en: 'All cards appear upright — the energy here is direct, accessible, and ready to be worked with.',
+      zh: '所有牌均為正位——此次解讀的能量直接而清晰，隨時可以運用。',
+    };
+  } else if (reversalRatio >= 0.5) {
+    patternNote = {
+      en: 'Much of this reading\'s energy turns inward — blocked or internalized forces asking to be acknowledged and released before they can move forward.',
+      zh: '這次解讀的大部分能量向內轉——被阻塞或內化的力量正在尋求被承認和釋放，之後才能向前推進。',
+    };
+  }
+
+  return { reversalRatio, patternNote };
+}
+
 export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey): SpreadSummary | null {
   const getMeaning = (cardData: DrawnCard): CardMeaning => {
     return cardData.isReversed ? cardData.card.reversed : cardData.card.upright;

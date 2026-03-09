@@ -7,6 +7,7 @@ import {
   Container,
   Typography,
   Button,
+  Skeleton,
 } from '@mui/material';
 import { motion } from 'motion/react';
 import TarotCard from '@/components/TarotCard';
@@ -57,9 +58,11 @@ function pickRandomCards(count: number) {
 
 export default function Home() {
   const [featuredCards, setFeaturedCards] = useState(() => [tarotCards[0], tarotCards[10], tarotCards[21]]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setFeaturedCards(pickRandomCards(3));
+    setMounted(true);
   }, []);
 
   return (
@@ -254,22 +257,36 @@ export default function Home() {
                 scrollbarWidth: 'none',
               }}
             >
-              {featuredCards.map((card, index) => (
-                <motion.div
-                  key={card.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 + index * 0.15 }}
-                  style={{ flexShrink: 0, scrollSnapAlign: 'center' }}
-                >
-                  <TarotCard
-                    card={card}
-                    isFlipped={true}
-                    size="small"
-                    disabled
-                  />
-                </motion.div>
-              ))}
+              {!mounted
+                ? [0, 1, 2].map((i) => (
+                    <Box key={i} sx={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Skeleton
+                        variant="rounded"
+                        width={120}
+                        height={200}
+                        sx={{ borderRadius: '12px', bgcolor: 'rgba(255,255,255,0.06)' }}
+                      />
+                      <Skeleton width={70} height={16} sx={{ mt: 1.5, bgcolor: 'rgba(255,255,255,0.06)' }} />
+                      <Skeleton width={50} height={14} sx={{ mt: 0.5, bgcolor: 'rgba(255,255,255,0.04)' }} />
+                    </Box>
+                  ))
+                : featuredCards.map((card, index) => (
+                    <motion.div
+                      key={card.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.5 + index * 0.15 }}
+                      style={{ flexShrink: 0, scrollSnapAlign: 'center' }}
+                    >
+                      <TarotCard
+                        card={card}
+                        isFlipped={true}
+                        size="small"
+                        disabled
+                      />
+                    </motion.div>
+                  ))
+              }
             </Box>
           </motion.div>
         </Box>

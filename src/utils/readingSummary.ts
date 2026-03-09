@@ -120,6 +120,120 @@ export function getPositionalInterpretation(
   return { text: meaning.meaning, textZh: meaning.meaningZh };
 }
 
+export type ThemeBucket = 'transformation' | 'innerJourney' | 'struggle' | 'growth' | 'achievement' | 'loveConnection' | 'guidance';
+
+const KEYWORD_THEME_MAP: Record<string, ThemeBucket> = {
+  // transformation
+  'beginnings': 'transformation',
+  'change': 'transformation',
+  'transition': 'transformation',
+  'endings': 'transformation',
+  'transformation': 'transformation',
+  'cycles': 'transformation',
+  'awakening': 'transformation',
+  'completion': 'transformation',
+  'reckoning': 'transformation',
+  'upheaval': 'transformation',
+  'revelation': 'transformation',
+  'disruption': 'transformation',
+  'fate': 'transformation',
+  'karma': 'transformation',
+  // inner journey
+  'intuition': 'innerJourney',
+  'mystery': 'innerJourney',
+  'inner knowledge': 'innerJourney',
+  'subconscious': 'innerJourney',
+  'soul searching': 'innerJourney',
+  'introspection': 'innerJourney',
+  'inner guidance': 'innerJourney',
+  'solitude': 'innerJourney',
+  'suspension': 'innerJourney',
+  'shadow': 'innerJourney',
+  'illusion': 'innerJourney',
+  'the unconscious': 'innerJourney',
+  'fear': 'innerJourney',
+  'confusion': 'innerJourney',
+  'letting go': 'innerJourney',
+  'sacrifice': 'innerJourney',
+  'reflection': 'innerJourney',
+  // struggle
+  'bondage': 'struggle',
+  'addiction': 'struggle',
+  'restriction': 'struggle',
+  'chaos': 'struggle',
+  'materialism': 'struggle',
+  // growth
+  'innocence': 'growth',
+  'spontaneity': 'growth',
+  'free spirit': 'growth',
+  'abundance': 'growth',
+  'fertility': 'growth',
+  'nurturing': 'growth',
+  'hope': 'growth',
+  'inspiration': 'growth',
+  'courage': 'growth',
+  'patience': 'growth',
+  'compassion': 'growth',
+  'serenity': 'growth',
+  'spirituality': 'growth',
+  'nature': 'growth',
+  'strength': 'growth',
+  // achievement
+  'manifestation': 'achievement',
+  'willpower': 'achievement',
+  'skill': 'achievement',
+  'concentration': 'achievement',
+  'authority': 'achievement',
+  'structure': 'achievement',
+  'stability': 'achievement',
+  'control': 'achievement',
+  'determination': 'achievement',
+  'success': 'achievement',
+  'positivity': 'achievement',
+  'vitality': 'achievement',
+  'joy': 'achievement',
+  'integration': 'achievement',
+  'accomplishment': 'achievement',
+  'free will': 'achievement',
+  // love & connection
+  'love': 'loveConnection',
+  'harmony': 'loveConnection',
+  'relationships': 'loveConnection',
+  'choices': 'loveConnection',
+  'values': 'loveConnection',
+  'partnership': 'loveConnection',
+  // guidance
+  'tradition': 'guidance',
+  'conformity': 'guidance',
+  'morality': 'guidance',
+  'ethics': 'guidance',
+  'justice': 'guidance',
+  'fairness': 'guidance',
+  'truth': 'guidance',
+  'cause and effect': 'guidance',
+  'balance': 'guidance',
+  'moderation': 'guidance',
+  'purpose': 'guidance',
+  'absolution': 'guidance',
+};
+
+export function detectTheme(cards: DrawnCard[]): ThemeBucket {
+  const counts: Record<ThemeBucket, number> = {
+    transformation: 0, innerJourney: 0, struggle: 0,
+    growth: 0, achievement: 0, loveConnection: 0, guidance: 0,
+  };
+
+  for (const drawn of cards) {
+    for (const kw of drawn.card.keywords) {
+      const bucket = KEYWORD_THEME_MAP[kw.toLowerCase()];
+      if (bucket) counts[bucket]++;
+    }
+  }
+
+  return (Object.entries(counts) as [ThemeBucket, number][])
+    .reduce((best, curr) => curr[1] > best[1] ? curr : best, ['transformation', 0] as [ThemeBucket, number])[0];
+}
+
 export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey): SpreadSummary | null {
   const getMeaning = (cardData: DrawnCard): CardMeaning => {
     return cardData.isReversed ? cardData.card.reversed : cardData.card.upright;

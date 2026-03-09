@@ -347,6 +347,26 @@ const THEME_ACTION_ZH: Record<ThemeBucket, string> = {
   guidance: '尋求清晰，讓你的行動與更深層的價值觀一致',
 };
 
+const THEME_OPENING_EN: Record<ThemeBucket, string> = {
+  transformation: 'This reading is marked by transformation — change is not coming, it is already here.',
+  innerJourney: 'The cards are pulling inward, asking you to examine what lies beneath the surface.',
+  struggle: 'There is friction running through this reading — forces in tension that demand honest attention.',
+  growth: 'An energy of expansion and possibility runs through your cards.',
+  achievement: 'The cards reflect a moment of momentum — capability meeting opportunity.',
+  loveConnection: 'Connection is the thread that binds this reading.',
+  guidance: 'The cards point toward clarity — a call to examine and realign.',
+};
+
+const THEME_OPENING_ZH: Record<ThemeBucket, string> = {
+  transformation: '這次解讀以轉變為標誌——變化不是即將到來，它已經在這裡了。',
+  innerJourney: '牌正在向內引導，要求你審視表面之下的一切。',
+  struggle: '這次解讀中貫穿著摩擦——緊張的力量需要誠實的關注。',
+  growth: '你的牌中流淌著擴展與可能性的能量。',
+  achievement: '牌反映了一個動力時刻——能力與機會的相遇。',
+  loveConnection: '連結是貫穿這次解讀的主線。',
+  guidance: '牌指向清晰——呼喚審視與重新校準。',
+};
+
 export function buildClosingGuidance(outcomeCard: DrawnCard, theme: ThemeBucket): { en: string; zh: string } {
   const label = outcomeCard.card.name + (outcomeCard.isReversed ? ' (Reversed)' : '');
   const labelZh = outcomeCard.card.nameZh + (outcomeCard.isReversed ? ' (逆位)' : '');
@@ -381,26 +401,6 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const { patternNote } = detectPatterns(cards);
     const pairInsight = detectIconicPair(past, present) ?? detectIconicPair(present, future);
     const closing = buildClosingGuidance(future, theme);
-
-    const THEME_OPENING_EN: Record<ThemeBucket, string> = {
-      transformation: 'This reading is marked by transformation — change is not coming, it is already here.',
-      innerJourney: 'The cards are pulling inward, asking you to examine what lies beneath the surface.',
-      struggle: 'There is friction running through this reading — forces in tension that demand honest attention.',
-      growth: 'An energy of expansion and possibility runs through your cards.',
-      achievement: 'The cards reflect a moment of momentum — capability meeting opportunity.',
-      loveConnection: 'Connection is the thread that binds this reading.',
-      guidance: 'The cards point toward clarity — a call to examine and realign.',
-    };
-
-    const THEME_OPENING_ZH: Record<ThemeBucket, string> = {
-      transformation: '這次解讀以轉變為標誌——變化不是即將到來，它已經在這裡了。',
-      innerJourney: '牌正在向內引導，要求你審視表面之下的一切。',
-      struggle: '這次解讀中貫穿著摩擦——緊張的力量需要誠實的關注。',
-      growth: '你的牌中流淌著擴展與可能性的能量。',
-      achievement: '牌反映了一個動力時刻——能力與機會的相遇。',
-      loveConnection: '連結是貫穿這次解讀的主線。',
-      guidance: '牌指向清晰——呼喚審視與重新校準。',
-    };
 
     const summaryParts: string[] = [
       THEME_OPENING_EN[theme],
@@ -492,26 +492,6 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const { patternNote } = detectPatterns(cards);
     const pairInsight = detectIconicPair(present, challenge) ?? detectIconicPair(hopes, outcome);
     const closing = buildClosingGuidance(outcome, theme);
-
-    const THEME_OPENING_EN: Record<ThemeBucket, string> = {
-      transformation: 'This reading is marked by transformation — change is not coming, it is already here.',
-      innerJourney: 'The cards are pulling inward, asking you to examine what lies beneath the surface.',
-      struggle: 'There is friction running through this reading — forces in tension that demand honest attention.',
-      growth: 'An energy of expansion and possibility runs through your cards.',
-      achievement: 'The cards reflect a moment of momentum — capability meeting opportunity.',
-      loveConnection: 'Connection is the thread that binds this reading.',
-      guidance: 'The cards point toward clarity — a call to examine and realign.',
-    };
-
-    const THEME_OPENING_ZH: Record<ThemeBucket, string> = {
-      transformation: '這次解讀以轉變為標誌——變化不是即將到來，它已經在這裡了。',
-      innerJourney: '牌正在向內引導，要求你審視表面之下的一切。',
-      struggle: '這次解讀中貫穿著摩擦——緊張的力量需要誠實的關注。',
-      growth: '你的牌中流淌著擴展與可能性的能量。',
-      achievement: '牌反映了一個動力時刻——能力與機會的相遇。',
-      loveConnection: '連結是貫穿這次解讀的主線。',
-      guidance: '牌指向清晰——呼喚審視與重新校準。',
-    };
 
     const narrativeEn = [
       THEME_OPENING_EN[theme],

@@ -377,11 +377,59 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
     const presentM = getMeaning(present);
     const futureM = getMeaning(future);
 
+    const theme = detectTheme(cards);
+    const { patternNote } = detectPatterns(cards);
+    const pairInsight = detectIconicPair(past, present) ?? detectIconicPair(present, future);
+    const closing = buildClosingGuidance(future, theme);
+
+    const THEME_OPENING_EN: Record<ThemeBucket, string> = {
+      transformation: 'This reading is marked by transformation — change is not coming, it is already here.',
+      innerJourney: 'The cards are pulling inward, asking you to examine what lies beneath the surface.',
+      struggle: 'There is friction running through this reading — forces in tension that demand honest attention.',
+      growth: 'An energy of expansion and possibility runs through your cards.',
+      achievement: 'The cards reflect a moment of momentum — capability meeting opportunity.',
+      loveConnection: 'Connection is the thread that binds this reading.',
+      guidance: 'The cards point toward clarity — a call to examine and realign.',
+    };
+
+    const THEME_OPENING_ZH: Record<ThemeBucket, string> = {
+      transformation: '這次解讀以轉變為標誌——變化不是即將到來，它已經在這裡了。',
+      innerJourney: '牌正在向內引導，要求你審視表面之下的一切。',
+      struggle: '這次解讀中貫穿著摩擦——緊張的力量需要誠實的關注。',
+      growth: '你的牌中流淌著擴展與可能性的能量。',
+      achievement: '牌反映了一個動力時刻——能力與機會的相遇。',
+      loveConnection: '連結是貫穿這次解讀的主線。',
+      guidance: '牌指向清晰——呼喚審視與重新校準。',
+    };
+
+    const summaryParts: string[] = [
+      THEME_OPENING_EN[theme],
+      `From your past, ${getCardLabel(past)} — ${pastM.meaning} — carried you into your present, where ${getCardLabel(present)} now reflects ${presentM.meaning} The path ahead opens through ${getCardLabel(future)}: ${futureM.meaning}`,
+    ];
+
+    const summaryPartsZh: string[] = [
+      THEME_OPENING_ZH[theme],
+      `從你的過去，${getCardLabelZh(past)}——${pastM.meaningZh}——將你帶入當下，在那裡${getCardLabelZh(present)}現在反映著${presentM.meaningZh}前方的道路通過${getCardLabelZh(future)}開啟：${futureM.meaningZh}`,
+    ];
+
+    if (patternNote) {
+      summaryParts.push(patternNote.en);
+      summaryPartsZh.push(patternNote.zh);
+    }
+
+    if (pairInsight) {
+      summaryParts.push(pairInsight.en);
+      summaryPartsZh.push(pairInsight.zh);
+    }
+
+    summaryParts.push(closing.en);
+    summaryPartsZh.push(closing.zh);
+
     return {
       title: 'Your Timeline Reading',
       titleZh: '你的時間線解讀',
-      summary: `Your past, shaped by ${getCardLabel(past)}, speaks of ${pastM.meaning.toLowerCase()} This energy has led you to your present moment, where ${getCardLabel(present)} reveals that ${presentM.meaning.toLowerCase()} Looking ahead, ${getCardLabel(future)} illuminates your path forward: ${futureM.meaning.toLowerCase()} The journey from ${past.card.keywords[0]} through ${present.card.keywords[0]} toward ${future.card.keywords[0]} suggests a meaningful progression unfolding in your life.`,
-      summaryZh: `你的過去由${getCardLabelZh(past)}塑造，暗示著${pastM.meaningZh}這股能量引領你來到當下，${getCardLabelZh(present)}揭示了${presentM.meaningZh}展望未來，${getCardLabelZh(future)}照亮了你前進的道路：${futureM.meaningZh}從「${past.card.keywordsZh[0] || past.card.keywords[0]}」經過「${present.card.keywordsZh[0] || present.card.keywords[0]}」走向「${future.card.keywordsZh[0] || future.card.keywords[0]}」，暗示著你生命中正在展開一段有意義的進程。`,
+      summary: summaryParts.join(' '),
+      summaryZh: summaryPartsZh.join(' '),
     };
   }
 

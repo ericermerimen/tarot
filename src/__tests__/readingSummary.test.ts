@@ -160,3 +160,41 @@ describe('buildClosingGuidance', () => {
     expect(result.zh).toContain('逆位');
   });
 });
+
+describe('generateReadingSummary — threeCard enhanced', () => {
+  it('summary contains card names', () => {
+    const cards = [makeCard(0), makeCard(13), makeCard(17)]; // Fool, Death, Star
+    const result = generateReadingSummary(cards, 'threeCard');
+    expect(result!.summary).toContain('The Fool');
+    expect(result!.summary).toContain('Death');
+    expect(result!.summary).toContain('The Star');
+  });
+
+  it('summaryZh contains Chinese card names', () => {
+    const cards = [makeCard(0), makeCard(13), makeCard(17)];
+    const result = generateReadingSummary(cards, 'threeCard');
+    expect(result!.summaryZh).toContain('愚者');
+    expect(result!.summaryZh).toContain('死神');
+    expect(result!.summaryZh).toContain('星星');
+  });
+
+  it('includes pattern note for all-reversed reading', () => {
+    const cards = [makeCard(0, true), makeCard(13, true), makeCard(17, true)];
+    const result = generateReadingSummary(cards, 'threeCard');
+    expect(result!.summary).toContain('inward');
+  });
+
+  it('includes iconic pair callout for Death+Star at Present+Future', () => {
+    // Death (13) at Present, Star (17) at Future — iconic pair 13-17
+    const cards = [makeCard(0), makeCard(13), makeCard(17)];
+    const result = generateReadingSummary(cards, 'threeCard');
+    expect(result!.summary).toContain('fertile ground');
+  });
+
+  it('does not crash for non-iconic combination', () => {
+    const cards = [makeCard(4), makeCard(5), makeCard(11)]; // Emperor, Hierophant, Justice
+    const result = generateReadingSummary(cards, 'threeCard');
+    expect(result).not.toBeNull();
+    expect(result!.summary.length).toBeGreaterThan(100);
+  });
+});

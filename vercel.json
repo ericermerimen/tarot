@@ -4,8 +4,5 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "github": {
-    "enabled": false
-  }
+  "installCommand": "npm install"
 }

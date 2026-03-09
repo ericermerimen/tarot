@@ -100,7 +100,9 @@
     "viewJournal": "占い日記で過去の記録を振り返りましょう",
     "sectionLove": "恋愛",
     "sectionAdvice": "アドバイス",
-    "sectionHealth": "健康"
+    "sectionHealth": "健康",
+    "spreadNotFound": "スプレッドが見つかりません",
+    "backToSpreads": "← スプレッド一覧に戻る"
   },
   "gallery": {
     "header": "カード一覧",

@@ -24,9 +24,9 @@ interface SpreadOption {
 
 const spreadOptions: SpreadOption[] = [
   { id: 'single', titleKey: 'spreadSingle', subKey: 'spreadSingleZh', descKey: 'spreadSingleDesc', index: '01' },
-  { id: 'threeCard', titleKey: 'spreadThree', subKey: 'spreadThreeZh', descKey: 'spreadThreeDesc', index: '02' },
+  { id: 'three-card', titleKey: 'spreadThree', subKey: 'spreadThreeZh', descKey: 'spreadThreeDesc', index: '02' },
   { id: 'love', titleKey: 'spreadLove', subKey: 'spreadLoveZh', descKey: 'spreadLoveDesc', index: '03' },
-  { id: 'celticCross', titleKey: 'spreadCeltic', subKey: 'spreadCelticZh', descKey: 'spreadCelticDesc', index: '04' },
+  { id: 'celtic-cross', titleKey: 'spreadCeltic', subKey: 'spreadCelticZh', descKey: 'spreadCelticDesc', index: '04' },
 ];
 
 function pickRandomCards(count: number) {
@@ -182,7 +182,7 @@ export default function Home() {
               >
                 <Box
                   component={Link}
-                  href={`/reading?spread=${spread.id}`}
+                  href={`/reading/${spread.id}`}
                   sx={{
                     display: 'flex', alignItems: 'center', gap: { xs: 2, sm: 3 },
                     px: { xs: 1, sm: 2 }, py: { xs: 1.5, sm: 2 },

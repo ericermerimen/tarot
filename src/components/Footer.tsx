@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useColorMode } from '@/theme/ColorModeContext';
 
 export default function Footer() {
   const { mode } = useColorMode();
+  const t = useTranslations('footer');
   const isDark = mode === 'dark';
 
   const bg = isDark ? '#0d0d0f' : '#f0ede8';
@@ -33,7 +35,7 @@ export default function Footer() {
           color: textDim,
         }}
       >
-        © {new Date().getFullYear()} · DOG_TAROT
+        {t('copyright', { year: new Date().getFullYear() })}
       </Typography>
 
       <Box

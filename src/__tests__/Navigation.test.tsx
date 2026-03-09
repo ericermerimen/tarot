@@ -1,38 +1,51 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { ThemeProvider, createTheme } from '@mui/material'
+import { NextIntlClientProvider } from 'next-intl'
 
-// Mock next/navigation
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/',
-}))
-
-// Mock next/link
-vi.mock('next/link', () => ({
-  default: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => (
+// Mock next-intl navigation
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => (
     <a href={href} {...props}>{children}</a>
   ),
+  usePathname: () => '/',
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
 }))
 
 import Navigation from '@/components/Navigation'
 
 const theme = createTheme({ palette: { mode: 'dark' } })
 
+const messages = {
+  nav: {
+    home: 'Home',
+    daily: 'Daily Card',
+    reading: 'Reading',
+    gallery: 'Gallery',
+    journal: 'Journal',
+    brand: 'DOG_TAROT',
+    light: 'LIGHT',
+    dark: 'DARK',
+  },
+}
+
 function renderWithTheme(ui: React.ReactElement) {
-  return render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>)
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <ThemeProvider theme={theme}>{ui}</ThemeProvider>
+    </NextIntlClientProvider>
+  )
 }
 
 describe('Navigation', () => {
   it('renders the app title', () => {
     renderWithTheme(<Navigation />)
-    // Navigation renders the compact monospace brand label
     const titles = screen.getAllByText(/DOG_TAROT/)
     expect(titles.length).toBeGreaterThanOrEqual(1)
   })
 
   it('renders all navigation items', () => {
     renderWithTheme(<Navigation />)
-    // Each nav item appears in both desktop toolbar and mobile drawer
     expect(screen.getAllByText('Home').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('Daily Card').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('Reading').length).toBeGreaterThanOrEqual(1)
@@ -55,5 +68,10 @@ describe('Navigation', () => {
     expect(hrefs).toContain('/reading')
     expect(hrefs).toContain('/gallery')
     expect(hrefs).toContain('/journal')
+  })
+
+  it('renders locale switcher buttons', () => {
+    renderWithTheme(<Navigation />)
+    expect(screen.getAllByText('EN').length).toBeGreaterThanOrEqual(1)
   })
 })

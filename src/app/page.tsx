@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Box,
@@ -51,8 +51,16 @@ const spreadOptions: SpreadOption[] = [
   },
 ];
 
+function pickRandomCards(count: number) {
+  return [...tarotCards].sort(() => Math.random() - 0.5).slice(0, count);
+}
+
 export default function Home() {
-  const featuredCards = [tarotCards[0], tarotCards[17], tarotCards[19]];
+  const [featuredCards, setFeaturedCards] = useState(() => [tarotCards[0], tarotCards[10], tarotCards[21]]);
+
+  useEffect(() => {
+    setFeaturedCards(pickRandomCards(3));
+  }, []);
 
   return (
     <Box sx={{ minHeight: '100vh', pb: { xs: 4, md: 8 }, bgcolor: 'background.default' }}>

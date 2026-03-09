@@ -71,6 +71,27 @@ const messages = {
     keywords: 'KEYWORDS',
     cardBreakdown: 'CARD_BREAKDOWN',
     cards: 'CARDS',
+    intentPhaseTitle: 'SET_YOUR_INTENTION',
+    intentPhaseDesc: 'Take a breath.',
+    intentNotePlaceholder: 'What is your question?',
+    drawCards: 'DRAW_THE_CARDS',
+    yourQuestion: 'YOUR_QUESTION',
+    dailyCardEcho: 'Your daily card {cardName} echoes here in the {position} position',
+    affirmation: '> AFFIRMATION',
+    copyReading: 'COPY_READING',
+    copied: 'COPIED',
+    keyTakeaway: 'KEY_TAKEAWAY',
+    reflectOn: 'REFLECT_ON_THIS',
+    goDeeper: 'GO_DEEPER',
+    tryThreeCard: 'Try Three Card',
+    tryLove: 'Try Love',
+    tryCelticCross: 'Try Celtic Cross',
+    trySingle: 'Try Single',
+    tryDaily: 'Try Daily',
+    viewJournal: 'View Journal',
+    sectionLove: 'LOVE',
+    sectionAdvice: 'ADVICE',
+    sectionHealth: 'HEALTH',
   },
 }
 
@@ -100,11 +121,12 @@ describe('Reading Page', () => {
   it('renders all four spread tabs', () => {
     renderPage()
     const tabs = screen.getAllByRole('tab')
-    const tabLabels = tabs.map(t => t.textContent)
-    expect(tabLabels).toContain('SINGLE')
-    expect(tabLabels).toContain('THREE_CARD')
-    expect(tabLabels).toContain('LOVE')
-    expect(tabLabels).toContain('CELTIC_CROSS')
+    const tabTexts = tabs.map(t => t.textContent)
+    expect(tabTexts).toContain('SINGLE')
+    expect(tabTexts).toContain('THREE_CARD')
+    // LOVE also appears as an intention tag; check it exists among actual MUI tabs
+    expect(tabTexts.filter(t => t === 'LOVE').length).toBeGreaterThanOrEqual(1)
+    expect(tabTexts).toContain('CELTIC_CROSS')
   })
 
   it('defaults to single spread when no search param', () => {
@@ -113,16 +135,17 @@ describe('Reading Page', () => {
     expect(matches.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('renders a "New Reading" button', () => {
+  it('shows intention phase with Draw Cards button', () => {
     renderPage()
-    const buttons = screen.getAllByText(/NEW_READING/)
+    expect(screen.getAllByText(/SET_YOUR_INTENTION/).length).toBeGreaterThanOrEqual(1)
+    const buttons = screen.getAllByText(/DRAW_THE_CARDS/)
     expect(buttons.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('shows click-to-reveal instruction', () => {
+  it('shows intention tags for focus areas', () => {
     renderPage()
-    const instructions = screen.getAllByText(/TAP_EACH_CARD_TO_REVEAL/)
-    expect(instructions.length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('GENERAL').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('CAREER').length).toBeGreaterThanOrEqual(1)
   })
 
   it('respects spread search param for three-card', () => {

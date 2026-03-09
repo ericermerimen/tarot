@@ -5,6 +5,8 @@ import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { motion } from 'motion/react';
 import CardBack from './CardBack';
 import CardFront from './CardFront';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
+import { getCardName } from '@/utils/localeCards';
 import type { TarotCardData, CardSize } from '@/types/tarot';
 
 interface TarotCardProps {
@@ -26,6 +28,7 @@ export default function TarotCard({
   disabled = false,
   responsive = true,
 }: TarotCardProps) {
+  const locale = useCurrentLocale();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
@@ -118,41 +121,46 @@ export default function TarotCard({
         </Box>
       </Box>
 
-      {isFlipped && card && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Typography
-            variant="body2"
-            align="center"
-            sx={{
-              mt: { xs: 1, sm: 1.5 },
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 400,
-              color: '#c4a96e',
-              fontSize: '0.6rem',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-            }}
+      {isFlipped && card && (() => {
+        const primaryName = getCardName(card, locale);
+        const secondaryName = locale === 'en' ? card.nameZh : card.name;
+        const reversedSub = locale === 'zhTW' ? '(逆位)' : locale === 'ja' ? '(逆位)' : '↺';
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
           >
-            {card.name} {isReversed && '↺'}
-          </Typography>
-          <Typography
-            variant="caption"
-            align="center"
-            display="block"
-            sx={{
-              color: 'text.secondary',
-              fontSize: '0.6rem',
-              fontFamily: 'var(--font-noto-sans-tc)',
-            }}
-          >
-            {card.nameZh} {isReversed && '(逆位)'}
-          </Typography>
-        </motion.div>
-      )}
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{
+                mt: { xs: 1, sm: 1.5 },
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 400,
+                color: '#c4a96e',
+                fontSize: '0.6rem',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {primaryName} {isReversed && '↺'}
+            </Typography>
+            <Typography
+              variant="caption"
+              align="center"
+              display="block"
+              sx={{
+                color: 'text.secondary',
+                fontSize: '0.6rem',
+                fontFamily: 'var(--font-noto-sans-tc)',
+              }}
+            >
+              {secondaryName} {isReversed && reversedSub}
+            </Typography>
+          </motion.div>
+        );
+      })()}
     </motion.div>
   );
 }

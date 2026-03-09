@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslations } from 'next-intl';
@@ -47,8 +47,23 @@ export default function DailyCard() {
   const t = useTranslations('daily');
   const locale = useCurrentLocale();
   const [dailyReading, setDailyReading] = useState<DrawnCard | null>(() => loadOrGenerateDaily());
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [showMeaning, setShowMeaning] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return JSON.parse(sessionStorage.getItem('dailyCardFlipped') || 'false');
+    }
+    return false;
+  });
+  const [showMeaning, setShowMeaning] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return JSON.parse(sessionStorage.getItem('dailyCardShowMeaning') || 'false');
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('dailyCardFlipped', JSON.stringify(isFlipped));
+    sessionStorage.setItem('dailyCardShowMeaning', JSON.stringify(showMeaning));
+  }, [isFlipped, showMeaning]);
 
   const generateDailyCard = () => {
     const today = new Date().toDateString();

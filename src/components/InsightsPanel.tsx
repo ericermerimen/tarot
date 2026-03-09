@@ -4,6 +4,8 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { tarotCards } from '@/data/tarotCards';
 import { computeStreak, topCard, topCardByTag, reversalRate } from '@/lib/journalStats';
+import { useCurrentLocale } from '@/hooks/useCurrentLocale';
+import { getCardName } from '@/utils/localeCards';
 import type { ReadingRecord, IntentionTag } from '@/types/reading';
 
 const TAGS: IntentionTag[] = ['career', 'love', 'self', 'finance', 'health', 'general'];
@@ -40,6 +42,7 @@ interface InsightsPanelProps {
 }
 
 export default function InsightsPanel({ readings }: InsightsPanelProps) {
+  const locale = useCurrentLocale();
   if (readings.length < 3) return null;
 
   const streak = computeStreak(readings);
@@ -54,14 +57,14 @@ export default function InsightsPanel({ readings }: InsightsPanelProps) {
   const monthTopCard = monthTopId !== null ? tarotCards.find((c) => c.id === monthTopId) : null;
 
   // Per-tag insights (only tags with >= 2 readings)
-  const tagInsights: { tag: IntentionTag; cardName: string; cardNameZh: string }[] = [];
+  const tagInsights: { tag: IntentionTag; displayName: string }[] = [];
   for (const tag of TAGS) {
     const tagCount = readings.filter((r) => r.intention?.tag === tag).length;
     if (tagCount < 2) continue;
     const cardId = topCardByTag(readings, tag);
     if (cardId === null) continue;
     const card = tarotCards.find((c) => c.id === cardId);
-    if (card) tagInsights.push({ tag, cardName: card.name, cardNameZh: card.nameZh });
+    if (card) tagInsights.push({ tag, displayName: getCardName(card, locale) });
   }
 
   return (
@@ -78,17 +81,41 @@ export default function InsightsPanel({ readings }: InsightsPanelProps) {
       {topCardData && (
         <StatRow
           label="TOP_CARD (all time)"
-          value={`${topCardData.name.toUpperCase()} · ${topCardData.nameZh}`}
+          value={getCardName(topCardData, locale).toUpperCase()}
         />
       )}
       {monthTopCard && monthReadings.length >= 2 && (
         <StatRow
           label={`TOP_CARD (${thisMonth})`}
-          value={`${monthTopCard.name.toUpperCase()} · ${monthTopCard.nameZh}`}
+          value={getCardName(monthTopCard, locale).toUpperCase()}
         />
       )}
-      <StatRow label="STREAK" value={streak > 0 ? `${streak} DAY${streak === 1 ? '' : 'S'} · 連續 ${streak} 天` : 'NO_STREAK'} />
-      <StatRow label="REVERSAL_RATE" value={`${rate}% reversed · ${rate}% 逆位`} />
+      <StatRow
+        label="STREAK"
+        value={
+          streak > 0
+            ? locale === 'zhTW'
+              ? `連續 ${streak} 天`
+              : locale === 'ja'
+                ? `${streak} 日連続`
+                : `${streak} DAY${streak === 1 ? '' : 'S'}`
+            : locale === 'zhTW'
+              ? '無連續'
+              : locale === 'ja'
+                ? '連続なし'
+                : 'NO_STREAK'
+        }
+      />
+      <StatRow
+        label="REVERSAL_RATE"
+        value={
+          locale === 'zhTW'
+            ? `${rate}% 逆位`
+            : locale === 'ja'
+              ? `${rate}% 逆位置`
+              : `${rate}% reversed`
+        }
+      />
 
       {/* Per-tag patterns */}
       {tagInsights.length > 0 && (
@@ -96,11 +123,11 @@ export default function InsightsPanel({ readings }: InsightsPanelProps) {
           <Typography sx={{ fontFamily: 'var(--font-mono)', fontSize: '0.55rem', color: 'secondary.dark', letterSpacing: '0.1em', mb: 1 }}>
             PATTERNS_BY_INTENT ————————
           </Typography>
-          {tagInsights.map(({ tag, cardName, cardNameZh }) => (
+          {tagInsights.map(({ tag, displayName }) => (
             <StatRow
               key={tag}
               label={`IN ${TAG_LABELS[tag]}`}
-              value={`${cardName.toUpperCase()} · ${cardNameZh}`}
+              value={displayName.toUpperCase()}
             />
           ))}
         </Box>

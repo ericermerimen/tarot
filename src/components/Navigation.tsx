@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
 const localeLabels: Record<Locale, string> = {
   en: 'EN',
   zhTW: '中文',
-  jp: '日本語',
+  ja: '日本語',
 };
 
 interface ThemeToggleProps {

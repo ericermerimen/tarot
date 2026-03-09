@@ -22,12 +22,14 @@ describe('tarotCards data', () => {
     expect(names.size).toBe(22)
   })
 
-  it('every card has bilingual name fields', () => {
+  it('every card has trilingual name fields', () => {
     for (const card of tarotCards) {
       expect(card.name).toBeTruthy()
       expect(card.nameZh).toBeTruthy()
+      expect(card.nameJa).toBeTruthy()
       expect(card.dogBreed).toBeTruthy()
       expect(card.dogBreedZh).toBeTruthy()
+      expect(card.dogBreedJa).toBeTruthy()
     }
   })
 

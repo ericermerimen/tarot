@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { tarotCards, spreadTypes } from '@/data/tarotCards';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
-import { getCardName, getKeywords, getMeaning } from '@/utils/localeCards';
+import { getCardName, getKeywords, getMeaning, getSpreadName, selectLocaleText } from '@/utils/localeCards';
 import { Link } from '@/i18n/navigation';
 import type { SpreadKey } from '@/types/tarot';
 import type { ReadingRecord } from '@/types/reading';
@@ -123,7 +123,7 @@ export default function Journal() {
               const spread = spreadTypes[reading.spread as SpreadKey] || spreadTypes.single;
               const isExpanded = expandedReading === index;
               const spreadKey = reading.spread.toUpperCase().replace(/\s+/g, '_');
-              const spreadName = locale === 'zhTW' ? spread.nameZh : spread.name;
+              const spreadName = getSpreadName(spread, locale);
 
               return (
                 <motion.div key={reading.date} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -100 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
@@ -177,7 +177,7 @@ export default function Journal() {
                                   {t('readingResult')}
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: 'text.primary', lineHeight: 1.8, fontSize: '0.82rem', whiteSpace: 'pre-line' }}>
-                                  {locale === 'zhTW' ? reading.summary.textZh : reading.summary.text}
+                                  {selectLocaleText(locale, reading.summary.text, reading.summary.textZh, reading.summary.textJa || reading.summary.text)}
                                 </Typography>
                               </Box>
                             )}

@@ -12,11 +12,13 @@ export interface ReadingCardRecord {
   isReversed: boolean;
   position: string;
   positionZh: string;
+  positionJa?: string;
 }
 
 export interface ReadingSummary {
   text: string;
   textZh: string;
+  textJa?: string;
 }
 
 export interface ReadingRecord {

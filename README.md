@@ -1,72 +1,173 @@
 # Mystical Dog Tarot | 神秘狗狗塔羅
 
-A mystical tarot divination web app where each of the 22 Major Arcana cards is represented by a unique dog breed. Built with Next.js, TypeScript, MUI, and Motion for React.
-
-一個神秘的塔羅牌占卜網站，以可愛的狗狗風格設計。22張大阿爾卡納牌各有獨特的狗狗品種與神秘元素。
-
-## Why This Project
-
-Tarot apps often feel either too generic or too cluttered. This project explores how to build a polished, feature-rich divination experience with:
-
-- **AI-generated card art** — each of the 22 Major Arcana cards is rendered from a unique AI-generated PNG, giving rich, painterly detail without hand-coding graphics
-- **WebGL shader effects** — animated card backgrounds via custom GLSL fragment shaders (active in fallback rendering path)
-- **Full bilingual support** — English and Traditional Chinese coexist in a single data model, not separate i18n files
-- **Client-side persistence** — localStorage for daily cards and reading history, zero backend needed
+A mystical tarot divination web app where each of the 22 Major Arcana cards is represented by a unique dog breed. Built with Next.js 16, TypeScript, MUI v5, and Motion for React.
 
 ## Features
 
-- **22 Major Arcana Cards** — each card displays a unique AI-generated dog breed illustration
+- **22 Major Arcana Cards** — AI-generated dog breed illustrations
 - **Multiple Reading Spreads** — Single card, Three card, Love reading, Celtic Cross (10 cards)
-- **Daily Card** — persisted daily guidance with one card per day
+- **Daily Card** — persisted daily guidance (one card per day via localStorage)
 - **Card Gallery** — browse all cards with detailed upright/reversed meanings
-- **Reading Journal** — save and review past readings from localStorage
-- **Mystical Effects** — particle canvas background, Motion for React card flips, WebGL shader fallback
+- **Reading Journal** — save and review past readings
+- **i18n** — URL-based locale routing (`/en`, `/zhTW`, `/jp`) via next-intl
+- **State Persistence** — tarot results survive language switches (sessionStorage)
+- **Visual Effects** — particle canvas background, card flip animations, WebGL shader fallback
 
 ## Tech Stack
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| Framework | Next.js 16 (App Router, Turbopack) | File-based routing, SSR support, Emotion compiler integration |
-| Language | TypeScript (strict mode) | Full type safety across domain models, components, and pages |
-| UI | MUI v5 + Emotion | Rich component library with `sx` prop styling, custom dark theme |
-| Animation | Motion for React | Declarative animations for card flips, page transitions, accordions |
-| Card Art | AI-generated PNG (`public/cards/`) | Rich painterly illustrations served as static assets via `next/image` |
-| Rendering (fallback) | WebGL (GLSL shaders) | Custom animated gradients on card backgrounds when no image asset exists |
-| Background | Canvas 2D API | Star and particle system behind all page content |
-| Testing | Vitest + React Testing Library | Fast unit and component tests with jsdom |
-| Deployment | Vercel | Zero-config Next.js hosting |
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Language | TypeScript (strict mode) |
+| UI | MUI v5 + Emotion |
+| Animation | Motion for React |
+| i18n | next-intl (locale-based URL routing) |
+| Card Art | AI-generated PNG (`public/cards/`) |
+| Rendering (fallback) | WebGL (GLSL shaders) |
+| Background | Canvas 2D particle system |
+| Testing | Vitest + React Testing Library |
+| Deployment | Vercel |
+
+## Quick Start
+
+```bash
+npm install
+npm run dev        # http://localhost:3000 → redirects to /en
+npm run build
+npm test
+npx tsc --noEmit   # type check
+npm run lint
+```
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── layout.tsx                    # Root layout shell (passthrough)
+│   └── [locale]/                     # Locale-segmented routes
+│       ├── layout.tsx                # Locale layout (fonts, providers, NextIntlClientProvider)
+│       ├── page.tsx                  # Home page
+│       ├── daily/page.tsx            # Daily card
+│       ├── reading/page.tsx          # Reading spreads
+│       ├── gallery/page.tsx          # Card gallery
+│       ├── journal/page.tsx          # Reading journal
+│       └── error.tsx                 # Error boundary
+├── components/
+│   ├── TarotCard.tsx                 # Card component (flip animation)
+│   ├── CardFront.tsx                 # Card front (image + SVG overlay, or legacy SVG fallback)
+│   ├── CardBack.tsx                  # Card back design
+│   ├── Navigation.tsx                # Nav bar + language switcher
+│   ├── Footer.tsx                    # Footer
+│   ├── ParticleBackground.tsx        # Canvas 2D star/particle system
+│   ├── cards/                        # ⚠️ LEGACY — SVG dog illustrations (fallback only)
+│   └── shaders/                      # ⚠️ LEGACY — WebGL shader (fallback only)
+├── data/
+│   └── tarotCards.ts                 # 22 Major Arcana definitions + spread configs
+├── i18n/
+│   ├── routing.ts                    # Locale config (en, zhTW, jp)
+│   ├── request.ts                    # Server-side message loading
+│   └── navigation.ts                # Locale-aware Link, useRouter, usePathname
+├── hooks/
+│   └── useCurrentLocale.ts           # Typed locale hook
+├── utils/
+│   ├── localeCards.ts                # Locale-aware card data selectors
+│   └── readingSummary.ts             # Multi-card reading summary generator
+├── types/
+│   ├── tarot.ts                      # Domain types (TarotCardData, DrawnCard, SpreadType)
+│   └── reading.ts                    # Persistence types (ReadingRecord, DailyCardStorage)
+├── theme/
+│   ├── theme.ts                      # MUI dark theme + custom mystical palette
+│   ├── ThemeRegistry.tsx             # Emotion SSR cache
+│   └── ColorModeContext.tsx          # Dark/light mode toggle
+├── proxy.ts                          # Next.js 16 locale middleware (was middleware.ts)
+└── __tests__/                        # Vitest test suite
+
+messages/
+├── en.json                           # English UI strings
+├── zhTW.json                         # Traditional Chinese UI strings
+└── jp.json                           # Japanese UI strings
+
+public/cards/
+├── card-00.png … card-21.png         # AI-generated card art
+```
+
+## Internationalization (i18n)
+
+The app uses [next-intl](https://next-intl.dev/) with URL-based locale routing.
+
+### Supported Locales
+
+| Locale | URL Prefix | Language |
+|--------|-----------|----------|
+| `en` | `/en/...` | English (default) |
+| `zhTW` | `/zhTW/...` | Traditional Chinese |
+| `jp` | `/jp/...` | Japanese |
+
+### How It Works
+
+1. **Routing** — `src/i18n/routing.ts` defines supported locales. All pages live under `src/app/[locale]/`.
+2. **Middleware** — `src/proxy.ts` detects locale from URL prefix, cookies, or Accept-Language header. Redirects `/` → `/en`.
+3. **Messages** — UI strings in `messages/{locale}.json`. Loaded per-request via `src/i18n/request.ts`.
+4. **Components** — Use `useTranslations('namespace')` for UI text. Use `localeCards.ts` helpers for card data (name, meaning, keywords) based on current locale.
+5. **Navigation** — `src/i18n/navigation.ts` exports locale-aware `Link`, `useRouter`, `usePathname`. All internal links automatically include the locale prefix.
+6. **Language Switcher** — `EN | 中文 | 日本語` buttons in the nav bar. Uses `router.replace(pathname, { locale })` for client-side locale switching.
+
+### State Persistence During Language Switch
+
+When the user switches language on the reading page, the URL changes (e.g. `/en/reading` → `/zhTW/reading`), which would normally reset React state. To preserve tarot results:
+
+- Reading state (drawn cards, flipped state, spread selection) is continuously saved to `sessionStorage`
+- On page mount, the reading page checks `sessionStorage` for saved state and restores it
+- State is cleared after successful restoration
+
+This means a user can draw cards, flip them, see results, switch language, and their reading remains intact — only the UI text changes.
+
+### Card Data Localization
+
+Card data (names, meanings, keywords) lives in `src/data/tarotCards.ts` with parallel fields (`name`/`nameZh`, `meaning`/`meaningZh`). The `src/utils/localeCards.ts` module provides selector functions that pick the correct field based on locale:
+
+```ts
+getCardName(card, locale)    // → "The Fool" or "愚者"
+getMeaning(meaning, locale)  // → { meaning, love, career, health, advice }
+getKeywords(card, locale)    // → ["beginnings", ...] or ["新開始", ...]
+getPositions(spread, locale) // → ["Past", "Present", "Future"] or ["過去", "現在", "未來"]
+```
+
+Japanese (`jp`) currently falls back to English card data. To add full JP card content, add `nameJp`, `meaningJp`, etc. fields to `TarotCardData` and update the selector switch cases.
+
+### Adding a New Locale
+
+1. Add the locale code to `src/i18n/routing.ts` → `locales` array
+2. Create `messages/{locale}.json` with all UI string keys
+3. Add a label in `Navigation.tsx` → `localeLabels` map
+4. Optionally add card data fields in `tarotCards.ts` and selector cases in `localeCards.ts`
 
 ## Architecture Decisions
 
-**App Router only** — no Pages Router. All routes live under `src/app/`. Every page is a client component (`'use client'`) since all features rely on browser APIs (localStorage, Canvas, WebGL).
+**App Router only** — No Pages Router. All routes under `src/app/[locale]/`. Pages are client components (`'use client'`) since they rely on browser APIs (localStorage, Canvas, WebGL).
 
-**Single data source** — `src/data/tarotCards.ts` defines all 22 cards with full bilingual content (name, dog breed, upright/reversed meanings for love/career/health, keywords, reflection questions, affirmations). Spreads are also defined here. This avoids scattering card data across components.
+**Single card data source** — `src/data/tarotCards.ts` defines all 22 cards with bilingual content (name, breed, upright/reversed meanings, keywords, reflections, affirmations). Spreads defined here too. Avoids scattering card data across components.
 
-**Type-driven domain model** — `src/types/tarot.ts` and `src/types/reading.ts` define shared interfaces (`TarotCardData`, `CardMeaning`, `DrawnCard`, `SpreadType`, `ReadingRecord`). Components and pages import these types, ensuring consistency across the entire app.
+**Type-driven domain model** — `src/types/tarot.ts` and `src/types/reading.ts` define shared interfaces. Components and pages import these types for consistency.
 
-**AI-generated image card art (primary path)** — Card art has migrated from programmatic SVG illustrations to AI-generated PNG files stored in `public/cards/` (`card-00.png` through `card-21.png`). The `TarotCardData` type includes an optional `imagePath` field; when present, `CardFront.tsx` renders the image via `next/image` with an SVG overlay for the gold border frame and bilingual text footer. All 22 cards currently have `imagePath` set, so this is the only active rendering path in production. Benefits: far richer visual detail, easier to update art without touching code, maintains Next.js image optimisation (lazy loading, responsive sizes, format conversion).
+**AI-generated image art (primary)** — Card art via `public/cards/card-XX.png`. `CardFront.tsx` renders image + SVG overlay (gold border, text). The `imagePath` field on `TarotCardData` controls the rendering path.
 
-**SVG illustration components are legacy fallback only** — The 22 dog breed SVG components under `components/cards/` (e.g., `FoolDog.tsx`, `MagicianDog.tsx`) and the WebGL `CardShaderCanvas` are still wired into `CardFront.tsx` as the fallback branch when `card.imagePath` is absent. Since every card currently has an image, these components are unreachable dead code at runtime. **Do not delete them yet** — they serve as a safety net if an image asset goes missing and act as the reference design for each breed. A future cleanup pass should either formally deprecate and remove them or move them behind a dev-only flag. Do not add new SVG illustration logic here; all new card art should go through the `imagePath` pipeline.
+**SVG illustrations are legacy fallback** — The 22 SVG dog components under `components/cards/` and WebGL `CardShaderCanvas` are wired as fallback when `imagePath` is absent. Currently unreachable since all cards have images. Do not delete yet — safety net if an image goes missing.
 
-**`imagePath` as the art contract** — `TarotCardData.imagePath` (optional `string`) is the single field that controls which rendering path `CardFront.tsx` takes. If you need to swap art for a card, update only `imagePath` in `tarotCards.ts` and drop the new file in `public/cards/`. No component changes required. Keep image files named with the card's zero-padded ID (`card-XX.png`) for predictability.
+**No global state** — Component-level `useState`/`useEffect` + `localStorage` for persistence. The app doesn't need Redux or Zustand.
 
-**SVG overlay on image cards** — even when using AI-generated images, `CardFront.tsx` renders an SVG layer on top for the gold border, corner ornaments, Chinese card name, and keyword text. This keeps the visual frame consistent across both rendering paths and means text/border styling stays in code rather than baked into each image asset.
-
-**MUI theme extension** — the dark mystical palette uses MUI's module augmentation pattern to add a custom `mystical` palette section (purple, gold, pink, blue, dark, glow), keeping all color tokens centralized.
-
-**No global state** — component-level `useState`/`useEffect` with `localStorage` for persistence. The app is simple enough that React Context or a state library would add complexity without benefit.
+**MUI theme extension** — Dark mystical palette uses module augmentation to add custom `mystical` palette section (purple, gold, pink, blue).
 
 ## Tradeoffs
 
-- **No i18n library** — bilingual strings are co-located in data structures (e.g., `name`/`nameZh`). This is simple for two languages but wouldn't scale to 5+. For this project, co-location keeps translations in sync.
-- **Static image assets** — AI-generated PNGs live in `public/cards/` and are served as static files. This keeps deployment simple but means updating card art requires a redeploy. If art changes frequently, a CDN or CMS-backed image pipeline would be worth the complexity.
-- **Legacy SVG components** — the original programmatic dog illustrations still exist but are now dead code. They add ~23 files and bundle weight that is never executed. A cleanup task should decide their fate before the codebase grows further.
-- **Client-only persistence** — localStorage means data doesn't sync across devices. A backend would add deployment complexity without clear benefit for a personal divination tool.
-- **WebGL in jsdom** — the shader component gracefully degrades since jsdom doesn't support `getContext('webgl')`. Tests focus on data and DOM rendering instead. The shader is currently only reachable via the legacy fallback path, so this is low risk.
+- **Static image assets** — PNGs in `public/cards/`. Simple but requires redeploy for art changes.
+- **Legacy SVG components** — ~23 files of dead code. Should be cleaned up or formally deprecated.
+- **Client-only persistence** — localStorage doesn't sync across devices. Acceptable for a personal divination tool.
+- **JP card data incomplete** — Japanese locale has full UI translations but card data falls back to English. Adding JP card content requires extending the data model.
+- **WebGL in jsdom** — Shader component gracefully degrades in tests. Only reachable via legacy fallback path.
 
 ## Card Designs
-
-Each Major Arcana is represented by a different dog breed:
 
 | Card | Dog Breed | 狗狗品種 |
 |------|-----------|----------|
@@ -93,84 +194,15 @@ Each Major Arcana is represented by a different dog breed:
 | Judgement | Angel Collie | 天使牧羊犬 |
 | The World | Dancing Shiba | 跳舞柴犬 |
 
-## Quick Deploy
+## Deploy
 
-### Deploy to Vercel (Recommended)
+### Vercel (Recommended)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ericermerimen/tarot&project-name=mystical-dog-tarot&repository-name=mystical-dog-tarot)
 
-### Deploy to Netlify
+### Netlify
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ericermerimen/tarot)
-
-## Local Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Run tests
-npm test
-
-# Type check
-npx tsc --noEmit
-
-# Lint
-npm run lint
-```
-
-Visit [http://localhost:3000](http://localhost:3000) to see the app.
-
-## Project Structure
-
-```
-src/
-├── app/                     # Next.js App Router
-│   ├── layout.tsx           # Root layout (fonts, ThemeRegistry, Navigation, ParticleBackground)
-│   ├── page.tsx             # Home page
-│   ├── daily/page.tsx       # Daily card feature
-│   ├── reading/page.tsx     # Reading spreads (Single, Three-card, Love, Celtic Cross)
-│   ├── gallery/page.tsx     # Card gallery with detail dialogs
-│   ├── journal/page.tsx     # Reading history / journal
-│   ├── error.tsx            # Route-level error boundary
-│   └── global-error.tsx     # Global error boundary
-├── components/              # Shared React components
-│   ├── TarotCard.tsx        # Main card component (flip animation)
-│   ├── CardFront.tsx        # Card front — branches on card.imagePath:
-│   │                        #   • imagePath present → next/image + SVG overlay (active path)
-│   │                        #   • imagePath absent  → legacy SVG dog + WebGL shader (fallback)
-│   ├── CardBack.tsx         # Card back design (SVG mystic pattern)
-│   ├── Navigation.tsx       # App-wide navigation bar
-│   ├── ParticleBackground.tsx  # Canvas 2D star/particle system
-│   ├── cards/               # ⚠️ LEGACY — SVG dog breed illustrations (fallback only)
-│   │   ├── index.ts         # DogIllustrations map + GenericDog export
-│   │   ├── FoolDog.tsx … WorldDog.tsx  # 22 card-specific SVG components (currently unreachable)
-│   │   └── GenericDog.tsx   # Fallback illustration
-│   └── shaders/             # ⚠️ LEGACY — only used when card.imagePath is absent
-│       ├── CardShaderCanvas.tsx  # WebGL shader renderer
-│       └── fragmentShader.ts     # GLSL fragment shader source
-├── data/
-│   └── tarotCards.ts        # All 22 Major Arcana + spread definitions
-│                            # imagePath field points to public/cards/card-XX.png
-├── types/
-│   ├── tarot.ts             # Domain types (TarotCardData, DrawnCard, SpreadType, etc.)
-│   │                        # imagePath?: string controls CardFront rendering path
-│   └── reading.ts           # Persistence types (ReadingRecord, DailyCardStorage)
-└── theme/
-    ├── theme.ts             # MUI dark theme with custom mystical palette
-    └── ThemeRegistry.tsx    # Emotion SSR cache provider
-
-public/
-└── cards/                   # AI-generated card art (primary card images)
-    ├── card-00.png … card-21.png  # One PNG per Major Arcana (zero-padded ID)
-    └── card-base.png        # Base template reference
-```
 
 ## License
 

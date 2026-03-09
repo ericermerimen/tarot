@@ -368,8 +368,8 @@ const THEME_OPENING_ZH: Record<ThemeBucket, string> = {
 };
 
 export function buildClosingGuidance(outcomeCard: DrawnCard, theme: ThemeBucket): { en: string; zh: string } {
-  const label = outcomeCard.card.name + (outcomeCard.isReversed ? ' (Reversed)' : '');
-  const labelZh = outcomeCard.card.nameZh + (outcomeCard.isReversed ? ' (逆位)' : '');
+  const label = `**${outcomeCard.card.name}${outcomeCard.isReversed ? ' (Reversed)' : ''}**`;
+  const labelZh = `**${outcomeCard.card.nameZh}${outcomeCard.isReversed ? ' (逆位)' : ''}**`;
   return {
     en: `${label} closes this reading with an invitation to ${THEME_ACTION_EN[theme]}.`,
     zh: `${labelZh}以邀請結束這次解讀：${THEME_ACTION_ZH[theme]}。`,
@@ -383,12 +383,12 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
 
   const getCardLabel = (cardData: DrawnCard): string => {
     const rev = cardData.isReversed ? ' (Reversed)' : '';
-    return `${cardData.card.name}${rev}`;
+    return `**${cardData.card.name}${rev}**`;
   };
 
   const getCardLabelZh = (cardData: DrawnCard): string => {
     const rev = cardData.isReversed ? ' (逆位)' : '';
-    return `${cardData.card.nameZh}${rev}`;
+    return `**${cardData.card.nameZh}${rev}**`;
   };
 
   if (spreadType === 'threeCard') {

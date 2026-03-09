@@ -796,6 +796,13 @@ function CardMeaningPanel({ card, isReversed, position, positionZh }: CardMeanin
   );
 }
 
+function renderBoldText(text: string): React.ReactNode {
+  const parts = text.split(/\*\*(.*?)\*\*/g);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? <strong key={i} style={{ fontWeight: 600 }}>{part}</strong> : part
+  );
+}
+
 interface ReadingSummaryPanelProps {
   cards: DrawnCard[];
   spreadType: SpreadKey;
@@ -903,7 +910,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
           variant="body1"
           sx={{ lineHeight: 1.8, mb: 2, color: 'text.primary', whiteSpace: 'pre-line' }}
         >
-          {summary.summary}
+          {renderBoldText(summary.summary)}
         </Typography>
 
         <Divider sx={{ my: 2, borderColor: 'divider' }} />
@@ -917,7 +924,7 @@ function ReadingSummaryPanel({ cards, spreadType, positions, positionsZh }: Read
             whiteSpace: 'pre-line',
           }}
         >
-          {summary.summaryZh}
+          {renderBoldText(summary.summaryZh)}
         </Typography>
 
         {/* Per-card position breakdown */}

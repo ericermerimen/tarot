@@ -100,7 +100,9 @@
     "viewJournal": "Review your past readings in the Journal",
     "sectionLove": "LOVE",
     "sectionAdvice": "ADVICE",
-    "sectionHealth": "HEALTH"
+    "sectionHealth": "HEALTH",
+    "spreadNotFound": "Spread not found",
+    "backToSpreads": "← Back to spreads"
   },
   "gallery": {
     "header": "CARD_GALLERY",

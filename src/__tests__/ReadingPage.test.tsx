@@ -9,6 +9,18 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => ({
     get: mockGet,
   }),
+  useParams: () => ({
+    spread: 'single',
+  }),
+}))
+
+// Mock next-intl navigation
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+  usePathname: () => '/reading',
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
 }))
 
 // Mock motion/react to avoid animation issues in jsdom
@@ -36,7 +48,8 @@ function filterDomProps(props: Record<string, unknown>) {
   return domProps
 }
 
-import ReadingPage from '@/app/[locale]/reading/page'
+import ReadingIndexPage from '@/app/[locale]/reading/page'
+import SpreadReadingPage from '@/app/[locale]/reading/[spread]/page'
 
 const theme = createTheme({ palette: { mode: 'dark' } })
 
@@ -92,14 +105,26 @@ const messages = {
     sectionLove: 'LOVE',
     sectionAdvice: 'ADVICE',
     sectionHealth: 'HEALTH',
+    spreadNotFound: 'Spread not found',
+    backToSpreads: '← Back to spreads',
   },
 }
 
-function renderPage() {
+function renderIndexPage() {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
       <ThemeProvider theme={theme}>
-        <ReadingPage />
+        <ReadingIndexPage />
+      </ThemeProvider>
+    </NextIntlClientProvider>
+  )
+}
+
+function renderSpreadPage() {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <ThemeProvider theme={theme}>
+        <SpreadReadingPage />
       </ThemeProvider>
     </NextIntlClientProvider>
   )
@@ -111,47 +136,48 @@ beforeEach(() => {
   mockGet.mockReturnValue(null)
 })
 
-describe('Reading Page', () => {
+describe('Reading Index Page', () => {
   it('renders the page title', () => {
-    renderPage()
+    renderIndexPage()
     expect(screen.getByText('Tarot Reading')).toBeInTheDocument()
     expect(screen.getByText('Tarot Divination')).toBeInTheDocument()
   })
 
-  it('renders all four spread tabs', () => {
-    renderPage()
-    const tabs = screen.getAllByRole('tab')
-    const tabTexts = tabs.map(t => t.textContent)
-    expect(tabTexts).toContain('SINGLE')
-    expect(tabTexts).toContain('THREE_CARD')
-    // LOVE also appears as an intention tag; check it exists among actual MUI tabs
-    expect(tabTexts.filter(t => t === 'LOVE').length).toBeGreaterThanOrEqual(1)
-    expect(tabTexts).toContain('CELTIC_CROSS')
+  it('renders all four spread options as links', () => {
+    renderIndexPage()
+    const links = screen.getAllByRole('link')
+    const hrefs = links.map(l => l.getAttribute('href'))
+    expect(hrefs).toContain('/reading/single')
+    expect(hrefs).toContain('/reading/three-card')
+    expect(hrefs).toContain('/reading/love')
+    expect(hrefs).toContain('/reading/celtic-cross')
   })
+})
 
-  it('defaults to single spread when no search param', () => {
-    renderPage()
-    const matches = screen.getAllByText(/Single Card/)
-    expect(matches.length).toBeGreaterThanOrEqual(1)
+describe('Spread Reading Page', () => {
+  it('renders the single card spread with intention phase', () => {
+    renderSpreadPage()
+    expect(screen.getAllByText(/Single Card/i).length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows intention phase with Draw Cards button', () => {
-    renderPage()
+    renderSpreadPage()
     expect(screen.getAllByText(/SET_YOUR_INTENTION/).length).toBeGreaterThanOrEqual(1)
     const buttons = screen.getAllByText(/DRAW_THE_CARDS/)
     expect(buttons.length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows intention tags for focus areas', () => {
-    renderPage()
+    renderSpreadPage()
     expect(screen.getAllByText('GENERAL').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('CAREER').length).toBeGreaterThanOrEqual(1)
   })
 
-  it('respects spread search param for three-card', () => {
-    mockGet.mockReturnValue('threeCard')
-    renderPage()
-    const matches = screen.getAllByText(/Three Card Spread/i)
-    expect(matches.length).toBeGreaterThanOrEqual(1)
+  it('shows spread navigation chips', () => {
+    renderSpreadPage()
+    // The current spread (single) should be shown as active
+    expect(screen.getAllByText('SINGLE').length).toBeGreaterThanOrEqual(1)
+    // Other spreads should be shown as navigation links
+    expect(screen.getAllByText('THREE_CARD').length).toBeGreaterThanOrEqual(1)
   })
 })

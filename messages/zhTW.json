@@ -100,7 +100,9 @@
     "viewJournal": "在日記中回顧過去的占卜記錄",
     "sectionLove": "感情",
     "sectionAdvice": "建議",
-    "sectionHealth": "健康"
+    "sectionHealth": "健康",
+    "spreadNotFound": "找不到此牌陣",
+    "backToSpreads": "← 返回牌陣列表"
   },
   "gallery": {
     "header": "牌卡圖鑑",

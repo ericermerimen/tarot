@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useTransition } from 'react';
 import {
   Box,
   Container,
@@ -16,7 +16,7 @@ import { useTranslations } from 'next-intl';
 import TarotCard from '@/components/TarotCard';
 import { getRandomCards, spreadTypes, tarotCards } from '@/data/tarotCards';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { getCardName, getKeywords, getMeaning, getSpreadName, getSpreadDescription, getPositions, selectLocaleText, getReflectionQuestions, getAffirmation } from '@/utils/localeCards';
 import { generateReadingSummary, getPositionalInterpretation, detectTheme, buildClosingGuidance } from '@/utils/readingSummary';
@@ -161,6 +161,14 @@ export interface ReadingViewProps {
 export default function ReadingView({ spreadKey }: ReadingViewProps) {
   const t = useTranslations('reading');
   const locale = useCurrentLocale();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSpreadSwitch = useCallback((slug: string) => {
+    startTransition(() => {
+      router.push(`/reading/${slug}`);
+    });
+  }, [router]);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -390,38 +398,48 @@ export default function ReadingView({ spreadKey }: ReadingViewProps) {
           </Typography>
         </Box>
 
-        {/* Spread navigation chips */}
-        <Box sx={{ mb: 3, display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+        {/* Spread navigation chips — only shown during intention phase */}
+        <Box sx={{
+          mb: 3, display: 'flex', gap: 0.75, flexWrap: 'wrap',
+          opacity: cardsDealt ? 0.4 : 1,
+          pointerEvents: cardsDealt ? 'none' : 'auto',
+          transition: 'opacity 0.3s ease',
+        }}>
           {([
             { key: 'single', slug: 'single', labelKey: 'single' },
             { key: 'threeCard', slug: 'three-card', labelKey: 'threeCard' },
             { key: 'love', slug: 'love', labelKey: 'love' },
             { key: 'celticCross', slug: 'celtic-cross', labelKey: 'celticCross' },
-          ] as const).map((item) => (
-            <Box
-              key={item.key}
-              component={item.key === spreadKey ? 'span' : Link}
-              {...(item.key !== spreadKey ? { href: `/reading/${item.slug}` } : {})}
-              sx={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.6rem',
-                letterSpacing: '0.08em',
-                px: 1.25,
-                py: 0.5,
-                border: '1px solid',
-                borderColor: item.key === spreadKey ? 'primary.main' : 'divider',
-                color: item.key === spreadKey ? 'primary.main' : 'text.secondary',
-                bgcolor: 'transparent',
-                cursor: item.key === spreadKey ? 'default' : 'pointer',
-                textDecoration: 'none',
-                transition: 'all 0.2s',
-                '&:hover': item.key !== spreadKey ? { borderColor: 'primary.main', color: 'primary.main' } : {},
-              }}
-            >
-              {t(item.labelKey)}
-            </Box>
-          ))}
+          ] as const).map((item) => {
+            const isActive = item.key === spreadKey;
+            return (
+              <Box
+                key={item.key}
+                component="button"
+                onClick={() => { if (!isActive) handleSpreadSwitch(item.slug); }}
+                sx={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.6rem',
+                  letterSpacing: '0.08em',
+                  px: 1.25,
+                  py: 0.5,
+                  border: '1px solid',
+                  borderColor: isActive ? 'primary.main' : 'divider',
+                  color: isActive ? 'primary.main' : 'text.secondary',
+                  bgcolor: 'transparent',
+                  cursor: isActive ? 'default' : 'pointer',
+                  transition: 'all 0.2s',
+                  '&:hover': !isActive ? { borderColor: 'primary.main', color: 'primary.main' } : {},
+                }}
+              >
+                {t(item.labelKey)}
+              </Box>
+            );
+          })}
         </Box>
+
+        {/* Content area — fades during spread switch transition */}
+        <Box sx={{ opacity: isPending ? 0.3 : 1, transition: 'opacity 0.2s ease', minHeight: 200 }}>
 
         {/* PRE-READING: Intention Setting Ritual */}
         <AnimatePresence mode="wait">
@@ -692,6 +710,7 @@ export default function ReadingView({ spreadKey }: ReadingViewProps) {
             </motion.div>
           )}
         </AnimatePresence>
+        </Box>{/* end content fade wrapper */}
       </motion.div>
     </Container>
   );

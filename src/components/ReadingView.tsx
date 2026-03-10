@@ -372,12 +372,12 @@ export default function ReadingView({ spreadKey }: ReadingViewProps) {
   })();
 
   // Build "Go Deeper" spread suggestions (exclude current spread)
-  const otherSpreads: { key: SpreadKey; slug: string; labelKey: string }[] = [
-    { key: 'single', slug: 'single', labelKey: 'trySingle' },
-    { key: 'threeCard', slug: 'three-card', labelKey: 'tryThreeCard' },
-    { key: 'love', slug: 'love', labelKey: 'tryLove' },
-    { key: 'celticCross', slug: 'celtic-cross', labelKey: 'tryCelticCross' },
-  ].filter(s => s.key !== spreadKey);
+  const otherSpreads = ([
+    { key: 'single' as SpreadKey, slug: 'single', labelKey: 'trySingle' },
+    { key: 'threeCard' as SpreadKey, slug: 'three-card', labelKey: 'tryThreeCard' },
+    { key: 'love' as SpreadKey, slug: 'love', labelKey: 'tryLove' },
+    { key: 'celticCross' as SpreadKey, slug: 'celtic-cross', labelKey: 'tryCelticCross' },
+  ]).filter(s => s.key !== spreadKey);
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>

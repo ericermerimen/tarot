@@ -2,7 +2,7 @@
   "name": "mystical-dog-tarot",
   "version": "1.0.0",
   "private": true,
-  "description": "A mystical tarot divination website featuring cute dog-styled cards | 神秘狗狗塔羅牌占卜網站",
+  "description": "A dog-themed tarot web app for daily reflection",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

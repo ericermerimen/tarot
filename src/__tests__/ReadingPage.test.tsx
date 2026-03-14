@@ -57,7 +57,7 @@ const messages = {
   reading: {
     header: 'TAROT_READING',
     title: 'Tarot Reading',
-    subtitle: 'Tarot Divination',
+    subtitle: 'Choose a Spread',
     tapEachCard: 'TAP_EACH_CARD_TO_REVEAL',
     loading: 'LOADING...',
     single: 'SINGLE',
@@ -140,7 +140,7 @@ describe('Reading Index Page', () => {
   it('renders the page title', () => {
     renderIndexPage()
     expect(screen.getByText('Tarot Reading')).toBeInTheDocument()
-    expect(screen.getByText('Tarot Divination')).toBeInTheDocument()
+    expect(screen.getByText('Choose a Spread')).toBeInTheDocument()
   })
 
   it('renders all four spread options as links', () => {

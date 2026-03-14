@@ -13,8 +13,8 @@ export default function Error({ error, reset }: ErrorProps) {
   const t = useTranslations('error');
   return (
     <Container maxWidth="sm" sx={{ py: 8, textAlign: 'center' }}>
-      <Box sx={{ p: 4, background: 'rgba(20, 10, 40, 0.9)', borderRadius: 3, border: '1px solid rgba(156, 124, 244, 0.3)' }}>
-        <Typography variant="h4" sx={{ fontFamily: 'Cinzel', mb: 2, background: 'linear-gradient(135deg, #c4a8ff 0%, #f4cf7c 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+      <Box sx={{ p: 4, background: 'rgba(20, 10, 40, 0.9)', borderRadius: 3, border: '1px solid rgba(196, 169, 110, 0.3)' }}>
+        <Typography variant="h4" sx={{ fontFamily: 'Cormorant Garamond', mb: 2, background: 'linear-gradient(135deg, #c4a96e 0%, #e8d5a3 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           {t('title')}
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>

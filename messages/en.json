@@ -10,9 +10,9 @@
     "dark": "DARK"
   },
   "home": {
-    "status": "ORACLE_SYS — INITIALIZED",
-    "title": "Mystical Dog Tarot",
-    "subtitle": "Mystical Dog Tarot Divination",
+    "status": "DOG_TAROT — READY",
+    "title": "Dog Tarot",
+    "subtitle": "Pull a card. Frame your day.",
     "deckInfo": "DECK · 22 / SPREADS · 04",
     "dailyCard": "DAILY CARD",
     "startReading": "START READING",
@@ -53,7 +53,7 @@
   "reading": {
     "header": "TAROT_READING",
     "title": "Tarot Reading",
-    "subtitle": "Tarot Divination",
+    "subtitle": "Choose a Spread",
     "tapEachCard": "TAP_EACH_CARD_TO_REVEAL",
     "loading": "LOADING...",
     "single": "SINGLE",
@@ -140,7 +140,7 @@
   },
   "error": {
     "title": "Something went wrong",
-    "description": "The mystical energies got a little tangled. Let's try again.",
+    "description": "Something went wrong. Let's try again.",
     "tryAgain": "Try Again"
   },
   "footer": {

@@ -33,9 +33,9 @@ const notoSansTC = Noto_Sans_TC({
 });
 
 export const metadata: Metadata = {
-  title: 'Mystical Dog Tarot | 神秘狗狗塔羅',
-  description: 'Divine your future with cute dog-styled tarot cards. Experience mystical readings with adorable canine companions.',
-  keywords: 'tarot, divination, fortune telling, dog tarot, 塔羅牌, 占卜, 算命, 狗狗塔羅',
+  title: 'Dog Tarot | 狗狗塔羅',
+  description: 'Pull a card. Frame your day. Dog-themed tarot for a quick morning reflection.',
+  keywords: 'tarot, daily card, reflection, morning routine, dog tarot, 塔羅牌, 每日一卡, 反思, 狗狗塔羅',
   icons: {
     icon: '/favicon.svg',
   },

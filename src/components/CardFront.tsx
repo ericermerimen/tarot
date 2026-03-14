@@ -243,7 +243,7 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
         <text
           x="90" y="27"
           textAnchor="middle"
-          fontFamily="Cinzel, serif"
+          fontFamily="'Cormorant Garamond', serif"
           fontSize="14"
           fontWeight="bold"
           fill="#f4cf7c"
@@ -261,7 +261,7 @@ export default function CardFront({ card, isReversed, width, height }: CardFront
         <text
           x="90" y="244"
           textAnchor="middle"
-          fontFamily="Cinzel, serif"
+          fontFamily="'Cormorant Garamond', serif"
           fontSize="12"
           fontWeight="bold"
           fill="#f4cf7c"

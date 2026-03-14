@@ -49,9 +49,9 @@ export function getPositionalInterpretation(
         ja: `「課題」の位置の${nameJa}は、二人で乗り越えるべきことを示しています：${loveTextJa}`,
       },
       outcome: {
-        en: `${name} in the Outcome position reveals where your love story is heading: ${loveText}`,
-        zh: `「結果」位置的${nameZh}揭示了你的愛情故事走向：${loveTextZh}`,
-        ja: `「結果」の位置の${nameJa}は、あなたの恋の物語が向かう先を明らかにしています：${loveTextJa}`,
+        en: `${name} in the Outcome position suggests what might unfold from here: ${loveText}`,
+        zh: `「結果」位置的${nameZh}暗示了從此刻起可能展開的方向：${loveTextZh}`,
+        ja: `「結果」の位置の${nameJa}は、ここから何が展開しうるかを示唆しています：${loveTextJa}`,
       },
     };
     const frame = frames[posLower];
@@ -133,9 +133,9 @@ export function getPositionalInterpretation(
         ja: `「希望/恐れ」の位置の${nameJa}は、あなたが同時に望み恐れていることを明らかにしています——この二つはしばしば鏡のように映し合います：${contextTextJa}`,
       },
       outcome: {
-        en: `${name} in the Outcome position reveals the most likely result if the current energies continue on their path: ${contextText}`,
-        zh: `「結果」位置的${nameZh}揭示了如果當前能量持續下去的最可能結果：${contextTextZh}`,
-        ja: `「結果」の位置の${nameJa}は、現在のエネルギーがこのまま続いた場合の最も可能性の高い結果を明らかにしています：${contextTextJa}`,
+        en: `${name} in the Outcome position reflects the direction things seem to be heading based on what's present now: ${contextText}`,
+        zh: `「結果」位置的${nameZh}反映了基於當前狀況，事物似乎正在發展的方向：${contextTextZh}`,
+        ja: `「結果」の位置の${nameJa}は、今ある状況をもとに、物事が向かっているように見える方向を映しています：${contextTextJa}`,
       },
     };
     const frame = frames[posLower];
@@ -345,9 +345,9 @@ const ICONIC_PAIRS: Record<string, PairInsight> = {
     ja: '影と崩壊が衝突します——抑圧されてきたものが、招かれたかどうかに関わらず、今まさに突き破ろうとしています。',
   },
   '19-21': { // Sun + World
-    en: 'Radiant joy and wholeness together — this is the reading of someone arriving at where they were always heading.',
-    zh: '燦爛的喜悅與圓滿同在——這是一個人抵達他們一直前往之處的解讀。',
-    ja: '輝かしい喜びと全体性が共にあります——これは、ずっと向かっていた場所にたどり着いた人のリーディングです。',
+    en: 'Radiant joy and wholeness together — this is the reading of someone stepping into a place that feels deeply right.',
+    zh: '燦爛的喜悅與圓滿同在——這是一個人踏入一個深感對的地方的解讀。',
+    ja: '輝かしい喜びと全体性が共にあります——これは、深くしっくりくる場所に足を踏み入れた人のリーディングです。',
   },
   '7-8': { // Chariot + Strength
     en: 'Outer drive meets inner courage — lasting progress here requires both force of will and compassion.',
@@ -694,7 +694,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
       `The roots of this moment lie in the recent past, where ${getCardLabel(past)} speaks of ${pastM.meaning.toLowerCase()} From here, the energy shifts toward ${getCardLabel(future)} in the near future: ${futureM.meaning.toLowerCase()}`,
       `Above you, ${getCardLabel(above)} reflects your conscious aspirations — ${aboveM.meaning.toLowerCase()} Beneath the surface, ${getCardLabel(below)} uncovers deeper undercurrents: ${belowM.meaning.toLowerCase()}`,
       `When it comes to guidance, ${getCardLabel(advice)} offers a clear directive: ${adviceM.advice ?? adviceM.meaning.toLowerCase()} Meanwhile, ${getCardLabel(external)} reveals the outside forces shaping your situation: ${externalM.meaning.toLowerCase()}`,
-      `Your inner hopes and fears converge in ${getCardLabel(hopes)}: ${hopesM.meaning.toLowerCase()} And the reading resolves into ${getCardLabel(outcome)} as the most likely outcome — ${outcomeM.meaning.toLowerCase()}`,
+      `Your inner hopes and fears converge in ${getCardLabel(hopes)}: ${hopesM.meaning.toLowerCase()} And the reading resolves into ${getCardLabel(outcome)}, pointing toward the direction things seem to be moving — ${outcomeM.meaning.toLowerCase()}`,
     ].join('\n\n');
 
     const narrativeZh = [
@@ -703,7 +703,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
       `這一刻的根源在於近期的過去，${getCardLabelZh(past)}訴說著${pastM.meaningZh}由此，能量轉向了近期未來的${getCardLabelZh(future)}：${futureM.meaningZh}`,
       `在你之上，${getCardLabelZh(above)}反映了你意識層面的願望——${aboveM.meaningZh}在表面之下，${getCardLabelZh(below)}揭示了更深層的暗流：${belowM.meaningZh}`,
       `在指引方面，${getCardLabelZh(advice)}給出了明確的方向：${adviceM.adviceZh ?? adviceM.meaningZh}同時，${getCardLabelZh(external)}揭示了影響你處境的外在力量：${externalM.meaningZh}`,
-      `你內心的希望與恐懼匯聚在${getCardLabelZh(hopes)}：${hopesM.meaningZh}而解讀最終指向${getCardLabelZh(outcome)}作為最可能的結果——${outcomeM.meaningZh}`,
+      `你內心的希望與恐懼匯聚在${getCardLabelZh(hopes)}：${hopesM.meaningZh}而解讀指向${getCardLabelZh(outcome)}，暗示了事物似乎正在發展的方向——${outcomeM.meaningZh}`,
     ].join('\n\n');
 
     const narrativeJa = [
@@ -712,7 +712,7 @@ export function generateReadingSummary(cards: DrawnCard[], spreadType: SpreadKey
       `この瞬間の根は近い過去にあり、${getCardLabelJa(past)}が語りかけています：${pastM.meaningJa}ここから、エネルギーは近い未来の${getCardLabelJa(future)}へと移り変わります：${futureM.meaningJa}`,
       `あなたの上方に、${getCardLabelJa(above)}が意識的な願望を映しています——${aboveM.meaningJa}その水面下では、${getCardLabelJa(below)}がより深い潮流を明らかにしています：${belowM.meaningJa}`,
       `導きにおいて、${getCardLabelJa(advice)}は明確な指針を示しています：${adviceM.adviceJa ?? adviceM.meaningJa}一方で、${getCardLabelJa(external)}があなたの状況を形作る外的な力を明らかにしています：${externalM.meaningJa}`,
-      `あなたの希望と恐れは${getCardLabelJa(hopes)}に集約されています：${hopesM.meaningJa}そしてリーディングは${getCardLabelJa(outcome)}を最も可能性の高い結果として示しています——${outcomeM.meaningJa}`,
+      `あなたの希望と恐れは${getCardLabelJa(hopes)}に集約されています：${hopesM.meaningJa}そしてリーディングは${getCardLabelJa(outcome)}へと向かい、物事が動いているように見える方向を示しています——${outcomeM.meaningJa}`,
     ].join('\n\n');
 
     const finalParts = [narrativeEn];
